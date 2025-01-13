@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Responsive Login Page" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>farmers login</title>
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Font Awesome -->
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      rel="stylesheet"
+    />
+    <!-- Custom CSS -->
+    <style>
+      body {
+        font-family: 'Poppins', sans-serif;
+       background-image: url('/images/login4.jpg');
+       background-repeat: no-repeat;
+       background-size: cover;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+      }
+
+      .card {
+        border-radius: 20px;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+
+      .login-section {
+        padding: 2rem;
+      }
+
+      .login-image {
+        background: url('/images/login5.jpg')
+          no-repeat center center;
+        background-size: cover;
+      }
+
+      .form-control {
+        border-radius: 50px;
+        padding: 0.8rem 1.5rem;
+      }
+
+      .btn-primary {
+        background-color: #66a6ff;
+        border: none;
+        padding: 0.7rem 1.5rem;
+        border-radius: 50px;
+        transition: background-color 0.3s;
+      }
+
+      .btn-primary:hover {
+        background-color: #89f7fe;
+      }
+
+      .social-btns a {
+        width: 50px;
+        height: 50px;
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 50%;
+        background-color: #f8f9fa;
+        margin-right: 10px;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s;
+      }
+
+      .social-btns a:hover {
+        transform: scale(1.1);
+      }
+
+      .error-message {
+        color: red;
+        font-size: 0.85rem;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-lg-8">
+          <div class="card">
+            <div class="row g-0">
+              <div class="col-lg-6 login-image"></div>
+              <div class="col-lg-6 login-section">
+                <h2 
+                style="color:#036635; 
+                       font-family: 'Poppins', sans-serif; 
+                       font-size: 2.5rem; 
+                       font-weight: 700; 
+                       text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3); 
+                       letter-spacing: 2px;" 
+                class="text-center mb-4">
+                WELCOME TO <br> FARMERS LOGIN
+              </h2>
+              
+                <form id="loginform" method="post" action="/login">
+                  <div class="mb-3">
+                    <label for="email" class="form-label" style="font-weight: bold; font-size: 1rem; color: #333;">Email</label>
+<input
+  type="email"
+  class="form-control"
+  name="email"
+  id="email"
+  placeholder="Enter your email"
+  style="border: 2px solid #036635; border-radius: 8px; padding: 10px; font-size: 1rem; color: #555;"
+/>
+<div id="error1" class="error-message" style="font-size: 0.85rem; color: red; margin-top: 5px;"></div>
+
+<div class="mb-3">
+  <label for="password" class="form-label" style="font-weight: bold; font-size: 1rem; color: #333;">Password</label>
+  <input
+    type="password"
+    class="form-control"
+    name="password"
+    id="password"
+    placeholder="Enter your password"
+    style="border: 2px solid #036635; border-radius: 8px; padding: 10px; font-size: 1rem; color: #555;"
+  />
+  <div id="error2" class="error-message" style="font-size: 0.85rem; color: red; margin-top: 5px;"></div>
+</div><br>
+
+<% if (locals.message && message.length > 0) { %>
+<div class="alert alert-danger text-center" style="margin-top: 15px; padding: 10px; font-size: 1rem; border-radius: 5px; background-color: #f8d7da; color: #721c24;">
+  <%= message %>
+</div>
+<% } %>
+<% if (error === 'blocked') { %>
+  <p class="text-danger">Your account is Google blocked by admin. Please contact support.</p>
+<% } %>
+
+
+<div class="d-flex justify-content-between align-items-center">
+  <button
+    type="submit"
+    class="btn btn-primary"
+    style="background-color: #036635; border: none; padding: 10px 20px; border-radius: 8px; font-size: 1rem; transition: background-color 0.3s;"
+    onmouseover="this.style.backgroundColor='#024022'"
+    onmouseout="this.style.backgroundColor='#036635'" > Log In </button>
+    <!-- <% if (typeof message !== 'undefined' && message) { %>
+        <h4 style="color: red; text-align: center;font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;" ><%= message %></h4>
+    <% } %> -->
+
+
+</div><br>
+    <div class="text-muted">OR</div><br>
+                    <div class="social-btns">
+                      <a href="/auth/google">
+                        <i class="fab fa-google text-danger"></i>
+                      </a>
+                     
+                    </div>
+                  </div>
+                </form>
+                <div class="text-center mt-3">
+                  <a href="/signup" class="text-decoration-none">
+                    Not registered? <strong>Sign up</strong>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap Bundle JS -->
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"
+    ></script>
+  </body>
+</html>

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 Error Page</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<style>
+    /* Reset some default styles */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Arial', sans-serif;
+    background-color: #f0f0f5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* Error Page Container */
+.error-page {
+    text-align: center;
+    background: #ffffff;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    width: 90%;
+}
+
+/* Error Code */
+.error-page h1 {
+    font-size: 120px;
+    margin: 0;
+    color: #ff6b6b;
+    font-weight: bold;
+}
+
+/* Error Message */
+.error-page h2 {
+    font-size: 24px;
+    color: #333;
+}
+
+/* Description */
+.error-page p {
+    color: #666;
+    font-size: 16px;
+    margin: 10px 0 20px;
+}
+
+/* Button */
+.error-page .btn {
+    display: inline-block;
+    padding: 12px 24px;
+    background-color: #ff6b6b;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+.error-page .btn:hover {
+    background-color: #ff4c4c;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .error-page h1 {
+        font-size: 100px;
+    }
+
+    .error-page h2 {
+        font-size: 20px;
+    }
+
+    .error-page p {
+        font-size: 14px;
+    }
+
+    .error-page .btn {
+        padding: 10px 20px;
+        font-size: 14px;
+    }
+}
+
+</style>
+<body>
+    <div class="error-page">
+        <h1>404</h1>
+        <h2>Oops! Page Not Found</h2>
+        <p>The page you're looking for doesn't exist or has been moved.</p>
+        <a href="/admin" class="btn">Go Back to Dashboard</a>
+    </div>
+</body>
+</html>

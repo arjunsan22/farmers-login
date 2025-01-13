@@ -1,0 +1,100 @@
+:root {
+    --background: #1a1a2e;
+    --color: #a78484;
+    
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: "Poppins", sans-serif;
+  
+}
+
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.login-container {
+    position: relative;
+    width: 350px;
+    height: 422px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(5px);
+}
+
+.form-container {
+    padding: 20px;
+    text-align: center;
+}
+
+h1 {
+    margin-bottom: 20px;
+    color: var(--primary-color);
+    font-size: 24px;
+    text-transform: uppercase;
+}
+
+form input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+form button {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    background-color: var(--primary-color);
+    color: white;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+form button:hover {
+    background-color: #1a1a2e;
+}
+
+.circle {
+    position: absolute;
+    background: var(--primary-color);
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+}
+
+.circle-one {
+    top: -50px;
+    left: -50px;
+}
+
+.circle-two {
+    bottom: -50px;
+    right: -50px;
+}
+
+.opacity {
+    opacity: 0.8;
+}
+
+.illustration {
+    width: 100px;
+    margin-bottom: 10px;
+}
