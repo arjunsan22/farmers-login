@@ -10,18 +10,18 @@
 //     }
 // };
 
-// // const isLogout = async (req, res, next) => {
-// //     try {
-// //         if (req.session.user_id) {
-// //             res.redirect('/'); // ************************Redirect to the home page if already logged in
-// //         } else {
-// //             next(); }
-// //     } catch (error) {
-// //         console.log("Error in isLogout:", error.message);
-// //     }
-// // };
+const isLogout = async (req, res, next) => {
+    try {
+        if (req.session.user_id) {
+            res.redirect('/'); // ************************Redirect to the home page if already logged in
+        } else {
+            next(); }
+    } catch (error) {
+        console.log("Error in isLogout:", error.message);
+    }
+};
 
-// module.exports = {
-//     isLogin,
-//     // isLogout
-// };
+module.exports = {
+    // isLogin,
+    isLogout
+};

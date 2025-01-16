@@ -36,7 +36,7 @@
 }
 
 .navbar .nav-link i:hover {
-  color: #ff9d42;
+  color: #ffffff;
 }
 
 .navbar .dropdown-menu a:hover {
@@ -67,20 +67,20 @@
 }
 
 .search-input {
-  border-radius: 20px;
-  border: 1px solid #ced4da;
+  border-radius: 10px;
+  border: 1px solid #151a1e;
   padding: 8px 12px;
   font-size: 16px;
 }
 
 .search-button {
-  border-radius: 20px;
+  border-radius: 10px;
   padding: 8px 16px;
 }
 
 .search-input:focus {
   outline: none;
-  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+  box-shadow: 0 0 5px rgba(9, 10, 10, 0.5);
 }
 
        
@@ -91,12 +91,20 @@
 <body>
    
       <!-- Navigation -->
-<nav class="navbar navbar-expand-lg navbar-light bg-success fixed-top shadow-sm">
+<nav style="background-color:   #1f4e38" class="navbar navbar-expand-lg navbar-light  fixed-top shadow-sm">
     <div class="container">
-      <!-- Brand -->
-      <a class="navbar-brand fw-bold" href="/" style="font-family:cursive;color: #ffffff;">
-        FARMERS LOGIN
-      </a>
+      <img src="/images/logofarmerslogin.PNG" 
+      alt="Farmers Login Logo" 
+      style="height: 52px; width: auto; object-fit: contain;">
+       <!-- Brand -->
+      <a class="navbar-brand fw-bold" href="/" 
+      style="font-family: 'Oswald', serif;
+             font-optical-sizing: auto;
+             font-weight: bold;
+             font-style: normal;
+             color: #ffffff;">
+faRMers LOGiN   </a>
+   
   
       <!-- Navbar Toggler -->
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
@@ -107,17 +115,17 @@
       <div class="collapse navbar-collapse" id="navbarResponsive">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item">
-            <a style="font-family:cursive;color: #ffffff;" class="nav-link active" href="/">HOME</a>
+            <a style="font-family:cursive;color: #ffffff;" class="nav-link active" href="/">home</a>
           </li>
           <li class="nav-item">
-            <a style="font-family:cursive;color: #ffffff;" class="nav-link" href="about.html">BLOG</a>
+            <a style="font-family:cursive;color: #ffffff;" class="nav-link" href="about.html">blog</a>
           </li>
           <li class="nav-item">
-            <a style="font-family:cursive;color: #ffffff;" class="nav-link" href="blog.html">SHOP</a>
+            <a style="font-family:cursive;color: #ffffff;" class="nav-link" href="blog.html">Shop</a>
           </li>
           <li class="nav-item dropdown">
             <a style="font-family:cursive;color: #ffffff;" class="nav-link dropdown-toggle" href="#" id="categoryDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              CATEGORY
+             category
             </a>
             <ul class="dropdown-menu" aria-labelledby="categoryDropdown">
               <li><a style="font-family:cursive;color: #120909;" class="dropdown-item" href="portfolio-1-col.html">VEGEES</a></li>
@@ -125,18 +133,24 @@
             </ul>
           </li>
           <li class="nav-item">
-            <a style="font-family:cursive;color: #ffffff;" class="nav-link" href="contact.html">CONTACT</a>
+            <a style="font-family:cursive;color: #ffffff;" class="nav-link" href="contact.html">contact</a>
           </li>
         </ul>
   
         <!-- Search Bar -->
-        <form class="search-bar d-flex" role="search">
-            <input class="form-control me-2 search-input" type="search" placeholder="Search for products..." aria-label="Search">
-            <button class="btn btn-outline-success search-button" type="submit">
-              <i class="fas fa-search"></i>
-            </button>
-          </form>
-          
+        <form class="search-bar d-flex" role="search" style="background: transparent; border: none;">
+          <input class="form-control me-2 search-input" 
+                 type="search" 
+                 placeholder="Search for products..." 
+                 aria-label="Search" 
+                 style="background: transparent; border: 1px solid rgba(255, 255, 255, 0.5); color: white; outline: none;">
+          <button class="btn search-button" 
+                  type="submit" 
+                  style="background: transparent; border: none; color: white;">
+            <i class="fas fa-search"></i>
+          </button>
+        </form>
+        
   <!-- User Profile Dropdown -->
 <% if (locals.user) { %>
     <div class="dropdown" onmouseover="openDropdown()" onmouseout="closeDropdown()">
@@ -147,12 +161,12 @@
      </button>
         
       <ul class="dropdown-menu" id="userDropdownMenu">
-         <a style="color: hsl(39, 100%, 55%);" class="nav-link" href="#" id="userDropdown">
+         <a style="background-color: #e7e0e0;" class="nav-link" href="#" id="userDropdown">
        <h6 style="text-transform: uppercase;"> WELCOME <%= user.firstname %> <%= user.lastname %></h6>
        
       </a>
-        <li><a class="dropdown-item" href="/userProfile">PROFILE</a></li>
-        <li><a class="dropdown-item" href="/logout">LOGOUT</a></li>
+        <li><a class="dropdown-item text-white" href="/userProfile">PROFILE</a></li>
+        <li><a class="dropdown-item text-white" href="/logout">LOGOUT</a></li>
       </ul>
     </div>
   <% } else { %>

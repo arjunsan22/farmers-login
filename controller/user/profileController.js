@@ -6,7 +6,7 @@ const session = require('express-session');
 const Product=require('../../models/productModel')
 const Category=require('../../models/categoryModel');
 const express = require('express');
-
+const Address=require('../../models/addressModel');
 
 function generateOTP(){
     const digits='0123456789';
@@ -176,6 +176,9 @@ res.render('login', { message: "Password reset successfully",error:null });
 }
 
 
+
+//profile page//
+
 const loadProfilePage=async (req,res) => {
     try{
         const userId=req.session.user;
@@ -189,31 +192,302 @@ const loadProfilePage=async (req,res) => {
     }
 }
 
-// const loadchangeEmail=async (req,res) => {
-//     try{
-//         res.render('changeEmail')
-//         // const userId=req.session.user;
-//         // const userData=await User.findById(userId);
-// }
-// catch(error){
-//     console.error(error);
-//     res.redirect('/pagenotfound');
-// }
-// }
 
-// const changeEmail=async (req,res) => {
-//     try{
+
+//email changing//
+
+
+
+
+const loadchangeEmail=async (req,res) => {
+    try{
+        res.render('changeEmail')
+       
+}
+catch(error){
+    console.error(error);
+    res.redirect('/pagenotfound');
+}
+
+}
+
+
+
+
+
+
+
+//checking email for otp//
+
+const changeEmail=async (req,res) => {
+    try{
     
-// const{email}=req.body;
-// const userExists=await User.findOne({email});
-// if(userExists){
-//     const otp=generateOTP();
-// }
+const{email}=req.body;
+const userExists=await User.findOne({email});
+if(userExists){
+    const otp=generateOTP();
+const emailSent=await sendVerificationEmail(email,otp);
+if(emailSent){
+    req.session.userOtp=otp;
+    req.session.userData=req.body
+    req.session.email=email;
+    res.render('changeEmail-OTP')
+    console.log("OTP sent successfully",otp);
+    console.log("Email sent to:",email);
 
-//     }catch(error){
+}
+else{
+   res.json({success:false,message:"Error in sending email"})
+}
+
+}else{
+    res.render('changeEmail',{message:"Email not found"})
+}
+
+    }catch(error){
+        console.log(error)
+        res.redirect('/pagenotfound');
+
+}
+}
+
+// const verifyEmailOTP=async (req,res) => {
+//     try{
+//         const {otp}=req.body;
+   
+//     const userOtp=req.session.userOtp;
+//     console.log("OTP from session:", req.session.userOtp);
+
+//     if(otp && otp===userOtp){
+//         res.json({success:true,redirectUrl:'/reset-email'}) //change
+//     }else{
+//         res.json({success:false,message:"Invalid OTP not maching"})
+//         res.render('forgotPassword-OTP',{message:"Invalid OTP"})
+//     }
+
+      
+//     }
+//     catch(error){
+  
+//     res.status(500).json({success:false,message:"Internal server error"})
+//     console.error(error);
 
 //     }
 // }
+const verifyEmailOTP = async (req, res) => {
+    try {
+        const { otp } = req.body;
+        const userOtp = req.session.userOtp;
+
+        console.log("OTP from session:", userOtp);
+        console.log("OTP provided by user:", otp);
+
+        // Compare OTPs as strings
+        if (otp && otp.toString() === userOtp.toString()) {
+            res.json({ success: true, redirectUrl: '/reset-email' });
+        } else {
+            res.json({ success: false, message: "Invalid OTP. Please try again." });
+        }
+    } catch (error) {
+        console.error("Error verifying OTP:", error);
+        res.status(500).json({ success: false, message: "Internal server error" });
+    }
+};
+
+
+
+
+
+
+
+
+const verifyEmailResendOTP=async (req,res) => {
+
+    try {
+        const otp=generateOTP();
+        req.session.userOtp=otp;
+        const email=req.session.email;
+        console.log("Resent OTP  to mail:",email);
+        const emailSent=await sendVerificationEmail(email,otp);
+        if(emailSent){
+            console.log("OTP resent successfully :",otp);
+            res.status(200).json({success:true,message:"OTP resent successfully"})
+        }
+    } catch (error) {
+        console.error("Error resending Otp",error)
+        res.status(500).json({success:false,message:"Internal Server Error,Try Again"})
+    }
+
+
+}
+
+const loadResetEmail=async (req,res) => {
+    try{
+        res.render('newEmail')
+    }
+    catch(error){
+        console.error(error);
+        res.redirect('/pagenotfound');
+    }
+}
+
+
+
+
+const isValidEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+};
+
+const resetEmail = async (req, res) => {
+    try {
+        const { newEmail } = req.body;
+        const email = req.session.email;
+
+        if (!email) {
+            return res.render('resetEmail', { message: "Session expired. Please try again.", error: null });
+        }
+
+        if (!isValidEmail(newEmail)) {
+            return res.render('resetEmail', { message: "Invalid email format. Please enter a valid email.", error: null });
+        }
+
+        const result = await User.updateOne({ email: email }, { $set: { email: newEmail } });
+
+        if (result.nModified === 0) {
+            return res.render('resetEmail', { message: "Email update failed. Please try again.", error: null });
+        }
+
+        console.log("Email updated successfully", result);
+        res.render('login', { message: "Email updated successfully", error: null });
+    } catch (error) {
+        console.error(error);
+        res.redirect('/pagenotfound');
+    }
+};
+
+
+
+//password change//
+
+const loadchangePasswordpage=async (req,res) => {
+    try{
+        res.render('changePassword')
+    }
+    catch(error){
+        console.error(error);
+        res.redirect('/pagenotfound');
+    }
+}
+
+
+
+const verfyChangePassword=async (req,res) => {
+
+try{
+    const { email } = req.body;
+    const userExists = await User.findOne({ email });
+
+    if (userExists) {
+        const otp = generateOTP();
+        const emailSent = await sendVerificationEmail(email, otp);
+
+  if (emailSent) {
+     req.session.userOtp = otp;
+        req.session.userData = req.body;
+     req.session.email = email;
+     console.log("OTP sent successfully:", otp);
+     res.render('changePassword-OTP');
+    
+    } else {
+    res.json({ success: false, message: "Error in sending email" });       
+    
+    }
+    } else {
+        res.render('changePassword', { message: "Email not found. Please check your details." });
+    }             
+
+}catch(error){
+
+console.error(error);
+res.redirect('/pagenotfound');
+}
+
+
+}
+
+
+const verfyingChangePasswordOTP=async (req,res) => {
+    try {
+        const { otp } = req.body;
+        const userOtp = req.session.userOtp;
+
+        console.log("OTP from session:", userOtp);
+        console.log("OTP provided by user:", otp);
+
+        // Compare OTPs as strings
+        if (otp && otp.toString() === userOtp.toString()) {
+            res.json({ success: true, redirectUrl: '/addnew-password' }); //addnew-password redirect url //
+        } else {
+            res.json({ success: false, message: "Invalid OTP. Please try again." });
+        }
+    } catch (error) {
+        console.error("Error verifying OTP:", error);
+        res.status(500).json({ success: false, message: "Internal server error" });
+    }
+};
+
+
+
+const loadAddNewPasswordPage=async (req,res) => {
+    try{
+        res.render('addNewPassword')
+    }
+    catch(error){
+        console.error(error);
+        res.redirect('/pagenotfound');
+    }
+}
+
+const addNewPassword=async (req,res) => {
+    try {
+        const { newPass1, newPass2 } = req.body;
+        const email = req.session.email;
+
+        if (newPass1 === newPass2) {
+            const passwordHash = await securePassword(newPass1);
+            let result = await User.updateOne(
+
+                { email: email },
+                { $set: { password: passwordHash } }
+            )
+            console.log("Password reset successfully", result);
+            res.render('login', { message: "Password reset successfully", error: null });
+
+        } else {
+            res.render('addNewPassword', { message: "Password not matching", error: null })
+        }
+    } catch (error) {
+        res.redirect('/pagenotfound');
+    }
+}
+
+const changePasswordResendbuttonOTP=async (req,res) => {
+    try {
+        const otp = generateOTP();
+        req.session.userOtp = otp;
+        const email = req.session.email;
+        console.log("Resent OTP  to mail:", email);
+        const emailSent = await sendVerificationEmail(email, otp);
+        if (emailSent) {
+            console.log("OTP resent successfully :", otp);
+            res.status(200).json({ success: true, message: "OTP resent successfully" })
+        }
+    } catch (error) {
+        console.error("Error resending Otp", error)
+        res.status(500).json({ success: false, message: "Internal Server Error,Try Again" })
+    }
+}
 
 module.exports = {
 
@@ -225,6 +499,16 @@ module.exports = {
     forgotPasswordResendOTP,
     resetPassword,
     loadProfilePage,
-    // loadchangeEmail,
-    // changeEmail
+    loadchangeEmail,
+    changeEmail,
+    verifyEmailOTP,
+    verifyEmailResendOTP,
+    loadResetEmail,
+    resetEmail,
+    loadchangePasswordpage,
+    verfyChangePassword,
+    verfyingChangePasswordOTP,
+    loadAddNewPasswordPage,
+    addNewPassword,
+    changePasswordResendbuttonOTP
 }

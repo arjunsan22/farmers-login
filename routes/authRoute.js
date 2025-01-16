@@ -59,9 +59,6 @@ router.get('/productDetails/:id', userController.loadProductDetails); //in here 
 
 //user profile forgot password and otp verification done !//
 
-// router.get('/changeEmail',profileController.loadchangeEmail)
-// // router.get('/changePassword',profileController.changePassword)
-// router.post('/changeEmail',profileController.changeEmail)
 router.get('/forgot-password',profileController.loadforgotpassword)
 router.post('/forgotEmailCheck',profileController.forgotEmailCheck)
 router.post('/password-forgot-verifyotp',profileController.forgotPasswordVerifyOTP)
@@ -73,10 +70,24 @@ router.post('/resetPassword',profileController.resetPassword)
 //user profile//
 
 router.get('/userProfile',profileController.loadProfilePage)
+ router.get('/changeEmail',profileController.loadchangeEmail)
+
+router.post('/changeEmail',profileController.changeEmail)//worked
+router.post('/verifyEmailOTP',profileController.verifyEmailOTP)
+router.post('/verifyEmailResend-OTP',profileController.verifyEmailResendOTP)
+router.get('/reset-email',profileController.loadResetEmail)
+router.post('/resetEmail',profileController.resetEmail)
 
 
+//password change//
 
-
+router.get('/changePassword',profileController.loadchangePasswordpage)
+router.post('/verify-email-password', profileController.verfyChangePassword);
+router.post('/changePassword-OTP',profileController.verfyingChangePasswordOTP)
+router.get('/addnew-password',profileController.loadAddNewPasswordPage)
+router.post('/addNewPassword',profileController.addNewPassword)
+//resend//
+router.post('/changePasswordResendbutton-OTP',profileController.changePasswordResendbuttonOTP)
 //logout
 router.get('/logout',userController.LoGout)
 
