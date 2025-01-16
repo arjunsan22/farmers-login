@@ -54,7 +54,12 @@ if(!productExists){
         productname:products.productName,
         description:products.description,
         category:categoryId._id,
+        offer:products.offer,
         mainPrice:products.regularPrice,
+        salePrice:products.salePrice,
+
+        
+        
         //saleprice
         createdOn:new Date(),
         quantity:products.quantity,
@@ -234,7 +239,63 @@ const deleteSingleImage=async (req,res) => {
     }
 }
 
+const addProductOffer = async (req, res) => {
+    try {
+        const { productId, percentage } = req.body;
 
+        const findProduct = await Product.findOne({ _id: productId });
+        const findCategory = await Category.findOne({ _id: findProduct.category });
+
+        // Checking if the category offer is greater than the product offer //
+        if (findCategory.categoryOffer > percentage) {
+            return res.json({ status: false, message: "This product's category already has a category offer" });
+        }
+
+        findProduct.salePrice = findProduct.salePrice - Math.floor(findProduct.mainPrice * (percentage / 100));
+
+        // Update the product offer////
+        findProduct.productOffer = parseInt(percentage);
+        await findProduct.save();
+
+        // Reset category offer to 0///
+        findCategory.categoryOffer = 0;
+        await findCategory.save();
+
+        // Send success response
+        return res.json({ status: true });
+
+    } catch (error) {
+        console.error("Error:", error);
+        return res.status(500).json({ status: false, message: "Internal Server Error" });
+    }
+};
+
+
+const removeProductOffer = async (req, res) => {
+    try {
+        const { productId } = req.body;
+        const findProduct = await Product.findOne({ _id: productId });
+
+        if (!findProduct) {
+            return res.status(404).json({ status: false, message: "Product not found" });
+        }
+
+        //checking salePrice and regularPrice are valid numbers//
+        const regularPrice = findProduct.mainPrice || 0;
+        const percentage = findProduct.productOffer || 0;
+
+        findProduct.salePrice = regularPrice;
+
+        findProduct.productOffer = 0;
+
+        await findProduct.save();
+        res.json({ status: true });
+
+    } catch (error) {
+        console.error("Error:", error);
+        res.status(500).json({ status: false, message: "Internal Server Error" });
+    }
+};
 
 
 
@@ -248,6 +309,7 @@ module.exports={
     EditProducts,
     updateProduct,
     deleteSingleImage,
-   
+    addProductOffer,
+    removeProductOffer
 
 }

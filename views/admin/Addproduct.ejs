@@ -148,6 +148,18 @@
                                 <div id="regularPrice-error" class="error-message"></div>
                             </div>
                         
+                            <div class="row">
+                                <div class="col-lg-4 mb-4">
+                                    <label class="form-label"> Sale Price</label>
+                                    <input placeholder="₹" name="salePrice" type="text" class="form-control">
+                                    <div id="salePrice-error" class="error-message"></div>
+                                </div>
+
+
+                          
+                                
+
+
                             <div class="col-lg-4 mb-4">
                                 <label class="form-label">Quantity</label>
                                 <input placeholder="kg" name="quantity" type="text" class="form-control">
@@ -380,7 +392,10 @@ addedImagesContainer.appendChild(thumbnail);
               const description = document.getElementById('descriptionid').value;
               
               const price = document.getElementsByName('regularPrice')[0].value;
+
+              const salePrice = document.getElementsByName('salePrice')[0].value;
               const tag = document.getElementsByName('tag')[0].value;
+              
 
               const category = document.getElementsByName('category')[0].value;
               const images = document.getElementById('input1')
@@ -420,8 +435,14 @@ addedImagesContainer.appendChild(thumbnail);
                   isValid = false;
               }
   
-  
-  
+              if (!/^\d+(\.\d{1,2})?$/.test(salePrice) || parseFloat(salePrice) < 0 ) {
+    displayErrorMessage('salePrice-error', 'Please enter a valid non-negative and sale price lower than the original price.');
+    isValid = false;
+
+
+}
+
+
   
 //               if (!/^\d+(\.\d{1,2})?$/.test(saleprice) || parseFloat(saleprice) < 0) {
 //                   displayErrorMessage('salePrice-error', 'Please enter a valid non-negative price.');

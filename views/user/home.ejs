@@ -55,6 +55,7 @@
 
 }
 
+
     </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
@@ -146,110 +147,76 @@
         </div>
     </div>
 </section>
+<br>
 
+<br>
 <!-- product listing section -->
+<section>
 
-<br><br>
 <section class="container my-5 text-center">
     <h2 class="mb-4 fw-bold text-danger">FRESH VEGETABLES & FRUITS</h2>
     <br>
     <!-- Product Listing Grid -->
-    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 justify-content-center">
+   
+ <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 justify-content-center">
 
         <!-- Product Card Template -->
-     
+        <% if (products && products.length > 0) { %>
+    <% for(let i=0;i<products.length;i++){%>
         <div class="col">
+            <a href="/productDetails/<%= products[i]._id %>">
+
             <div class="card h-100 shadow-sm border-0 product-card">
-                <img src="/images/pexels-nipananlifestyle-com-625927-1424457.jpg" class="card-img-top product-img" alt="">
-                <a href="/wishlist/add/product-id" class="btn btn-outline-danger btn-sm">
-                    <i class="fas fa-heart"></i> 
-                </a>
+
+                <img src="/uploads/product-images/<%=products[i].productImage[0]%>" class="card-img-top product-img" alt="<%=products[i].productname%>">
+               
+                <a href="/addToWishlist?id=<%=products[i]._id%>" class="btn btn-outline-danger btn-sm"><i class="fas fa-heart"></i>  </a>
+
                 <div class="card-body text-start">
-                    <h5 class="card-title fw-bold"></h5>
-                    <p class="card-text text-muted"></p>
+                    <h5 class="card-title fw-bold"><%=products[i].productname%></h5>
+                    <!-- prise -->
+                    <p class="card-text text-muted">₹ <%=products[i].mainPrice%></p>
                     <div class="d-flex justify-content-between align-items-center">
-                        <a href="" class="btn btn-outline-primary btn-sm">View Details</a>
-                        
-                        <button class="btn btn-outline-secondary btn-sm add-to-cart-btn" data-id="product-id">
-                            <i class="fas fa-shopping-cart" style="font-size: 24px;"></i>
-                        </button>
+                        <div class="stars">
+                            ★★★★☆ <p style="font-size:medium;">4.5 ratings</p>
+                          </div>
+                          
+                          <style>
+                            .stars {
+                              font-size: 30px;
+                              color: gold;
+                            }
+                          </style>
+                          
+                       
+                        <!-- <a href="/productDetails?id=<%=products[i]._id%>" class="btn btn-outline-primary btn-sm">View Details</a> -->
+
+
+                        <button 
+                        class="btn btn-secondary" 
+                        onclick="window.location.href=''">
+                        <i class="fas fa-shopping-cart"></i> 
+                    </button>
+
+                    
                     </div>
                 </div>
             </div>
+            </a>
         </div>
-  
+   
+        <%}%>
+        <% } else { %>
+            <p>No products available.</p>
+        <% } %>
 
 
 
-        <div class="col">
-            <div class="card h-100 shadow-sm border-0 product-card">
-                <img src="/images/dummy3.jpg" class="card-img-top product-img" alt="">
-                <a href="/wishlist/add/product-id" class="btn btn-outline-danger btn-sm">
-                    <i class="fas fa-heart"></i> 
-                </a>
-                <div class="card-body text-start">
-                    <h5 class="card-title fw-bold"></h5>
-                    <p class="card-text text-muted"></p>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <a href="" class="btn btn-outline-warning btn-sm">View Details</a>
-                        
-                        <button class="btn btn-outline-secondary btn-sm add-to-cart-btn" data-id="product-id">
-                            <i class="fas fa-shopping-cart" style="font-size: 24px;"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
+        
         </div>
-  
-  
-        <div class="col">
-            <div class="card h-100 shadow-sm border-0 product-card">
-                <img src="/images/dummy1.webp" class="card-img-top product-img" alt="">
-                <a href="/wishlist/add/product-id" class="btn btn-outline-danger btn-sm">
-                    <i class="fas fa-heart"></i> 
-                </a>
-                <div class="card-body text-start">
-                    <h5 class="card-title fw-bold"></h5>
-                    <p class="card-text text-muted"></p>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <a href="" class="btn btn-outline-primary btn-sm">View Details</a>
-                        
-                        <button class="btn btn-outline-secondary btn-sm add-to-cart-btn" data-id="product-id">
-                            <i class="fas fa-shopping-cart" style="font-size: 24px;"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-  
-  
-
-
-        <div class="col">
-            <div class="card h-100 shadow-sm border-0 product-card">
-                <img src="/images/dummy2.webp" class="card-img-top product-img" alt="">
-                <a href="/wishlist/add/product-id" class="btn btn-outline-danger btn-sm">
-                    <i class="fas fa-heart"></i> 
-                </a>
-                <div class="card-body text-start">
-                    <h5 class="card-title fw-bold"></h5>
-                    <p class="card-text text-muted"></p>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <a href="" class="btn btn-outline-warning btn-sm">View Details</a>
-                        
-                        <button class="btn btn-outline-secondary btn-sm add-to-cart-btn" data-id="product-id">
-                            <i class="fas fa-shopping-cart" style="font-size: 24px;"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-  
-  
-
-    </div>
-</section>
-<br>
+    </section>
+   
+    <br>
 
 
 <section id="newarrivals" class="container my-5 text-center">
@@ -260,7 +227,7 @@
 
         <!-- Product Card Template -->
         <% if (products && products.length > 0) { %>
-    <% for(let i=0;i<products.length;i++){%>
+    <% for(let i=0;i<4;i++){%>
         <div class="col">
             <a href="/productDetails/<%= products[i]._id %>">
 
@@ -319,107 +286,74 @@
 <section class="container my-5 text-center">
     <h2 class="mb-4 fw-bold text-black-50 text-hover-primary">HOT DEALS</h2>
     <br>
-    
-    <!-- Product Listing Grid -->
+
     <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 justify-content-center">
 
         <!-- Product Card Template -->
-     
+        <% if (products && products.length > 0) { %>
+    <% for(let i=0;i<products.length;i++){%>
+        
         <div class="col">
+            <a href="/productDetails/<%= products[i]._id %>">
+
             <div class="card h-100 shadow-sm border-0 product-card">
-                <img src="/images/pexels-nipananlifestyle-com-625927-1424457.jpg" class="card-img-top product-img" alt="">
-                <a href="/wishlist/add/product-id" class="btn btn-outline-danger btn-sm">
-                    <i class="fas fa-heart"></i> 
-                </a>
+
+                <img src="/uploads/product-images/<%=products[i].productImage[0]%>" class="card-img-top product-img" alt="<%=products[i].productname%>">
+               
+                <a href="/addToWishlist?id=<%=products[i]._id%>" class="btn btn-outline-danger btn-sm"><i class="fas fa-heart"></i>  </a>
+
                 <div class="card-body text-start">
-                    <h5 class="card-title fw-bold"></h5>
-                    <p class="card-text text-muted"></p>
+                    <h5 class="card-title fw-bold"><%=products[i].productname%></h5>
+                    <!-- prise -->
+                    <p class="card-text text-muted">₹ <%=products[i].mainPrice%></p>
                     <div class="d-flex justify-content-between align-items-center">
-                        <a href="" class="btn btn-outline-primary btn-sm">View Details</a>
-                        
-                        <button class="btn btn-outline-secondary btn-sm add-to-cart-btn" data-id="product-id">
-                            <i class="fas fa-shopping-cart" style="font-size: 24px;"></i>
-                        </button>
+                        <div class="stars">
+                            ★★★★☆ <p style="font-size:medium;">4.5 ratings</p>
+                          </div>
+                          
+                          <style>
+                            .stars {
+                              font-size: 30px;
+                              color: gold;
+                            }
+                          </style>
+                          
+                       
+                        <!-- <a href="/productDetails?id=<%=products[i]._id%>" class="btn btn-outline-primary btn-sm">View Details</a> -->
+
+
+                        <button 
+                        class="btn btn-secondary" 
+                        onclick="window.location.href=''">
+                        <i class="fas fa-shopping-cart"></i> 
+                    </button>
+
+                    
                     </div>
                 </div>
             </div>
+            </a>
         </div>
-  
+   
+        <%}%>
+        <% } else { %>
+            <p>No products available.</p>
+        <% } %>
 
 
 
-        <div class="col">
-            <div class="card h-100 shadow-sm border-0 product-card">
-                <img src="/images/dummy3.jpg" class="card-img-top product-img" alt="">
-                <a href="/wishlist/add/product-id" class="btn btn-outline-danger btn-sm">
-                    <i class="fas fa-heart"></i> 
-                </a>
-                <div class="card-body text-start">
-                    <h5 class="card-title fw-bold"></h5>
-                    <p class="card-text text-muted"></p>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <a href="" class="btn btn-outline-warning btn-sm">View Details</a>
-                        
-                        <button class="btn btn-outline-secondary btn-sm add-to-cart-btn" data-id="product-id">
-                            <i class="fas fa-shopping-cart" style="font-size: 24px;"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
+        
         </div>
-  
-  
-        <div class="col">
-            <div class="card h-100 shadow-sm border-0 product-card">
-                <img src="/images/dummy1.webp" class="card-img-top product-img" alt="">
-                <a href="/wishlist/add/product-id" class="btn btn-outline-danger btn-sm">
-                    <i class="fas fa-heart"></i> 
-                </a>
-                <div class="card-body text-start">
-                    <h5 class="card-title fw-bold"></h5>
-                    <p class="card-text text-muted"></p>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <a href="" class="btn btn-outline-primary btn-sm">View Details</a>
-                        
-                        <button class="btn btn-outline-secondary btn-sm add-to-cart-btn" data-id="product-id">
-                            <i class="fas fa-shopping-cart" style="font-size: 24px;"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-  
-  
-
-
-        <div class="col">
-            <div class="card h-100 shadow-sm border-0 product-card">
-                <img src="/images/dummy2.webp" class="card-img-top product-img" alt="">
-                <a href="/wishlist/add/product-id" class="btn btn-outline-danger btn-sm">
-                    <i class="fas fa-heart"></i> 
-                </a>
-                <div class="card-body text-start">
-                    <h5 class="card-title fw-bold"></h5>
-                    <p class="card-text text-muted"></p>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <a href="" class="btn btn-outline-warning btn-sm">View Details</a>
-                        
-                        <button class="btn btn-outline-secondary btn-sm add-to-cart-btn" data-id="product-id">
-                            <i class="fas fa-shopping-cart" style="font-size: 24px;"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-  
-  
-
-    </div>
-</section>
-
+    </section>
+    
+    
   
     <!-- Footer -->
     <%- include("../../views/partials/user/footer") %>
+
+
+
+  
 </body>
          
          

@@ -142,7 +142,7 @@
   <%= message %>
 </div>
 <% } %>
-<% if (error === 'blocked') { %>
+<% if (typeof error !== 'undefined' && error === 'blocked') { %>
   <p class="text-danger">Your account is Google blocked by admin. Please contact support.</p>
 <% } %>
 
@@ -173,6 +173,8 @@
                   <a href="/signup" class="text-decoration-none">
                     Not registered? <strong>Sign up</strong>
                   </a>
+<br><br>
+                  <a href="/forgot-password" class="text-decoration-none">Forgot Password?</a>
                 </div>
               </div>
             </div>

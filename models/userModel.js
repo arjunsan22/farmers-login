@@ -19,7 +19,7 @@ var userSchema = new mongoose.Schema({
         // unique:true,
     },
     phone:{
-        type:String,
+        type:Number,
         required:false,
         unique:true,
         sparse:true, //because phone no is set as null
@@ -80,9 +80,7 @@ var userSchema = new mongoose.Schema({
             type:Schema.Types.ObjectId,
             ref:"Category",
         },
-        brand:{
-            type:String
-        },
+       
         searchOn:{
             type:Date,
             defaut:Date.now

@@ -24,14 +24,13 @@ let productData=await Product.find(
   //console.log(productData);
 
 productData.sort((a,b)=>new Date(b.createdOn)-new Date(a.createdOn));
-productData=productData.slice(0,4)
 
     if (userId) {
       const userData = await User.findOne({ _id: userId }); // Use the ID directly
      if (userData) {
         res.locals.user = userData; // Set user data in locals
        
-        return res.render('home', { user: userData , products:productData, categories: categories});
+        return res.render('home', { user: userData , products:productData, categories: categories, });
       
       
       } else {
@@ -196,44 +195,74 @@ const verifyOTP=async(req,res)=>{
 
 
 
-const resendOTP=async (req,res) => {
+// const resendOTP=async (req,res) => {
 
-  try {
-    const {email}=req.session.userData;
-    if(!email){
-      return res.status(400).json({ success:false,message:"Email not found in session" })
+//   try {
+//     const {email}=req.session.userData;
+//     if(!email){
+//       return res.status(400).json({ success:false,message:"Email not found in session" })
 
 
-    }
-    const otp=generateOtp();
-    req.session.userOtp=otp;
+//     }
+//     const otp=generateOtp();
+//     req.session.userOtp=otp;
 
-    const emailSent=await sendVerificationEmail(email,otp)
+//     const emailSent=await sendVerificationEmail(email,otp)
     
-    if(emailSent){
-      console.log("Resent OTP: ",otp)
-      res.status(200).json({success:true,message:"OTP Resend Successfylly"})
+//     if(emailSent){
+//       console.log("Resent OTP: ",otp)
+//       res.status(200).json({success:true,message:"OTP Resend Successfylly"})
 
+//     }
+//     else{
+//           res.status(500).json({success:false,message:"OTP Resend failed, Try again"})
+
+//     }
+
+//   } catch (error) {
+    
+//     console.log("Error resending Otp",error)
+//     res.status(500).json({success:false,message:"Internal Server Error,Try Again"})
+
+//   }
+// }
+
+
+const resendOTP = async (req, res) => {
+  try {
+    const { email } = req.session.userData;
+    if (!email) {
+      console.log("Email not found in session");
+      return res.status(400).json({ success: false, message: "Email not found in session" });
     }
-    else{
-          res.status(500).json({success:false,message:"OTP Resend failed, Try again"})
 
+    const otp = generateOtp();
+    req.session.userOtp = otp;
+
+    const emailSent = await sendVerificationEmail(email, otp);
+
+    if (emailSent) {
+      console.log("Resent OTP: ", otp);  // Log OTP for debugging purposes
+      res.status(200).json({ success: true, message: "OTP Resent Successfully" });
+    } else {
+      console.error("Failed to send OTP");
+      res.status(500).json({ success: false, message: "OTP Resend failed, Try again" });
     }
 
   } catch (error) {
-    
-    console.log("Error resending Otp",error)
-    res.status(500).json({success:false,message:"Internal Server Error,Try Again"})
-
+    console.error("Error resending OTP:", error);
+    res.status(500).json({ success: false, message: "Internal Server Error, Try Again" });
   }
-}
+};
+
+
 
 const loadloginpage=async (req,res) => {
  
     try {
       
       if(!req.session.user){
-        return res.render('login',{ error: req.query.error})
+        return res.render('login',{ error: req.query.error || null})
       }
       else{
         res.redirect('/')
@@ -251,21 +280,21 @@ const verifyLogin=async (req,res) => {
     const findUser=await User.findOne({isAdmin:0,email:email});
     
     if (!email || !password) {
-      return res.render('login', { message: "EMAIL AND PASSWORD ARE REQUIRED" });
+      return res.render('login', { message: "EMAIL AND PASSWORD ARE REQUIRED", error: null });
     }
     
     if(!findUser){
-      return res.render('login',{message:"USER NOT FOUND"})
+      return res.render('login',{message:"USER NOT FOUND", error: null})
 
     }
     if(findUser.isBlocked){
-      return res.render('login',{message:"USER IS BLOCKED BY ADMIN"})
+      return res.render('login',{message:"USER IS BLOCKED BY ADMIN", error: 'blocked'})
     }
 
 const passwordMatch=await bcrypt.compare(password,findUser.password)
 
 if(!passwordMatch){
-  return res.render('login',{message:"INVALID CREDENTIALS"})
+  return res.render('login',{message:"INVALID CREDENTIALS", error: null })
 }
 
 req.session.user=findUser._id
@@ -274,7 +303,7 @@ res.redirect('/')
 
   } catch (error) {
     console.error('LOGIN ERROR',error)
-    res.render('login',{message:"LOGIN FAILED ,PLEASE TRY AGAIN"})
+    res.render('login',{message:"LOGIN FAILED ,PLEASE TRY AGAIN", error: null})
   }
 }
 
@@ -338,5 +367,6 @@ module.exports = {
   loadloginpage,
   verifyLogin,
   LoGout,
-  loadProductDetails
+  loadProductDetails,
+  
 };

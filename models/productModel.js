@@ -27,12 +27,14 @@ var productSchema = new mongoose.Schema({
         type:Number,
         required:true,
     },
-    // salePrice:{
-    //     type:Number,
-    //     required:false,
-    // },
+    salePrice:{
+        type:Number,
+        required:true,
+        default:0
+    },
     productOffer:{
         type:Number,
+    
         default:0
     },
     quantity:{
@@ -43,6 +45,7 @@ var productSchema = new mongoose.Schema({
         type:[String],
         // required:true
     },
+    
     isblocked:{
         type:Boolean,
         default:false
@@ -58,7 +61,7 @@ var productSchema = new mongoose.Schema({
         default: Date.now,
       },
 
-    },{timestamps:true})
+    })
 
     module.exports=mongoose.model('Product',productSchema)
     

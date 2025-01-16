@@ -22,7 +22,7 @@ const verifyadmin=async(req,res)=>{
         const admin=await User.findOne({email,isAdmin:true});
         console.log('Session ID of admin:', req.sessionID); 
         if(admin){
-            const passwordMatch=bcrypt.compare(password,admin.password)
+            const passwordMatch=await bcrypt.compare(password,admin.password)
             if(passwordMatch){
                 req.session.admin=true;
                 return res.redirect('/admin')

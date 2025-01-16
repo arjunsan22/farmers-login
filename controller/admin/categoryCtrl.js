@@ -129,41 +129,88 @@ else{
 }
 
 
+const addOffer = async (req, res) => {
+    try {
+        const percentage = Number(req.body.percentage);
+        const categoryId = req.body.categoryId;
 
-// const addOffer=async (req,res) => {
+        if (isNaN(percentage) || percentage <= 0 || percentage > 100) {
+            return res.status(400).json({ status: false, message: "Invalid percentage value" });
+        }
 
-//     try {
-//         const percentage=parseInt(req.body.percentage)
-//         const categoryId=req.body.categoryId;
-//         const category=await Category.findById(categoryId);
-//         if(!category){
-//             return res.status(400).json({status:false,message:"Category not found"})
-//         }
-//         const products=await Product.find({category:category._id});
-//         const hashProductOffer=products.some((product)=>product.productOffer > percentage);
-//         if(hashProductOffer){
-        
-//             return res.json({status:false,message:"Product within this category already have product offers"})
+        const category = await Category.findById(categoryId);
+        if (!category) {
+            return res.status(400).json({ status: false, message: "Category not found" });
+        }
 
-//         }
+        const products = await Product.find({ category: category._id });
+
+        if (products.length === 0) {
+            return res.json({ status: false, message: "No products found in this category" });
+        }
+
+        const hasProductOffer = products.some(product => product.productOffer > percentage);
+
+        if (hasProductOffer) {
+            return res.json({ status: false, message: "Product within this category already have product offers" });
+        }
+console.log(hasProductOffer)
+       let r= await Category.updateOne({ _id: categoryId }, { $set: { categoryOffer: percentage } });
+console.log("checked:",r)
+        for (const product of products) {
+            if (product.mainPrice) {
+                console.log("Processing product:", product.productname);
+                console.log("Before Update - Sale Price:", product.salePrice);
+
+                product.productOffer = 0;
+                product.salePrice = Math.floor(product.mainPrice * (1 - percentage / 100));
+
+                console.log("After Update - Sale Price:", product.salePrice);
+
+                await product.save();
+                console.log("Product saved successfully:", product.productname);
+            }
+        }
+
+        res.json({ status: true });
+    } catch (error) {
+        console.error("Error in addOffer:", error);
+        res.status(500).json({ status: false, message: "Internal Server Error" });
+    }
+};
 
 
-//         await Category.updateOne({_id:categoryId},{$set:{categoryOffer:percentage}})
+const removeOffer = async (req, res) => {
+    try {
+        const categoryId = req.body.categoryId;
+        const category = await Category.findById(categoryId);
 
-// for(const product of products){
-//     product.productOffer=0;
-//     product.salePrice=product.regularPrice;
-//     await product.save()
-// }
-// res.json({status:true});//pass to frontend status true//
+        if (!category) {
+            return res.status(404).json({ status: false, message: "Category not found" });
+        }
 
+        const percentage = category.categoryOffer;
+        const products = await Product.find({ category: category._id });
 
-//     } catch (error) {
-//         res.status(500).json({status:false,message:"Internal Server Error"})
-//     }
-// }
+        if (products.length > 0) {
+            for (const product of products) {
+                // Reset salePrice to mainPrice when removing the offer
+                product.salePrice = product.mainPrice;
+                product.productOffer = 0;
+                await product.save();
+            }
+        }
 
+        // Reset category offer
+        category.categoryOffer = 0;
+        await category.save();
 
+        res.json({ status: true });
+    } catch (error) {
+        console.error("Error:", error);
+        res.status(500).json({ status: false, message: "Internal Server Error" });
+    }
+};
 
 
 module.exports={
@@ -172,7 +219,7 @@ module.exports={
     listedCategory,
     unlistedCategory,
     editCategory,
-    updateCategory
-    // addOffer,
-    // removeOffer
+    updateCategory,
+    addOffer,
+    removeOffer
 }

@@ -47,9 +47,8 @@ router.get('/unlistCategory',categoryContoller.unlistedCategory)
 router.get('/editCategory',categoryContoller.editCategory)// to get category page//
 router.post('/modifyCategory/:id',categoryContoller.updateCategory) //edit category//
 
-// router.post('/addCategoryOffer',categoryContoller.addOffer)
-// router.post('/removeCategoryOffer',categoryContoller.removeOffer)
-
+router.post('/addCategoryOffer',categoryContoller.addOffer)
+router.post('/removeCategoryOffer',categoryContoller.removeOffer)
 
 
 
@@ -62,9 +61,11 @@ router.get('/productUnblock',productContoller.UnblockProduct)
 router.get('/productEdits',productContoller.EditProducts)
 
 router.post('/productEdits/:id',uploads.array("images",4),productContoller.updateProduct)
-
 router.post('/deleteImage',productContoller.deleteSingleImage)
 
+router.post('/addProductOffer',productContoller.addProductOffer)
+
+router.post('/removeProductOffer',productContoller.removeProductOffer)
 
 
 router.get('/logout',adminController.Logout)
