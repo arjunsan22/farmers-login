@@ -28,7 +28,7 @@ router.get('/auth/google',passport.authenticate('google',{scope:['profile','emai
 
 
 
-router.get('/auth/google/callback', passport.authenticate('google', { failureRedirect: '/login?error=blocked' }), async (req, res) => {
+router.get('/auth/google/callback', passport.authenticate('google', { failureRedirect: '/login?error=blocked', failureMessage: true }), async (req, res) => {
     console.log("hit callball")
     
     try {
@@ -69,9 +69,22 @@ router.post('/resetPassword',profileController.resetPassword)
 
 //user profile//
 
-router.get('/userProfile',profileController.loadProfilePage)
- router.get('/changeEmail',profileController.loadchangeEmail)
+router.get('/userProfile',usermiddle.isLogout,profileController.loadProfilePage)
 
+router.get('/useraddress',profileController.loadUserAddressPage)
+router.get('/addUserAddress',profileController.loadaddUserAddressPage)
+router.post('/addNewAddress',profileController.addUserAddress)
+
+router.get('/useraddress-Edit/:index',profileController.loadEditAddress);
+
+router.post('/updateAddress-Edit/:index',profileController.updateAddress)
+
+
+
+
+
+//change email//
+router.get('/changeEmail',profileController.loadchangeEmail)
 router.post('/changeEmail',profileController.changeEmail)//worked
 router.post('/verifyEmailOTP',profileController.verifyEmailOTP)
 router.post('/verifyEmailResend-OTP',profileController.verifyEmailResendOTP)

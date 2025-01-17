@@ -15,6 +15,10 @@ passport.use(new GoogleStrategy({
 async (accessToken,refreshToken,profile,done,req,res) => {
    try {
       
+      console.log('Profile received from Google:', profile);
+      console.log('Access Token:', accessToken);
+      console.log('Refresh Token:', refreshToken);
+
       let user=await User.findOne({googleId:profile.id});
      
       if (user && user.isBlocked) {
@@ -29,13 +33,16 @@ async (accessToken,refreshToken,profile,done,req,res) => {
             lastname: profile.name.familyName,
             email:profile.emails[0].value,
             googleId:profile.id,
+            accessToken, // Save tokens if needed
+            refreshToken
          });
          await user.save();
          return done(null,user)
       }
 
    } catch (error) {
-      
+      console.error('Error during authentication:', error);
+
       return done(error,null)
    }
 }
@@ -46,20 +53,30 @@ passport.serializeUser((user,done)=>{
    done(null,user.id)
 
 })
-passport.deserializeUser((id,done)=>{ 
+// passport.deserializeUser((id,done)=>{ 
+//    User.findById(id)
+//    .then(user => {
+//       if (user && user.isBlocked) {
+
+//          return done(null, false);  
+//       }
+//       done(null, user); // if the user is not blocked proceed as usual//////
+//    })
+//    .catch(err => {
+//       done(err, null);
+//    });
+// })
+passport.deserializeUser((id, done) => { 
    User.findById(id)
-   .then(user => {
-      if (user && user.isBlocked) {
-
-         return done(null, false);  
-      }
-      done(null, user); // if the user is not blocked proceed as usual//////
-   })
-   .catch(err => {
-      done(err, null);
-   });
-})
-
+     .then(user => {
+       if (user && user.isBlocked) {
+         return done(new Error('User is blocked'), null); // Handle blocked users with an error
+       }
+       done(null, user);
+     })
+     .catch(err => done(err, null));
+ });
+ 
 
     
 module.exports=passport;

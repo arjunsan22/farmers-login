@@ -8,6 +8,173 @@ const Category=require('../../models/categoryModel');
 const express = require('express');
 const Address=require('../../models/addressModel');
 
+
+
+
+//profile page//
+
+const loadProfilePage=async (req,res) => {
+    try{
+        const userId=req.session.user;
+        console.log("user session in product page :",userId)
+        const userData=await User.findById(userId);
+        const addressData=await Address.findOne({userId:userId});
+        res.render('userProfile',{user:userData,userAddress:addressData})
+    
+    }
+    catch(error){
+        console.error("error for retrieve profile data",error);
+        res.redirect('/pagenotfound');
+    }
+}
+
+//address management//
+
+const loadUserAddressPage=async (req,res) => {
+   
+    try {
+        const userId = req.session.user;
+        const userData =await User.findById(userId)
+        const addressData = await Address.findOne({ userId: userId });
+        res.render('userAddressPage', { user:userData,userAddress: addressData?.address || [] });
+    } catch (error) {
+        console.error("Error loading user address page:", error);
+        res.redirect('/pagenotfound');
+    }
+}
+
+
+//addAddress//
+
+const  loadaddUserAddressPage=async (req,res) => {
+    try{
+        const userId = req.session.userId;
+        const userData =await User.findById(userId)
+        res.render('addAddressPage',{user:userData})
+    }catch(error){
+        console.error("Error loading add address page:", error);
+        res.redirect('/pagenotfound');
+    }
+}
+
+const addUserAddress=async (req,res) => {
+
+    try {
+        const userId = req.session.user;
+
+        const { addressType, name, city, StreetMark, state, pincode, Phone, SecondPhone, Houseno } = req.body;
+
+        // Find if the user already has an address entry
+        let userAddress = await Address.findOne({ userId });
+
+        if (!userAddress) {
+            // If no address entry exists, create a new one
+            userAddress = new Address({
+                userId: userId,
+                address: [
+                    {
+                        addressType,
+                          name,
+                         city,
+                        StreetMark,
+                        state,
+                        pincode,
+                        Phone,
+                        SecondPhone,
+                        Houseno,
+                    },
+                ],
+            });
+        } else {
+            // If address entry exists, push the new address into the array
+            userAddress.address.push({
+                  addressType,
+                 name,
+                city,
+                 StreetMark,
+                state,
+                pincode,
+                Phone,
+                SecondPhone,
+                Houseno,
+            });
+        }
+
+        await userAddress.save();
+
+              res.redirect('/userAddress');
+
+    } catch (error) {
+
+        console.error('Error adding address:', error);
+        res.redirect('/pagenotfound'); 
+
+
+    }
+
+
+
+
+}
+
+//next edit address//
+
+const loadEditAddress=async (req,res) => {
+    try {
+        const userId = req.session.user;
+        const userData =await User.findById(userId) // Assuming session contains the user ID
+        const index = req.params.index;
+console.log("index: ", index)
+console.log("userid: ", userId)
+        const userAddress = await Address.findOne({ userId });
+        // console.log("address: ",userAddress)
+        if (userAddress && userAddress.address[index]) {
+            const addressToEdit = userAddress.address[index];
+            res.render('editAddressPage', { address: addressToEdit, index ,user:userData});
+        } else {
+            res.status(404).send('Address not found');
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Internal Server Error');
+    }
+}
+//edit or update address//
+const updateAddress=async (req,res) => {
+    try {
+        const userId = req.session.user;
+        const index = req.params.index;
+// console.log("update process user check : ", userId)
+        const updatedData = {
+            addressType: req.body.addressType,
+            name: req.body.name,
+            city: req.body.city,
+            StreetMark: req.body.StreetMark,
+            state: req.body.state,
+            pincode: req.body.pincode,
+            Phone: req.body.Phone,
+            SecondPhone: req.body.SecondPhone,
+            Houseno: req.body.Houseno,
+        };
+
+        const userAddress = await Address.findOne({ userId });
+        if (userAddress && userAddress.address[index]) {
+            userAddress.address[index] = updatedData; // Update the specific address
+            await userAddress.save();
+            res.redirect('/userAddress');
+        } else {
+            res.status(404).send('Address not found');
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Internal Server Error');
+    }
+}
+
+
+//otp and others//
+
+
 function generateOTP(){
     const digits='0123456789';
     let otp='';
@@ -176,27 +343,7 @@ res.render('login', { message: "Password reset successfully",error:null });
 }
 
 
-
-//profile page//
-
-const loadProfilePage=async (req,res) => {
-    try{
-        const userId=req.session.user;
-        const userData=await User.findById(userId);
-        res.render('userProfile',{user:userData})
-    
-    }
-    catch(error){
-        console.error("error for retrieve profile data",error);
-        res.redirect('/pagenotfound');
-    }
-}
-
-
-
 //email changing//
-
-
 
 
 const loadchangeEmail=async (req,res) => {
@@ -210,11 +357,6 @@ catch(error){
 }
 
 }
-
-
-
-
-
 
 
 //checking email for otp//
@@ -249,31 +391,10 @@ else{
         res.redirect('/pagenotfound');
 
 }
+
 }
 
-// const verifyEmailOTP=async (req,res) => {
-//     try{
-//         const {otp}=req.body;
-   
-//     const userOtp=req.session.userOtp;
-//     console.log("OTP from session:", req.session.userOtp);
 
-//     if(otp && otp===userOtp){
-//         res.json({success:true,redirectUrl:'/reset-email'}) //change
-//     }else{
-//         res.json({success:false,message:"Invalid OTP not maching"})
-//         res.render('forgotPassword-OTP',{message:"Invalid OTP"})
-//     }
-
-      
-//     }
-//     catch(error){
-  
-//     res.status(500).json({success:false,message:"Internal server error"})
-//     console.error(error);
-
-//     }
-// }
 const verifyEmailOTP = async (req, res) => {
     try {
         const { otp } = req.body;
@@ -510,5 +631,10 @@ module.exports = {
     verfyingChangePasswordOTP,
     loadAddNewPasswordPage,
     addNewPassword,
-    changePasswordResendbuttonOTP
+    changePasswordResendbuttonOTP,
+    loadUserAddressPage,
+    loadaddUserAddressPage,
+    addUserAddress,
+    loadEditAddress,
+    updateAddress
 }
