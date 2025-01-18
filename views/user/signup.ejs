@@ -153,50 +153,74 @@ background-size: cover;
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
 
 <!-- my validation -->
-
 <script>
     function validateForm() {
-        // First Name Validation//
-        const firstName = document.getElementById("first_name").value.trim();
-        if (!/^[A-Za-z]+$/.test(firstName)) {
-            alert("First name must contain only letters, no spaces or symbols.");
-            return false;
+        let isValid = true;
+
+        // Clear previous error messages
+        document.querySelectorAll(".error-message").forEach(msg => msg.remove());
+
+        // First Name Validation
+        const firstName = document.getElementById("first_name");
+        const firstNameValue = firstName.value.trim();
+        if (!/^[A-Za-z]+$/.test(firstNameValue)) {
+            showError(firstName, "First name must contain only letters and no spaces.");
+            isValid = false;
         }
-    
+
         // Last Name Validation
-        const lastName = document.getElementById("last_name").value.trim();
-        if (!/^[A-Za-z]+$/.test(lastName)) {
-            alert("Last name must contain only letters, no spaces or symbols.");
-            return false;
+        const lastName = document.getElementById("last_name");
+        const lastNameValue = lastName.value.trim();
+        if (!/^[A-Za-z]+$/.test(lastNameValue)) {
+            showError(lastName, "Last name must contain only letters and no spaces.");
+            isValid = false;
         }
-    
+
         // Email Validation
-        const email = document.getElementById("email").value.trim();
+        const email = document.getElementById("email");
+        const emailValue = email.value.trim();
         const emailPattern = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
-        if (!emailPattern.test(email)) {
-            alert("Please enter a valid email address ending with @gmail.com.");
-            return false;
+        if (!emailPattern.test(emailValue)) {
+            showError(email, "Please enter a valid email ending with @gmail.com.");
+            isValid = false;
         }
-    
+
         // Password Validation
-        const password = document.getElementById("password").value;
+        const password = document.getElementById("password");
+        const passwordValue = password.value;
         const passwordPattern = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@#$%^&+=]).{8,}$/;
-        if (!passwordPattern.test(password)) {
-            alert("Password must be at least 8 characters long and include letters, numbers, and symbols.");
-            return false;
+        if (!passwordPattern.test(passwordValue)) {
+            showError(password, "Password must be at least 8 characters long and include letters, numbers, and symbols.");
+            isValid = false;
         }
-    
-        
+
+        // Confirm Password Validation
+        // const confirmPassword = document.getElementById("confirm_password");
+        // const confirmPasswordValue = confirmPassword.value;
+        // if (confirmPasswordValue !== passwordValue) {
+        //     showError(confirmPassword, "Passwords do not match.");
+        //     isValid = false;
+        // }
+
         // Phone Number Validation
-        const phone = document.getElementById("phone").value.trim();
-        if (!/^\d{10}$/.test(phone)) {
-            alert("Phone number must be exactly 10 digits and contain only numbers.");
-            return false;
+        const phone = document.getElementById("phone");
+        const phoneValue = phone.value.trim();
+        if (!/^\d{10}$/.test(phoneValue)) {
+            showError(phone, "Phone number must be exactly 10 digits.");
+            isValid = false;
         }
-    
-        return true; // If all validations pass
+
+        return isValid;
     }
-    </script>
+
+    function showError(input, message) {
+        const error = document.createElement("div");
+        error.className = "error-message text-danger mt-1";
+        error.innerText = message;
+        input.parentElement.appendChild(error);
+    }
+</script>
+
 
 </body>
 </html>

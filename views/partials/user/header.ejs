@@ -121,14 +121,14 @@ faRMers LOGiN   </a>
             <a style="font-family:cursive;color: #ffffff;" class="nav-link" href="about.html">blog</a>
           </li>
           <li class="nav-item">
-            <a style="font-family:cursive;color: #ffffff;" class="nav-link" href="blog.html">Shop</a>
+            <a style="font-family:cursive;color: #ffffff;" class="nav-link" href="/ShopPage">Shop</a>
           </li>
           <li class="nav-item dropdown">
             <a style="font-family:cursive;color: #ffffff;" class="nav-link dropdown-toggle" href="#" id="categoryDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
              category
             </a>
             <ul class="dropdown-menu" aria-labelledby="categoryDropdown">
-              <li><a style="font-family:cursive;color: #120909;" class="dropdown-item" href="portfolio-1-col.html">VEGEES</a></li>
+              <li ><a style="font-family:cursive;color: #120909;" class="dropdown-item" href="portfolio-1-col.html">VEGEES</a></li>
               <li><a style="font-family:cursive;color: #120c0c;" class="dropdown-item" href="portfolio-2-col.html">FRUITS</a></li>
             </ul>
           </li>
@@ -165,17 +165,17 @@ faRMers LOGiN   </a>
        <h6 style="text-transform: uppercase;"> WELCOME <%= user.firstname %> <%= user.lastname %></h6>
        
       </a>
-        <li><a class="dropdown-item text-white" href="/userProfile">PROFILE</a></li>
+        <li ><a class="dropdown-item text-white" href="/userProfile">PROFILE</a></li>
         <li><a class="dropdown-item text-white" href="/logout">LOGOUT</a></li>
       </ul>
     </div>
   <% } else { %>
     <ul class="navbar-nav">
-      <li class="nav-item">
-        <a class="nav-link" href="/signup">SIGN UP</a>
+      <li style="color: #fcfdfe;" class="nav-item">
+        <a style="color: #fcfdfe;" class="nav-link" href="/signup">SIGN UP</a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link" href="/login">LOGIN</a>
+      <li style="color: #fcfdfe;" class="nav-item">
+        <a style="color: #fcfdfe;" class="nav-link" href="/login">LOGIN</a>
       </li>
     </ul>
   <% } %>

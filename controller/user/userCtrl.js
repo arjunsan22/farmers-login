@@ -46,7 +46,7 @@ productData.sort((a,b)=>new Date(b.createdOn)-new Date(a.createdOn));
     console.log("Error loading homepage:", error);
     res.status(500).send("Internal Server Error");
   }
-};
+}
 
 //error page //
 const pagenotfound = async (req, res) => {
@@ -357,6 +357,242 @@ const loadProductDetails = async (req, res) => {
 };
 
 
+//        //   shop page and filters           //      //
+
+const loadShopPage=async (req,res) => {
+  try {
+        const userId = req.session.user;
+              const userData =await User.findById(userId) 
+console.log("user session in shop page :",userId)
+
+const categories = await Category.find({ isListed: true });
+const categoryIds = categories.map((category) => category._id);
+
+const page = parseInt(req.query.page) || 1;
+const limit = 9;
+const skip = (page - 1) * limit;
+
+// Total product count for pagination
+const totalProducts = await Product.countDocuments({
+  isblocked: false,
+  category: { $in: categoryIds },
+  quantity: { $gt: 0 },
+});
+console.log("total products:",totalProducts)
+
+const productData = await Product.find({
+  isblocked: false,
+  category: { $in: categoryIds },
+  quantity: { $gt: 0 },
+})
+  .sort({ createdOn: -1 })
+  .skip(skip)
+  .limit(limit);
+
+const totalPages = Math.ceil(totalProducts / limit);
+
+console.log("total pages:",totalPages)
+const categoriesWithIds = categories.map(category => ({
+  _id: category._id,
+  name: category.name
+}));
+
+res.render('ShopPage', {
+  user: userData,
+  products: productData,
+  category: categoriesWithIds,
+  currentPage: page,
+  totalPages: totalPages
+});
+
+} 
+catch (error) {
+  console.error('Error loading shop page:', error);
+  // Send a more appropriate error response
+  if (error.name === 'CastError' || error.name === 'ValidationError') {
+    res.status(400).render('pagenotfound', { message: 'Invalid request parameters' });
+  } else {
+    res.status(500).render('pagenotfound', { message: 'Internal server error' });
+  }
+}
+}
+
+//    filters implementations    //
+//popularity not now 
+// const filterByPopularity = async (req, res) => {
+//   try {
+//     const userId = req.session.user;
+//     const userData = await User.findById(userId);
+//   } catch (error) {
+//     console.error('Error filtering by popularity:', error);
+//     res.status(500).render('pagenotfound', { message: 'Internal server error' });
+//   }
+// }
+
+const filterByPriceAsc=async (req,res) => {
+
+  try {
+    const userId = req.session.user;
+    const userData =await User.findById(userId) 
+
+    const products = await Product.find().sort({ salePrice: 1 });
+    res.render('shopPage', { products ,user:userData});
+} catch (error) {
+    console.error(error);
+    res.status(500).send('Server Error');
+}
+
+}
+
+const filterByPriceDesc=async (req,res) => {
+
+  try {
+    const userId = req.session.user;
+    const userData =await User.findById(userId) 
+
+    const products = await Product.find().sort({ salePrice: -1 });
+    res.render('shopPage', { products ,user:userData});
+} catch (error) {
+    console.error(error);
+    res.status(500).send('Server Error');
+}
+}
+
+const filterByFeatured=async (req,res) => {
+
+  try {
+    const userId = req.session.user;
+    const userData =await User.findById(userId) 
+
+    
+ const categories=await Category.find({isListed:true})
+
+ let productData=await Product.find(
+   {isblocked:false,
+    salePrice:{$gt:80},
+     
+     category:{$in:categories.map(category=>category._id)}
+     ,quantity:{$gt:0}
+   
+   })
+   //console.log(productData);
+ 
+ productData.sort((a,b)=>new Date(b.createdOn)-new Date(a.createdOn));
+res.render('shopPage',{products:productData,categories:categories,user:userData})
+
+} catch (error) {
+    console.error(error);
+    res.status(500).send('Server Error');
+}
+}
+
+const filterByNewArrivals=async (req,res) => {
+  try {
+    const userId = req.session.user;
+    const userData =await User.findById(userId) 
+
+    const products = await Product.find().sort({ createdOn: -1 });
+    res.render('shopPage', { products ,user:userData});
+} catch (error) {
+    console.error(error);
+    res.status(500).send('Server Error');
+}
+}
+
+
+const filterByAZ=async (req,res) => {
+  try {
+    const userId = req.session.user;
+    const userData =await User.findById(userId) 
+
+    const products = await Product.find().sort({ productname: 1 });
+    res.render('shopPage', { products ,user:userData});
+} catch (error) {
+    console.error(error);
+    res.status(500).send('Server Error');
+}
+} 
+
+const filterByZA=async (req,res) => {
+  try {
+    const userId = req.session.user;
+    const userData =await User.findById(userId) 
+
+    const products = await Product.find().sort({ productname: -1 });
+    res.render('shopPage', { products,user:userData });
+} catch (error) {
+    console.error(error);
+    res.status(500).send('Server Error');
+}
+}
+const getFruits = async (req, res) => {
+  try {
+    // Ensure categoryIds is defined
+    const categoryIds = await Category.find({ name: "Fruits" }).distinct('_id');
+
+    const productData = await Product.find({
+      isblocked: false,
+      category: { $in: categoryIds },
+      quantity: { $gt: 0 },
+    });
+
+    const userId = req.session?.user; // Optional chaining for safety
+    const userData = userId ? await User.findById(userId) : null;
+
+    const categories = await Category.find({ isListed: true, name: "Fruits" });
+
+    res.render('shopPage', { user: userData, categories, products: productData });
+  } catch (error) {
+    console.error("Error in getFruits:", error.message);
+    res.status(500).send('Server Error');
+  }
+};
+
+const getVeggies = async (req, res) => {
+  try {
+    const categoryIds = await Category.find({ name: "Vegetables" }).distinct('_id');
+
+    const productData = await Product.find({
+      isblocked: false,
+      category: { $in: categoryIds },
+      quantity: { $gt: 0 },
+    });
+
+    const userId = req.session?.user;
+    const userData = userId ? await User.findById(userId) : null;
+
+    const categories = await Category.find({ isListed: true, name: "Vegetables" });
+
+    res.render('shopPage', { user: userData, categories, products: productData });
+  } catch (error) {
+    console.error("Error in getVeggies:", error.message);
+    res.status(500).send('Server Error');
+  }
+};
+
+const Quality = async (req, res) => {
+  try {
+    const categoryIds = await Category.find({ name: "Quality" }).distinct('_id');
+
+    const productData = await Product.find({
+      isblocked: false,
+      category: { $in: categoryIds },
+      quantity: { $gt: 0 },
+    });
+
+    const userId = req.session?.user;
+    const userData = userId ? await User.findById(userId) : null;
+
+    const categories = await Category.find({ isListed: true, name: "Quality" });
+
+    res.render('shopPage', { user: userData, categories, products: productData });
+  } catch (error) {
+    console.error("Error in Quality:", error.message);
+    res.status(500).send('Server Error');
+  }
+};
+
+
 module.exports = {
   loadhomepage,
   pagenotfound,
@@ -368,5 +604,15 @@ module.exports = {
   verifyLogin,
   LoGout,
   loadProductDetails,
-  
+  loadShopPage,
+  // filterByPopularity
+  filterByPriceAsc,
+  filterByPriceDesc,
+  filterByFeatured,
+  filterByNewArrivals,
+  filterByAZ,
+  filterByZA,
+  getFruits,
+  getVeggies,
+  Quality
 };

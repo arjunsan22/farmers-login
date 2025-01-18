@@ -1,0 +1,351 @@
+<%- include("../../views/partials/user/header") %>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop Page</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2ecc71;
+            --background-color: #f8f9fa;
+            --text-color: #2c3e50;
+            --border-color: #e9ecef;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+
+        .filter-section {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+            position: sticky;
+            top: 20px;
+        }
+
+        .filter-title {
+            color: var(--primary-color);
+            font-size: 1.2rem;
+            padding: 15px;
+            border-bottom: 2px solid var(--border-color);
+            margin-bottom: 0;
+        }
+
+        .list-group-item {
+            border: none;
+            padding: 12px 20px;
+            transition: all 0.3s ease;
+        }
+
+        .list-group-item:hover {
+            background-color: var(--background-color);
+            transform: translateX(5px);
+        }
+
+        .list-group-item a {
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            text-decoration: none;
+        }
+
+        .list-group-item a:hover {
+            color: var(--primary-color);
+        }
+
+        .product-section {
+            padding: 0 15px;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            padding: 20px 0;
+        }
+
+        .product-card {
+            background: white;
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            overflow: hidden;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-img-wrapper {
+            position: relative;
+            padding-top: 100%;
+            overflow: hidden;
+        }
+
+        .product-img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .product-card:hover .product-img {
+            transform: scale(1.05);
+        }
+
+        .product-info {
+            padding: 15px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .product-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-color);
+        }
+
+        .product-price {
+            color: var(--primary-color);
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+        }
+
+        .btn-cart {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: auto;
+        }
+
+        .btn-cart:hover {
+            background-color: #27352d;
+            transform: translateY(-2px);
+        }
+
+        .btn-cart i {
+            margin-right: 8px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .product-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+        }
+
+        @media (max-width: 991px) {
+            .filter-section {
+                margin-bottom: 20px;
+            }
+            .product-grid {
+                grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .filter-section {
+                position: relative;
+                top: 0;
+                margin-bottom: 15px;
+            }
+            .product-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                gap: 15px;
+            }
+            .product-card {
+                margin-bottom: 0;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .product-grid {
+                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+                gap: 10px;
+            }
+            .product-info {
+                padding: 10px;
+            }
+            .product-title {
+                font-size: 0.9rem;
+            }
+            .btn-cart {
+                padding: 6px 12px;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .product-card {
+            animation: fadeIn 0.6s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid py-4">
+        <div class="row">
+            <!-- Filter Section -->
+            <aside class="col-lg-3 col-md-4">
+                <div class="filter-section">
+                    <h5 class="filter-title">Filters</h5>
+                    <ul class="list-group">
+                        <li class="list-group-item">
+                            <a href="#" class="text-decoration-none">
+                                <span><i class="fas fa-fire-alt me-2"></i>Popularity</span>
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                        <li class="list-group-item">
+                            <a href="/filter/price-asc" class="text-decoration-none">
+                                <span><i class="fas fa-sort-amount-down me-2"></i>Price: Low to High</span>
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                        <li class="list-group-item">
+                            <a href="/filter/price-desc" class="text-decoration-none">
+                                <span><i class="fas fa-sort-amount-up me-2"></i>Price: High to Low</span>
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                        <li class="list-group-item">
+                            <a href="#" class="text-decoration-none">
+                                <span><i class="fas fa-star me-2"></i>Average Ratings</span>
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                        <li class="list-group-item">
+                            <a href="/filter/featured" class="text-decoration-none">
+                                <span><i class="fas fa-crown me-2"></i>Featured</span>
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                        <li class="list-group-item">
+                            <a href="/filter/new-arrivals" class="text-decoration-none">
+                                <span><i class="fas fa-tag me-2"></i>New Arrivals</span>
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                        <li class="list-group-item">
+                            <a href="/filter/az" class="text-decoration-none">
+                                <span><i class="fas fa-sort-amount-down me-2"></i>aA - zZ</span>
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                        <li class="list-group-item">
+                            <a href="/filter/za" class="text-decoration-none">
+                                <span><i class="fas fa-sort-amount-up me-2"></i>zZ - aA</span>
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                        <li class="list-group-item">
+                            <a href="/fruits" class="text-decoration-none">
+                                <span><i class="fas fa-apple-alt me-2"></i>Fruits</span>
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                        <li class="list-group-item">
+                            <a href="/veggies" class="text-decoration-none">
+                                <span><i class="fas fa-carrot me-2"></i>Veggies</span>
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                        <li class="list-group-item">
+                            <a href="/quality" class="text-decoration-none">
+                                <span><i class="fas fa-check-circle me-2"></i>Quality</span>
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+
+                    </ul>
+                </div>
+            </aside>
+
+            <!-- Products Section -->
+            <main class="col-lg-9 col-md-8">
+                <div class="product-grid">
+                    <% if (products && products.length > 0) { %>
+                        <% for(let i=0; i<products.length; i++) { %>
+                            <div class="product-card">
+                                <a href="/productDetails/<%= products[i]._id %>" class="text-decoration-none">
+                                    <div class="product-img-wrapper">
+                                        <img src="/uploads/product-images/<%=products[i].productImage[0]%>" 
+                                             class="product-img" 
+                                             alt="<%=products[i].productname%>">
+                                    </div>
+                                    
+                                    <div class="product-info">
+                                        <h5 class="product-title"><%=products[i].productname%></h5>
+                                        <div class="d-flex align-items-center mb-2">
+                                            <div class="text-warning">
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star-half-alt"></i>
+                                            </div>
+                                            <small class="ms-2 text-muted">(4.5)</small>
+                                        </div>
+                                        <p class="product-price">₹<%=products[i].salePrice%></p>
+                                        <p>
+                                            <% if (products[i].quantity > 5) { %>
+                                                <%= products[i].quantity %> kg available
+                                            <% } else if (products[i].quantity < 5 && products[i].quantity != 0) { %>
+                                                <span class="text-danger">Buy now only <%= products[i].quantity %> kg left</span>
+                                            <% } else { %>
+                                                <span class="text-danger">Out of Stock</span>
+                                            <% } %>
+                                        </p>
+                                        <a href="" class="btn btn-outline-danger btn-sm"><i class="fas fa-heart"></i></a>
+                                    </div>
+                                </a>
+                                <div class="product-info pt-0">
+                                    <button class="btn btn-cart">
+                                        <i class="fas fa-shopping-cart"></i>Add to Cart
+                                    </button>
+                                </div>
+                            </div>
+                        <% } %>
+                    <% } else { %>
+                        <div class="col-12 text-center">
+                            <h3>No products available</h3>
+                        </div>
+                    <% } %>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+<%- include("../../views/partials/user/footer") %>

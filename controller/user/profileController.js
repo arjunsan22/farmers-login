@@ -86,7 +86,7 @@ const addUserAddress=async (req,res) => {
                 ],
             });
         } else {
-            // If address entry exists, push the new address into the array
+            // if address entry exists, push the new address into the array//
             userAddress.address.push({
                   addressType,
                  name,
@@ -169,6 +169,25 @@ const updateAddress=async (req,res) => {
         console.error(error);
         res.status(500).send('Internal Server Error');
     }
+}
+
+const deleteAddress=async (req,res) => {
+    try {
+        const userId = req.session.user;
+        const index = req.params.index;
+        const userAddress = await Address.findOne({ userId });
+        if (userAddress && userAddress.address[index]) {
+            userAddress.address.splice(index, 1); // Remove the specific address
+            await userAddress.save();
+            res.redirect('/userAddress');
+        } else {
+            res.status(404).send('Address not found');
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Internal Server Error');
+    }
+
 }
 
 
@@ -636,5 +655,6 @@ module.exports = {
     loadaddUserAddressPage,
     addUserAddress,
     loadEditAddress,
-    updateAddress
+    updateAddress,
+    deleteAddress
 }
