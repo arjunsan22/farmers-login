@@ -71,6 +71,13 @@ router.post('/resetPassword',profileController.resetPassword)
 
 router.get('/userProfile',usermiddle.isLogout,profileController.loadProfilePage)
 
+router.get('/profile/edit',usermiddle.isLogout,profileController.editProfile);
+
+router.post('/profile/update',profileController.updateProfile);
+
+// router.post('/profile/uploadPicture',upload.single('profilePicture'),profileController.uploadProfilePicture)
+
+
 router.get('/useraddress',usermiddle.isLogout,profileController.loadUserAddressPage)
 router.get('/addUserAddress',usermiddle.isLogout,profileController.loadaddUserAddressPage)
 router.post('/addNewAddress',profileController.addUserAddress)
@@ -85,18 +92,7 @@ router.get('/useraddress-Delete/:index', profileController.deleteAddress);
 
 //shop page//
 
-router.get('/ShopPage',userController.loadShopPage)
-// //shop filters////
-// router.get('/filter/popularity',userController.filterByPopularity)
-router.get('/filter/price-asc',userController .filterByPriceAsc);
-router.get('/filter/price-desc', userController.filterByPriceDesc);
-router.get('/filter/featured', userController.filterByFeatured);
-router.get('/filter/new-arrivals', userController.filterByNewArrivals);
-router.get('/filter/az', userController.filterByAZ);
-router.get('/filter/za', userController.filterByZA);
-router.get('/fruits', userController.getFruits);
-router.get('/veggies', userController.getVeggies);
-router.get('/quality', userController.Quality);
+router.get('/shop',userController.loadShopPage)
 
 
 //change email//

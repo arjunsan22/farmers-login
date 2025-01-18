@@ -7,7 +7,8 @@ const Product=require('../../models/productModel')
 const Category=require('../../models/categoryModel');
 const express = require('express');
 const Address=require('../../models/addressModel');
-
+const sharp = require('sharp'); // For image processing
+const path = require('path');
 
 
 
@@ -27,6 +28,66 @@ const loadProfilePage=async (req,res) => {
         res.redirect('/pagenotfound');
     }
 }
+
+
+const editProfile=async (req,res) => {
+  
+  try{
+      const userId = req.session.user;
+    const user = await User.findById(userId);
+    res.render('editProfile', { user });
+  } catch (error) {
+    console.error('Error loading edit profile page:', error.message);
+    res.status(500).send('Server Error');
+  }
+
+}
+
+const updateProfile = async (req, res) => {
+    try {
+        const { firstname, lastname, phone } = req.body;
+        const userId = req.session.user;
+        const userData=await User.findById(userId);
+  
+
+        const updatedUser = await User.findByIdAndUpdate(
+          userData ,
+            { firstname, lastname, phone },
+            { new: true } // This option returns the updated document
+        );
+
+        if (!updatedUser) {
+            return res.status(404).send('User not found.');
+        }
+
+        // Redirect to the user profile page after updating
+        res.redirect('/userProfile');
+    } catch (error) {
+        console.error('Error updating profile:', error);
+        res.render('pagenotfound')
+    }
+};
+
+// const  uploadProfilePicture = async (req, res) => {
+//     try {
+//         const userId = req.session.user;
+//         const userData = await User.findById(userId);
+
+//         if (!req.file) {
+//             return res.status(400).send('Please upload an image');
+//         }
+
+//         const filePath = path.join('uploads/user-Images', req.file.filename);
+//         userData.userImage = filePath;
+//         await userData.save();
+//         res.redirect('/userProfile');
+//     } catch (error) {
+//         console.error('Error uploading profile picture:', error);
+//         res.render('pagenotfound');
+//     }
+// };
+
+
 
 //address management//
 
@@ -656,5 +717,8 @@ module.exports = {
     addUserAddress,
     loadEditAddress,
     updateAddress,
-    deleteAddress
+    deleteAddress,
+    editProfile,
+    updateProfile,
+    // uploadProfilePicture
 }

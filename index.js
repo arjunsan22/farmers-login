@@ -15,7 +15,7 @@ app.use(bodyParser.json());
 const PORT=process.env.PORT || 2000;
 
 
-
+app.use(express.static('public'));
 
 //database connection
 dbConnect();
