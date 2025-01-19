@@ -208,6 +208,174 @@
         .product-card {
             animation: fadeIn 0.6s ease-out;
         }
+        .filter-section {
+            background: linear-gradient(145deg, #ffffff, #f8f9fa);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            margin-bottom: 20px;
+            position: sticky;
+            top: 20px;
+            animation: slideInFilter 0.8s ease-out;
+            transform-origin: top;
+        }
+
+        @keyframes slideInFilter {
+            0% {
+                opacity: 0;
+                transform: translateX(-50px) scale(0.95);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(0) scale(1);
+            }
+        }
+
+        .filter-title {
+            color: var(--primary-color);
+            font-size: 1.3rem;
+            font-weight: 600;
+            padding: 20px;
+            text-align: center;
+            letter-spacing: 1px;
+            border-bottom: 2px solid rgba(52, 152, 219, 0.1);
+            position: relative;
+            overflow: hidden;
+            animation: glowText 2s infinite alternate;
+        }
+
+        @keyframes glowText {
+            from { text-shadow: 0 0 0 rgba(52, 152, 219, 0); }
+            to { text-shadow: 0 0 10px rgba(52, 152, 219, 0.3); }
+        }
+
+        .filter-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            animation: borderFlow 2s infinite;
+        }
+
+        @keyframes borderFlow {
+            0% { transform: translateX(-100%); }
+            50% { transform: translateX(0); }
+            100% { transform: translateX(100%); }
+        }
+
+        /* Category Section Styling */
+        .p-3 {
+            padding: 1.5rem !important;
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h6 {
+            color: var(--text-color);
+            font-weight: 600;
+            margin-bottom: 1rem;
+            position: relative;
+            padding-left: 15px;
+        }
+
+        h6::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 100%;
+            background: var(--primary-color);
+            border-radius: 4px;
+        }
+
+        .form-check {
+            margin: 10px 0;
+            padding-left: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .form-check:hover {
+            transform: translateX(5px);
+            background: linear-gradient(to right, rgba(52, 152, 219, 0.05), transparent);
+            border-radius: 6px;
+        }
+
+        .form-check-input {
+            border-color: var(--primary-color);
+            transition: all 0.3s ease;
+        }
+
+        .form-check-input:checked {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            animation: checkPop 0.4s ease-out;
+        }
+
+        @keyframes checkPop {
+            0% { transform: scale(0.8); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .form-check-label {
+            color: var(--text-color);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .form-check:hover .form-check-label {
+            color: var(--primary-color);
+        }
+
+        /* Sort Filter Styling */
+        .form-select {
+            border: 2px solid rgba(52, 152, 219, 0.2);
+            border-radius: 8px;
+            padding: 10px 15px;
+            transition: all 0.3s ease;
+            background-color: rgba(255, 255, 255, 0.8);
+            cursor: pointer;
+        }
+
+        .form-select:hover, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+            transform: translateY(-2px);
+        }
+
+        /* Responsive Animations */
+        @media (max-width: 768px) {
+            .filter-section {
+                animation: slideInFromTop 0.6s ease-out;
+            }
+
+            @keyframes slideInFromTop {
+                from {
+                    opacity: 0;
+                    transform: translateY(-30px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+        }
     </style>
 </head>
 <body>
@@ -290,7 +458,8 @@
                                     </div>
                                 </a>
                                 <div class="product-info pt-0">
-                                    <button class="btn btn-cart">
+                                    <button class="btn btn-cart" 
+                                    onclick="window.location.href='/add-to-cart'">
                                         <i class="fas fa-shopping-cart"></i>Add to Cart
                                     </button>
                                 </div>

@@ -1,0 +1,234 @@
+<%- include('../../views/partials/user/header') %>
+<style>
+    .cart-container {
+        background-color: #f8f9fa;
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 0 15px rgba(0,0,0,0.05);
+    }
+    .cart-item {
+        background-color: #fff;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 15px;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    .cart-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    .product-image {
+        width: 100%;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+    .quantity-controls {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f8f9fa;
+        border-radius: 20px;
+        padding: 5px;
+    }
+    .quantity-btn {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        border: none;
+        background-color: #fff;
+        color: #333;
+        font-weight: bold;
+        transition: all 0.2s ease;
+    }
+    .quantity-btn:hover {
+        background-color: #007bff;
+        color: #fff;
+    }
+    .remove-btn {
+        border-radius: 50%;
+        width: 35px;
+        height: 35px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+    }
+    .remove-btn:hover {
+        transform: rotate(90deg);
+    }
+    .empty-cart {
+        padding: 40px 20px;
+    }
+    .empty-cart i {
+        color: #dee2e6;
+        margin-bottom: 20px;
+    }
+    .checkout-card {
+        position: sticky;
+        top: 20px;
+        border-radius: 15px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.08);
+    }
+    .checkout-btn {
+        border-radius: 25px;
+        padding: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.3s ease;
+    }
+    .checkout-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,123,255,0.3);
+    }
+    @media (max-width: 768px) {
+        .cart-item {
+            padding: 10px;
+        }
+        .product-image {
+            height: 80px;
+            margin-bottom: 10px;
+        }
+        .quantity-controls {
+            margin: 10px 0;
+        }
+    }
+</style>
+
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <div class="cart-container">
+                <h3 class="mb-4 text-center">Your Shopping Cart</h3>
+                <% if (cartItems && cartItems.length > 0) { %>
+                    <div class="cart-items">
+                        <% cartItems.forEach(item => { %>
+                            <div class="cart-item">
+                                <div class="row align-items-center">
+                                    <div class="col-md-2 col-sm-3">
+                                        <img src="<%= item.product.images[0] %>" class="product-image" alt="<%= item.product.name %>">
+                                    </div>
+                                    <div class="col-md-4 col-sm-9">
+                                        <h5 class="mb-1"><%= item.product.name %></h5>
+                                        <p class="text-muted mb-0">₹<%= item.product.price.toLocaleString() %></p>
+                                    </div>
+                                    <div class="col-md-3 col-sm-6">
+                                        <div class="quantity-controls">
+                                            <button class="quantity-btn" onclick="updateQuantity('<%= item.product._id %>', 'decrease')">-</button>
+                                            <span class="mx-3 fw-bold"><%= item.quantity %></span>
+                                            <button class="quantity-btn" onclick="updateQuantity('<%= item.product._id %>', 'increase')">+</button>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 col-sm-4">
+                                        <p class="fw-bold mb-0">₹<%= (item.product.price * item.quantity).toLocaleString() %></p>
+                                    </div>
+                                    <div class="col-md-1 col-sm-2">
+                                        <button class="btn btn-outline-danger remove-btn" onclick="removeFromCart('<%= item.product._id %>')">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        <% }) %>
+                    </div>
+                <% } else { %>
+                    <div class="empty-cart text-center">
+                        <i class="fas fa-shopping-cart fa-4x mb-4"></i>
+                        <h4 class="mb-3">Your cart is empty</h4>
+                        <p class="text-muted mb-4">Looks like you haven't added anything to your cart yet.</p>
+                        <a href="/shop" class="btn btn-primary btn-lg checkout-btn">Start Shopping</a>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+        
+        <% if (cartItems && cartItems.length > 0) { %>
+            <div class="col-lg-4 col-md-10 mt-4 mt-lg-0">
+                <div class="checkout-card card">
+                    <div class="card-header bg-white py-3">
+                        <h4 class="mb-0">Order Summary</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between mb-3">
+                            <span class="text-muted">Subtotal</span>
+                            <span class="fw-bold">₹<%= cartTotal.toLocaleString() %></span>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between mb-4">
+                            <span class="fw-bold">Total</span>
+                            <span class="fw-bold fs-5">₹<%= cartTotal.toLocaleString() %></span>
+                        </div>
+                        <button class="btn btn-primary checkout-btn w-100" onclick="proceedToCheckout()">
+                            Proceed to Checkout
+                        </button>
+                    </div>
+                </div>
+            </div>
+        <% } %>
+    </div>
+</div>
+
+<script>
+async function updateQuantity(productId, action) {
+    try {
+        const button = event.target;
+        button.disabled = true;
+        const response = await fetch('/cart/update-quantity', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ productId, action })
+        });
+        if (response.ok) {
+            location.reload();
+        } else {
+            button.disabled = false;
+            alert('Failed to update quantity. Please try again.');
+        }
+    } catch (error) {
+        console.error('Error updating quantity:', error);
+        button.disabled = false;
+        alert('An error occurred. Please try again.');
+    }
+}
+
+async function removeFromCart(productId) {
+    if (confirm('Are you sure you want to remove this item?')) {
+        try {
+            const response = await fetch('/cart/remove-item', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ productId })
+            });
+            if (response.ok) {
+                const itemElement = event.target.closest('.cart-item');
+                itemElement.style.opacity = '0';
+                itemElement.style.transform = 'translateX(100px)';
+                setTimeout(() => {
+                    location.reload();
+                }, 300);
+            } else {
+                alert('Failed to remove item. Please try again.');
+            }
+        } catch (error) {
+            console.error('Error removing item:', error);
+            alert('An error occurred. Please try again.');
+        }
+    }
+}
+
+function proceedToCheckout() {
+    const button = event.target;
+    button.disabled = true;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+    window.location.href = '/checkout';
+}
+</script>
+
+<%- include('../../views/partials/user/footer') %>

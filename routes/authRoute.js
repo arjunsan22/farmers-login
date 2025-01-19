@@ -6,7 +6,7 @@ const usermiddle=require('../middlewares/usermiddleware')
 const Product = require('../models/productModel');
 const User=require('../models/userModel')
 const profileController=require('../controller/user/profileController')
-
+const cartController=require('../controller/user/cartController')
 
 router.get('/pagenotfound',userController.pagenotfound)
 
@@ -94,6 +94,14 @@ router.get('/useraddress-Delete/:index', profileController.deleteAddress);
 
 router.get('/shop',userController.loadShopPage)
 
+//cart pages and add to cart
+// Cart Routes
+router.post('/add-to-cart',cartController.addToCart);
+router.get('/cart', cartController.getCart);
+// router.post('/update-cart-quantity', auth.isLogin, cartController.updateQuantity);
+// router.post('/remove-cart-item', auth.isLogin, cartController.removeItem);
+// router.post('/cancel-cart-item', auth.isLogin, cartController.cancelItem);
+
 
 //change email//
 router.get('/changeEmail',profileController.loadchangeEmail)
@@ -118,3 +126,5 @@ router.get('/logout',userController.LoGout)
 
 
 module.exports=router;
+
+
