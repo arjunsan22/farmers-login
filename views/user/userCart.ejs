@@ -4,7 +4,7 @@
         background-color: #f8f9fa;
         border-radius: 15px;
         padding: 20px;
-        box-shadow: 0 0 15px rgba(0,0,0,0.05);
+        box-shadow: 0 0 15px rgba(0,0,0,0.1);
     }
     .cart-item {
         background-color: #fff;
@@ -12,15 +12,16 @@
         padding: 15px;
         margin-bottom: 15px;
         transition: all 0.3s ease;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
     .cart-item:hover {
         transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
     }
     .product-image {
         width: 100%;
-        height: 100px;
+        height: auto;
+        max-height: 100px;
         object-fit: cover;
         border-radius: 8px;
     }
@@ -37,14 +38,13 @@
         height: 30px;
         border-radius: 50%;
         border: none;
-        background-color: #fff;
-        color: #333;
+        background-color: #007bff;
+        color: white;
         font-weight: bold;
         transition: all 0.2s ease;
     }
     .quantity-btn:hover {
-        background-color: #007bff;
-        color: #fff;
+        background-color: #0056b3;
     }
     .remove-btn {
         border-radius: 50%;
@@ -57,10 +57,12 @@
         transition: all 0.2s ease;
     }
     .remove-btn:hover {
-        transform: rotate(90deg);
+        background-color: #dc3545;
+        color: white;
     }
     .empty-cart {
         padding: 40px 20px;
+        text-align: center;
     }
     .empty-cart i {
         color: #dee2e6;
@@ -70,7 +72,7 @@
         position: sticky;
         top: 20px;
         border-radius: 15px;
-        box-shadow: 0 0 20px rgba(0,0,0,0.08);
+        box-shadow: 0 0 20px rgba(0,0,0,0.1);
     }
     .checkout-btn {
         border-radius: 25px;
@@ -109,21 +111,23 @@
                             <div class="cart-item">
                                 <div class="row align-items-center">
                                     <div class="col-md-2 col-sm-3">
-                                        <img src="<%= item.product.images[0] %>" class="product-image" alt="<%= item.product.name %>">
+                                        <img src="/uploads/product-images/<%= item.productImage[0] %>" class="product-image" alt="<%= item.productname %>">
                                     </div>
-                                    <div class="col-md-4 col-sm-9">
-                                        <h5 class="mb-1"><%= item.product.name %></h5>
-                                        <p class="text-muted mb-0">₹<%= item.product.price.toLocaleString() %></p>
+                                    <div class="col-md-6 col-sm-9">
+                                        <h5 class="mb-1"><%= item.productname %></h5>
+                                        <p class="text-muted mb-0">₹<%= item.salePrice.toLocaleString() %></p>
                                     </div>
+                                  
                                     <div class="col-md-3 col-sm-6">
+                                       
                                         <div class="quantity-controls">
-                                            <button class="quantity-btn" onclick="updateQuantity('<%= item.product._id %>', 'decrease')">-</button>
-                                            <span class="mx-3 fw-bold"><%= item.quantity %></span>
-                                            <button class="quantity-btn" onclick="updateQuantity('<%= item.product._id %>', 'increase')">+</button>
+                                            <button class="quantity-btn" onclick="return updateQuantity('<%= item.product._id %>', 'decrease')">-</button>
+                                            <span class="mx-3 fw-bold">
+                                                <span id="quantity-<%= item.product._id %>"><%= item.quantity %></span> KG
+                                                (<span id="grams-<%= item.product._id %>"><%= item.quantity * 1000 %></span> grams)
+                                            </span>
+                                            <button class="quantity-btn" onclick="return updateQuantity('<%= item.product._id %>', 'increase')">+</button>
                                         </div>
-                                    </div>
-                                    <div class="col-md-2 col-sm-4">
-                                        <p class="fw-bold mb-0">₹<%= (item.product.price * item.quantity).toLocaleString() %></p>
                                     </div>
                                     <div class="col-md-1 col-sm-2">
                                         <button class="btn btn-outline-danger remove-btn" onclick="removeFromCart('<%= item.product._id %>')">
@@ -170,65 +174,27 @@
         <% } %>
     </div>
 </div>
-
 <script>
-async function updateQuantity(productId, action) {
-    try {
-        const button = event.target;
-        button.disabled = true;
-        const response = await fetch('/cart/update-quantity', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ productId, action })
-        });
-        if (response.ok) {
-            location.reload();
-        } else {
-            button.disabled = false;
-            alert('Failed to update quantity. Please try again.');
-        }
-    } catch (error) {
-        console.error('Error updating quantity:', error);
-        button.disabled = false;
-        alert('An error occurred. Please try again.');
-    }
-}
 
-async function removeFromCart(productId) {
-    if (confirm('Are you sure you want to remove this item?')) {
-        try {
-            const response = await fetch('/cart/remove-item', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ productId })
-            });
-            if (response.ok) {
-                const itemElement = event.target.closest('.cart-item');
-                itemElement.style.opacity = '0';
-                itemElement.style.transform = 'translateX(100px)';
-                setTimeout(() => {
-                    location.reload();
-                }, 300);
-            } else {
-                alert('Failed to remove item. Please try again.');
-            }
-        } catch (error) {
-            console.error('Error removing item:', error);
-            alert('An error occurred. Please try again.');
-        }
+function updateQuantity(productId, action) {
+    const quantityElement = document.getElementById(`quantity-${productId}`);
+    const gramsElement = document.getElementById(`grams-${productId}`);
+    
+    let currentQuantity = parseInt(quantityElement.innerText);
+    
+    if (action === 'increase') {
+        currentQuantity++;
+    } else if (action === 'decrease' && currentQuantity > 0) {
+        currentQuantity--;
     }
-}
-
-function proceedToCheckout() {
-    const button = event.target;
-    button.disabled = true;
-    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-    window.location.href = '/checkout';
+    
+    quantityElement.innerText = currentQuantity; // Update kg display
+    gramsElement.innerText = currentQuantity * 1000; // Update grams display
+    
+    // Optionally, send updated quantity to the server here
 }
 </script>
 
 <%- include('../../views/partials/user/footer') %>
+
+

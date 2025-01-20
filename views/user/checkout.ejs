@@ -1,0 +1,63 @@
+<%- include("../../views/partials/user/header") %>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+
+<body>
+  <div class="container my-5">
+    <h2 class="text-center mb-4">Checkout</h2>
+    <div class="card shadow p-4 mb-4">
+      <h4>Order Details</h4>
+      <p><strong>Product:</strong> <%= product.productname %></p>
+      <p><strong>Quantity:</strong> <%= quantity %> kg</p>
+      <p><strong>Total Price:</strong> ₹<%= (product.salePrice * quantity).toFixed(2) %></p>
+    </div>
+
+    <form id="checkoutForm" action="/process-order" method="POST" class="card shadow p-4">
+      <input type="hidden" name="productId" value="<%= product._id %>">
+      <input type="hidden" name="quantity" value="<%= quantity %>">
+
+      <div class="mb-3">
+        <label for="address" class="form-label">Choose Address</label>
+        <select class="form-select" id="address" name="address" required>
+          <% user.addresses.forEach((address, index) => { %>
+            <option value="<%= address %>"><%= address %></option>
+          <% }) %>
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <label for="newAddress" class="form-label">Or Enter New Address</label>
+        <textarea class="form-control" id="newAddress" name="newAddress" rows="3"></textarea>
+      </div>
+
+      <div class="mb-3">
+        <label for="phone" class="form-label">Phone Number</label>
+        <input type="tel" class="form-control" id="phone" name="phone" value="<%= user.phone %>" required>
+      </div>
+
+      <div class="mb-3">
+        <label for="paymentMethod" class="form-label">Payment Method</label>
+        <select class="form-select" id="paymentMethod" name="paymentMethod" required>
+          <option value="cod">Cash on Delivery</option>
+          <option value="card" disabled>Card Payment (Coming Soon)</option>
+        </select>
+      </div>
+
+      <div class="text-center">
+        <button type="submit" class="btn btn-success btn-lg">Place Order</button>
+      </div>
+    </form>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
+<%- include("../../views/partials/user/footer") %>

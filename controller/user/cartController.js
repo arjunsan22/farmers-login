@@ -1,99 +1,102 @@
 const User = require("../../models/userModel");
-const Product=require('../../models/productModel')
-const Category=require('../../models/categoryModel')
-const bcrypt=require('bcrypt')
-const env=require('dotenv').config()
-const Cart=require('../../models/cartModel')
+const Product = require('../../models/productModel');
+const Category = require('../../models/categoryModel');
+const bcrypt = require('bcrypt');
+const env = require('dotenv').config();
+const Cart = require('../../models/cartModel');
 
-//add to cart //
+// Add to cart
 
-const addToCart = async(req,res)=>{
-
+const addToCart = async (req, res) => {
+    const { productId, quantity } = req.body;
+    const user = req.session.user; // Assuming user ID is stored in session
+const userId=await User.findById(user)
     try {
-        const userId = req.session.user
-        const { productId, quantity } = req.body;
+        const product = await Product.findById(productId)
 
-        // Get product details
-        const product = await Product.findById(productId);
         if (!product) {
-            return res.status(404).json({ success: false, message: 'Product not found' });
+            return res.status(404).json({ message: 'Product not found' });
         }
 
-        let cart = await Cart.findOne({ userId: userId });
-        
-        if (!cart) {
-            // Create new cart if doesn't exist
-            cart = new Cart({
-                userId: userId,
-                items: []
-            });
-        }
+        const cart = await Cart.findOne({ userId });
 
-        // Calculate prices
-        const price = product.price;
-        const totalPrice = price * quantity;
+        if (cart) {
+            // Check if the product already exists in the cart
+            const existingItem = cart.items.find(item => item.productId.toString() === productId);
 
-        // Check if product already exists in cart
-        const existingItemIndex = cart.items.findIndex(
-            item => item.productId.toString() === productId
-        );
+            if (existingItem) {
+                existingItem.quantity += quantity;
+                existingItem.totalPrice = existingItem.quantity * product.salePrice;
+            } else {
+                cart.items.push({
+                    productId,
+                    quantity,
+                    price: product.salePrice,
+                    totalPrice: quantity * product.salePrice
+                });
+            }
 
-        if (existingItemIndex > -1) {
-            // Update existing item
-            cart.items[existingItemIndex].quantity += quantity;
-            cart.items[existingItemIndex].totalPrice = 
-                cart.items[existingItemIndex].price * cart.items[existingItemIndex].quantity;
+            await cart.save();
         } else {
-            // Add new item
-            cart.items.push({
-                productId: productId,
-                quantity: quantity,
-                price: price,
-                totalPrice: totalPrice,
-                Status: 'placed',
-                cancellation: 'none'
+            // Create a new cart
+            const newCart = new Cart({
+                userId,
+                items: [{
+                    productId,
+                    quantity,
+                    price: product.salePrice,
+                    totalPrice: quantity * product.salePrice
+                }]
             });
+
+            await newCart.save();
         }
 
-        await cart.save();
-        res.json({ success: true, message: 'Product added to cart' });
-
+        res.status(200).json({ success: true, message: 'Product added to cart successfully!' });
     } catch (error) {
-        console.error('Add to cart error:', error);
-        res.status(500).json({ success: false, message: 'Failed to add to cart' });
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Server error' });
     }
+};
 
-    
 
-}
-
-const getCart=async(req,res)=>{
+// Get cart items
+const getCart = async (req, res) => {
+    const userId = req.session.user;
+const user=await User.findById(userId)
     try {
-        const userId = req.session.user;
-        const userData=await User.findById(userId)
-        const cart = await Cart.findOne({ userId: userData })
-            .populate('items.productId');
+        const cart = await Cart.findOne({ userId }).populate('items.productId').populate({
+            path: 'items.productId',
+            populate: { path: 'category' }
+        });;
 
-        const cartItems = cart ? cart.items : [];
-        const cartTotal = cartItems.reduce((total, item) => total + item.totalPrice, 0);
+        if (!cart) {
+            return res.status(200).render('userCart', { cartItems: [], cartTotal: 0 });
+        }
 
-        res.render('userCart', {
-            cartItems,
-            cartTotal,
-            cart
-        });
+        const cartItems = cart.items.map(item => ({
+            productname: item.productId.productname,
+            salePrice: item.productId.salePrice,
+            category: item.productId.category,
+            productImage: item.productId.productImage,
+            product: item.productId, // Ensure this is populated correctly
+            quantity: item.quantity,
+            totalPrice: item.totalPrice
+        }));
 
+        console.log("Cart Items:", cartItems); // Debugging output
+
+        const cartTotal = cart.items.reduce((acc, item) => acc + item.totalPrice, 0);
+
+        res.render('userCart', { cartItems, cartTotal ,user});
     } catch (error) {
-        console.error('Get cart error:', error);
-        res.status(500).render('error', { message: 'Failed to load cart' });
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
     }
+};
 
 
-}
-
-module.exports={
-   
+module.exports = {
     addToCart,
     getCart
-
 }

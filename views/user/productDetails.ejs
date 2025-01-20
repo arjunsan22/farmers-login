@@ -8,9 +8,10 @@
   <title><%= product.productname %> - Product Details</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/elevatezoom/3.0.8/jquery.elevatezoom.min.js"></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/zooming/2.1.1/zooming.min.js"></script>
+  
   <style>
     /* Custom styles for product details page */
     body {
@@ -40,7 +41,7 @@
     }
 
     .zoom-image:hover {
-      transform: scale(1.3); /* Zoom effect on hover */
+      transform: scale(1.1); /* Slight zoom effect on hover */
     }
 
     .breadcrumb {
@@ -57,10 +58,123 @@
     .breadcrumb-item.active {
       color: #6c757d;
     }
+
+    .zoomWindow {
+      border: 1px solid #000;
+      background: white;
+      z-index: 1000;
+    }
+
+    .stars {
+      font-size: 30px;
+      color: gold;
+    }
+
+    /* Related Products Section */
+    .related-products .card {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .related-products .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .related-products .card-img-top {
+      border-top-left-radius: 8px;
+      border-top-right-radius: 8px;
+      height: 200px;
+      object-fit: cover;
+    }
+
+    .related-products .card-body {
+      padding: 1rem;
+    }
+
+    .related-products .card-title {
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+
+    .related-products .card-text {
+      font-size: 1rem;
+      color: #555;
+    }
+
+    .related-products .btn-cart {
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      transition: background-color 0.3s ease-in-out;
+    }
+
+    .related-products .btn-cart:hover {
+      background-color: #0056b3;
+    }
+
+    .related-products .btn-outline-danger {
+      border-color: #dc3545;
+      color: #dc3545;
+      transition: background-color 0.3s ease-in-out;
+    }
+
+    .related-products .btn-outline-danger:hover {
+      background-color: #dc3545;
+      color: #fff;
+    }
+    @keyframes slideIn {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    @keyframes slideOut {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+    }
+
+    .toast.showing {
+        animation: slideIn 0.5s forwards;
+    }
+
+    .toast.hide {
+        animation: slideOut 0.5s forwards;
+    }
+
+
   </style>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+  
 </head>
 
 <body>
+  <div class="toast-container position-fixed top-0 end-0 p-3 h-5">
+    <div id="toast-message" class="toast align-items-center text-bg-success border-0 fade" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                Product added to cart successfully!
+                <br><br>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
+
   <!-- BREADCRUMBS -->
   <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
@@ -104,7 +218,7 @@
           <div class="card-body">
             <h4 class="card-title text-dark mb-4"><%= product.productname %></h4>
             <h5 class="text-muted"><del> Price: ₹<%= product.mainPrice %></del></h5>
-            <h5 class="text-success">Price: ₹<%= product.salePrice %></h5>
+            <h5 class="text-success">Price: ₹<span id="salePrice"><%= product.salePrice %></span></h5>
             <p class="mt-4"><strong>Description:</strong> <%= product.description %></p>
             <p><strong>Category:</strong> <%= product.category.name %></p>
             <p class="mt-4"><strong>More:</strong> <%= product.tag %></p>
@@ -117,27 +231,53 @@
                 <span class="text-danger">Out of Stock</span>
               <% } %>
             </p>
-            <div class="offer-banner bg-warning text-center text-dark p-3 rounded mt-4">
+            <div class="offer-banner bg-warning text-center text-white p-3 rounded mt-4">
               🎉 Limited Time Offer! Get <strong>10% OFF</strong> on this product. Enter your coupon code with this: <span class="text-danger">SAVE10</span> at checkout! 🎁
             </div>
 
             <!-- Action Buttons -->
+            <!-- Quantity and Action Buttons -->
             <div class="mt-4">
-              <button class="btn btn-outline-secondary btn-sm add-to-cart-btn" data-id="product-id"
-              onclick="window.location.href='/add-to-cart'">
-         
-                add TO <i class="fas fa-shopping-cart" style="font-size: 24px;"></i><a href=""></a>
+              <div class="input-group mb-3" style="align-items: center;">
+                <button 
+                  class="btn btn-outline-secondary" 
+                  type="button" 
+                  id="decreaseQuantity" 
+                  style="background-color: lightblue; border-color: blue; color: darkblue; width: 40px; height: 40px;">
+                  -
+                </button>
+                <input 
+                  type="text" 
+                  class="form-control text-center" 
+                  id="quantity" 
+                  value="1" 
+                  readonly 
+                  style="text-align: center; font-size: 16px; width: 60px; margin: 0 10px;">
+                  <span style="font-size: 16px; font-weight:600;">KG</span>
+                <button 
+                  class="btn btn-outline-secondary" 
+                  type="button" 
+                  id="increaseQuantity" 
+                  style="background-color: lightblue; border-color: blue; color: darkblue; width: 40px; height: 40px;">
+                  +
+                </button>
+              </div>
+              <br>
+              <button class="btn btn-primary btn-lg mt-3" id="buyNowButton">
+                Buy Now
               </button>
+              <br><br>
+              <button class="btn btn-cart bg-warning" onclick="addToCart('<%=product._id%>')">
+                <i class="fas fa-shopping-cart"></i> Add to Cart
+              </button>
+           
+              
               <a href="" class="btn btn-outline-danger btn-sm"><i class="fas fa-heart"></i></a>
+
               <div class="stars">
                 ★★★★☆ <p style="font-size:medium;">4.5 ratings</p>
               </div>
-              <style>
-                .stars {
-                  font-size: 30px;
-                  color: gold;
-                }
-              </style>
+
               <br><br>
               <div>
                 <a href="/" class="btn btn-secondary btn-lg">
@@ -151,43 +291,32 @@
     </div>
   </div>
 
+  <!-- Related Products Section -->
   <% if (relatedProducts && relatedProducts.length > 0) { %>
     <section>
-      <!-- Related Products Section -->
       <div class="related-products mt-5 container">
-        <!-- Heading -->
-        <h2 class="mb-4 text-danger text-center" style="font-size: 32px; font: weight 900px; font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;">
+        <h2 class="mb-4 text-danger text-center" style="font-size: 32px; font-weight: 900; font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;">
           RELATED PRODUCTS AND VARIANTS
         </h2>
-
-        <!-- Products Grid -->
         <div class="row">
           <% relatedProducts.forEach((relatedProduct) => { %>
             <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
               <div class="card shadow-sm h-100">
-                <!-- Make Product Image Clickable -->
                 <a href="/productDetails/<%= relatedProduct._id %>">
                   <img src="/uploads/product-images/<%= relatedProduct.productImage[0] %>" class="card-img-top product-img" alt="<%= relatedProduct.productname %>">
                 </a>
-
-                <!-- Card Body -->
                 <div class="card-body d-flex flex-column justify-content-between">
                   <div class="position-absolute top-0 end-0 p-2">
                     <a href="#" class="btn btn-outline-danger btn-sm"><i class="fas fa-heart"></i></a>
                   </div>
                   <h5 class="card-title fw-bold"><%= relatedProduct.productname %></h5>
                   <p class="card-text text-muted">₹ <%= relatedProduct.mainPrice %></p>
-
-                  <!-- Ratings -->
                   <div class="stars">
                     ★★★★☆ <p style="font-size: medium;">4.5 ratings</p>
                   </div>
-
-                  <!-- Action Buttons -->
                   <div class="d-flex justify-content-between mt-3">
-                    <button style="background-color: #6c757d;" class="btn btn-secondary btn-sm add-to-cart-btn" data-id="product-id"
-                    onclick="window.location.href='/add-to-cart'">
-                      <i class="fas fa-shopping-cart" style="font-size: 24px;"></i>
+                    <button class="btn btn-cart" onclick="addToCart('<%=relatedProduct._id%>')">
+                      <i class="fas fa-shopping-cart"></i> Add to Cart
                     </button>
                   </div>
                 </div>
@@ -199,21 +328,123 @@
     </section>
   <% } %>
 
-  <!-- Optional Bootstrap Icons CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
-    $(document).ready(function() {
-        $('.zoom-image').elevateZoom({
-            zoomType: "lens",
-            lensShape: "round",
-            lensSize: 400, // Increased lens size
-            borderSize: 1,
-            borderColour: "#000"
-        });
-    });
+ <!-- add-to-cart -->
+  
+ <script>
+  function showToast(message, isSuccess) {
+      const toastElement = document.getElementById('toast-message');
+      const toastBody = toastElement.querySelector('.toast-body');
+
+      // Update the toast message and appearance
+      toastBody.textContent = message;
+      if (isSuccess) {
+          toastElement.classList.remove('text-bg-danger');
+          toastElement.classList.add('text-bg-success');
+      } else {
+          toastElement.classList.remove('text-bg-success');
+          toastElement.classList.add('text-bg-danger');
+      }
+
+      // Initialize and show the toast
+      const toast = new bootstrap.Toast(toastElement);
+      toast.show();
+  }
+
+  function addToCart(productId) {
+      const userId = "<%= user ? user._id : '' %>"; // Replace this with dynamic server-side user ID
+      if (!userId) {
+          showToast('Please log in to add products to your cart.', false);
+          return;
+      }
+
+      fetch('/add-to-cart', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+              userId: userId,
+              productId: productId,
+              quantity: 1
+          })
+      })
+      .then(response => {
+          if (!response.ok) {
+              throw new Error('Network response was not ok');
+          }
+          return response.json();
+      })
+      .then(data => {
+          if (data.success) {
+              showToast('Product added to cart successfully!', true);
+          } else {
+              showToast('Failed to add product to cart: ' + data.message, false);
+          }
+      })
+      .catch(error => {
+          console.error('Error:', error);
+          showToast('Error adding product to cart.', false);
+      });
+  }
 </script>
-</body>
+
+ 
+ <!-- zoom -->
+ 
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/zooming/2.1.1/zooming.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const zooming = new Zooming({
+        bgColor: 'white',
+        bgOpacity: 0.8,
+        scaleBase: 0.8,
+        scaleExtra: 1.2,
+        scrollThreshold: 50,
+        transitionDuration: 0.4
+      });
+
+      zooming.listen('.zoom-image');
+    });
+
+    
+  </script>
+<script>
+      const quantityInput = document.getElementById('quantity');
+      const salePriceElement = document.getElementById('salePrice');
+      const increaseQuantityButton = document.getElementById('increaseQuantity');
+      const decreaseQuantityButton = document.getElementById('decreaseQuantity');
+      const initialSalePrice = "<%= product.salePrice %>";
+      console.log("Initial Sale Price:", initialSalePrice);
+      
+      increaseQuantityButton.addEventListener('click', () => {
+        let quantity = parseInt(quantityInput.value);
+        quantity++;
+        quantityInput.value = quantity;
+        salePriceElement.textContent = (initialSalePrice * quantity).toFixed(2);
+      });
+
+      decreaseQuantityButton.addEventListener('click', () => {
+        let quantity = parseInt(quantityInput.value);
+        if (quantity > 1) {
+          quantity--;
+          quantityInput.value = quantity;
+          salePriceElement.textContent = (initialSalePrice * quantity).toFixed(2);
+        }
+      });
+  </script>
+
+  <!-- buy--now -->
+  <script>
+    document.getElementById('buyNowButton').addEventListener('click', () => {
+      
+      const productId = "<%= product._id %>";
+      const quantity = document.getElementById('quantity').value;
+  
+      window.location.href = `/checkout?productId=${productId}&quantity=${quantity}`;
+    });
+  </script>
+  
+  </body>
 
 </html>
 

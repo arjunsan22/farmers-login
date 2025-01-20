@@ -7,7 +7,7 @@ const Product = require('../models/productModel');
 const User=require('../models/userModel')
 const profileController=require('../controller/user/profileController')
 const cartController=require('../controller/user/cartController')
-
+const checkoutController=require('../controller/user/checkoutController')
 router.get('/pagenotfound',userController.pagenotfound)
 
 router.get('/',userController.loadhomepage);
@@ -97,10 +97,15 @@ router.get('/shop',userController.loadShopPage)
 //cart pages and add to cart
 // Cart Routes
 router.post('/add-to-cart',cartController.addToCart);
+
 router.get('/cart', cartController.getCart);
+
 // router.post('/update-cart-quantity', auth.isLogin, cartController.updateQuantity);
 // router.post('/remove-cart-item', auth.isLogin, cartController.removeItem);
 // router.post('/cancel-cart-item', auth.isLogin, cartController.cancelItem);
+
+
+router.get('/checkout',usermiddle.isLogout,checkoutController.loadCheckoutPage)
 
 
 //change email//
