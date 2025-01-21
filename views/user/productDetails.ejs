@@ -10,7 +10,7 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/elevatezoom/3.0.8/jquery.elevatezoom.min.js"></script>
-   <script src="https://cdnjs.cloudflare.com/ajax/libs/zooming/2.1.1/zooming.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/zooming/2.1.1/zooming.min.js"></script>
   
   <style>
     /* Custom styles for product details page */
@@ -125,56 +125,38 @@
       color: #fff;
     }
     @keyframes slideIn {
-        from {
-            transform: translateX(100%);
-            opacity: 0;
-        }
-        to {
-            transform: translateX(0);
-            opacity: 1;
-        }
-    }
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
 
-    @keyframes slideOut {
-        from {
-            transform: translateX(0);
-            opacity: 1;
-        }
-        to {
-            transform: translateX(100%);
-            opacity: 0;
-        }
-    }
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
 
-    .toast.showing {
-        animation: slideIn 0.5s forwards;
-    }
+.toast.showing {
+  animation: slideIn 0.5s forwards;
+}
 
-    .toast.hide {
-        animation: slideOut 0.5s forwards;
-    }
-
-
+.toast.hide {
+  animation: slideOut 0.5s forwards;
+}
   </style>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
-  
 </head>
 
 <body>
-  <div class="toast-container position-fixed top-0 end-0 p-3 h-5">
-    <div id="toast-message" class="toast align-items-center text-bg-success border-0 fade" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="d-flex">
-            <div class="toast-body">
-                Product added to cart successfully!
-                <br><br>
-            </div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-        </div>
-    </div>
-</div>
-
-
   <!-- BREADCRUMBS -->
   <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
@@ -217,25 +199,17 @@
         <div class="col-md-6">
           <div class="card-body">
             <h4 class="card-title text-dark mb-4"><%= product.productname %></h4>
-            <h5 class="text-muted"><del> Price: ₹<%= product.mainPrice %></del></h5>
+            <h5 class="text-muted"><del style="color: #dc3545;"> Price: ₹<%= product.mainPrice %></del></h5>
             <h5 class="text-success">Price: ₹<span id="salePrice"><%= product.salePrice %></span></h5>
             <p class="mt-4"><strong>Description:</strong> <%= product.description %></p>
             <p><strong>Category:</strong> <%= product.category.name %></p>
             <p class="mt-4"><strong>More:</strong> <%= product.tag %></p>
-            <p><strong>Quantity Available:</strong>
-              <% if (product.quantity > 5) { %>
-                <%= product.quantity %> kg
-              <% } else if (product.quantity < 5 && product.quantity != 0) { %>
-                <span class="text-danger">Buy now only <%= product.quantity %> kg left</span>
-              <% } else { %>
-                <span class="text-danger">Out of Stock</span>
-              <% } %>
-            </p>
+            <p><strong>Quantity Available:</strong> <span id="availableQuantity"><%= product.quantity %></span> kg</p>
+            <div id="outOfStockMessage" class="text-danger" style="display: none;">Out of Stock</div>
             <div class="offer-banner bg-warning text-center text-white p-3 rounded mt-4">
               🎉 Limited Time Offer! Get <strong>10% OFF</strong> on this product. Enter your coupon code with this: <span class="text-danger">SAVE10</span> at checkout! 🎁
             </div>
 
-            <!-- Action Buttons -->
             <!-- Quantity and Action Buttons -->
             <div class="mt-4">
               <div class="input-group mb-3" style="align-items: center;">
@@ -252,7 +226,7 @@
                   id="quantity" 
                   value="1" 
                   readonly 
-                  style="text-align: center; font-size: 16px; width: 60px; margin: 0 10px;">
+                  style="text-align: center; font-size: 16px; width: 10px; margin: 0 10px;">
                   <span style="font-size: 16px; font-weight:600;">KG</span>
                 <button 
                   class="btn btn-outline-secondary" 
@@ -266,18 +240,16 @@
               <button class="btn btn-primary btn-lg mt-3" id="buyNowButton">
                 Buy Now
               </button>
-              <br><br>
-              <button class="btn btn-cart bg-warning" onclick="addToCart('<%=product._id%>')">
+              <br>
+              <br>
+              
+              <button class="btn btn-cart" id="addToCartButton" onclick="addToCart('<%=product._id%>')">
                 <i class="fas fa-shopping-cart"></i> Add to Cart
               </button>
-           
-              
               <a href="" class="btn btn-outline-danger btn-sm"><i class="fas fa-heart"></i></a>
-
               <div class="stars">
                 ★★★★☆ <p style="font-size:medium;">4.5 ratings</p>
               </div>
-
               <br><br>
               <div>
                 <a href="/" class="btn btn-secondary btn-lg">
@@ -287,6 +259,38 @@
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast-container position-fixed top-0 end-0 p-3">
+    <div id="toast-message" class="toast text-bg-success" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-header">
+        <strong class="me-auto">Notification</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+      <div class="toast-body">
+        Product added to cart successfully!
+      </div>
+    </div>
+    <div id="toast-out-of-stock" class="toast text-bg-danger" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-header">
+        <strong class="me-auto">Notification</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+      <div class="toast-body">
+        Product is out of stock!
+      </div>
+    </div>
+
+    <div id="toast-not-login" class="toast text-bg-danger" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-header">
+        <strong class="me-auto">Notification</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+      <div class="toast-body">
+        Please log in to add products to your cart !
       </div>
     </div>
   </div>
@@ -328,10 +332,8 @@
     </section>
   <% } %>
 
- <!-- add-to-cart -->
-  
- <script>
-  function showToast(message, isSuccess) {
+  <script>
+    function showToast(message, isSuccess) {
       const toastElement = document.getElementById('toast-message');
       const toastBody = toastElement.querySelector('.toast-body');
 
@@ -348,51 +350,58 @@
       // Initialize and show the toast
       const toast = new bootstrap.Toast(toastElement);
       toast.show();
-  }
+    }
 
-  function addToCart(productId) {
-      const userId = "<%= user ? user._id : '' %>"; // Replace this with dynamic server-side user ID
-      if (!userId) {
-          showToast('Please log in to add products to your cart.', false);
-          return;
-      }
+    function showOutOfStockToast() {
+      const toastElement = document.getElementById('toast-out-of-stock');
+      const toast = new bootstrap.Toast(toastElement);
+      toast.show();
+    }
 
-      fetch('/add-to-cart', {
-          method: 'POST',
-          headers: {
-              'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-              userId: userId,
-              productId: productId,
-              quantity: 1
-          })
-      })
-      .then(response => {
-          if (!response.ok) {
-              throw new Error('Network response was not ok');
-          }
-          return response.json();
-      })
-      .then(data => {
-          if (data.success) {
-              showToast('Product added to cart successfully!', true);
-          } else {
-              showToast('Failed to add product to cart: ' + data.message, false);
-          }
-      })
-      .catch(error => {
-          console.error('Error:', error);
-          showToast('Error adding product to cart.', false);
-      });
-  }
-</script>
+  function showusernotloginToast() {
+      const toastElement = document.getElementById('toast-not-login');
+      const toast = new bootstrap.Toast(toastElement);
+      toast.show();
+    }
+    
+    function addToCart(productId) {
+        const userId = "<%= user ? user._id : '' %>"; // Replace this with dynamic server-side user ID
+        const quantity = document.getElementById('quantity').value;
+        if (!userId) {
+           showToast('Please log in to add products to your cart.');
+            return ;
+        }
 
- 
- <!-- zoom -->
- 
- <script src="https://cdnjs.cloudflare.com/ajax/libs/zooming/2.1.1/zooming.min.js"></script>
-  <script>
+        fetch('/add-to-cart', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                userId: userId,
+                productId: productId,
+                quantity: quantity
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                showToast('Product added to cart successfully!', true);
+            } else {
+                showToast('Failed to add product to cart: ' + data.message, false);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Error adding product to cart', false);
+        });
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
       const zooming = new Zooming({
         bgColor: 'white',
@@ -405,46 +414,73 @@
 
       zooming.listen('.zoom-image');
     });
-
-    
   </script>
-<script>
+  
+  <script>
       const quantityInput = document.getElementById('quantity');
       const salePriceElement = document.getElementById('salePrice');
-      const increaseQuantityButton = document.getElementById('increaseQuantity');
-      const decreaseQuantityButton = document.getElementById('decreaseQuantity');
-      const initialSalePrice = "<%= product.salePrice %>";
-      console.log("Initial Sale Price:", initialSalePrice);
-      
-      increaseQuantityButton.addEventListener('click', () => {
-        let quantity = parseInt(quantityInput.value);
-        quantity++;
-        quantityInput.value = quantity;
+      const availableQuantityElement = document.getElementById('availableQuantity');
+      const outOfStockMessage = document.getElementById('outOfStockMessage');
+      const addToCartButton = document.getElementById('addToCartButton');
+      const buyNowButton = document.getElementById('buyNowButton');
+      const initialSalePrice = parseFloat("<%= product.salePrice %>");
+      let availableQuantity = parseInt("<%= product.quantity %>");
+
+      function updateUI() {
+        const quantity = parseInt(quantityInput.value);
         salePriceElement.textContent = (initialSalePrice * quantity).toFixed(2);
+        availableQuantityElement.textContent = availableQuantity - quantity;
+
+        if (availableQuantity - quantity <= 0) {
+          outOfStockMessage.style.display = 'block';
+          addToCartButton.disabled = true;
+          buyNowButton.disabled = true;
+          showOutOfStockToast();
+        } else {
+          outOfStockMessage.style.display = 'none';
+          addToCartButton.disabled = false;
+          buyNowButton.disabled = false;
+        }
+      }
+
+      document.getElementById('increaseQuantity').addEventListener('click', () => {
+        let quantity = parseInt(quantityInput.value);
+        if (quantity < availableQuantity) {
+          quantity++;
+          quantityInput.value = quantity;
+          updateUI();
+        }
       });
 
-      decreaseQuantityButton.addEventListener('click', () => {
+      document.getElementById('decreaseQuantity').addEventListener('click', () => {
         let quantity = parseInt(quantityInput.value);
         if (quantity > 1) {
           quantity--;
           quantityInput.value = quantity;
-          salePriceElement.textContent = (initialSalePrice * quantity).toFixed(2);
+          updateUI();
         }
       });
+
+      updateUI();
   </script>
 
-  <!-- buy--now -->
+  <!-- buy-now -->
   <script>
     document.getElementById('buyNowButton').addEventListener('click', () => {
-      
+      const quantity = parseInt(document.getElementById('quantity').value);
+      const availableQuantity = parseInt(document.getElementById('availableQuantity').textContent);
+
+      // if (quantity > availableQuantity) {
+      //   alert('The quantity exceeds the available stock.');
+      //   return;
+      // }
+
       const productId = "<%= product._id %>";
-      const quantity = document.getElementById('quantity').value;
-  
       window.location.href = `/checkout?productId=${productId}&quantity=${quantity}`;
     });
   </script>
   
-  </body>
+</body>
 
 </html>
 

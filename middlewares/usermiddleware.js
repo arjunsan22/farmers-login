@@ -20,7 +20,7 @@ const isLogin = (req, res, next) => {
       if (req.session.user.isBlocked) {
         console.log("User is blocked by admin.");
         req.session.destroy(() => {
-          return res.redirect('/login');
+          return res.redirect('/login',{message});
         });
       } else {
         console.log("User is valid. Proceeding to next middleware.");

@@ -100,8 +100,8 @@ router.post('/add-to-cart',cartController.addToCart);
 
 router.get('/cart', cartController.getCart);
 
-// router.post('/update-cart-quantity', auth.isLogin, cartController.updateQuantity);
-// router.post('/remove-cart-item', auth.isLogin, cartController.removeItem);
+router.post('/updateQuantity', cartController.updateQuantity);
+router.post('/removeFromCart', cartController.removeFromCart);
 // router.post('/cancel-cart-item', auth.isLogin, cartController.cancelItem);
 
 

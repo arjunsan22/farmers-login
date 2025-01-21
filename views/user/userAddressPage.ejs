@@ -197,8 +197,12 @@ a.btn-primary:hover {
     </style>
 </head>
 <body>
+    <br><br><br>
     <div class="container mt-5">
-        <h2 class="text-center mb-4 text-danger fs-2">MY ADDRESSES</h2>
+        <h2 class="text-center mb-4 text-white fs-2">MY ADDRESSES 
+            <img src="/images/tractor.png" 
+            alt="Farmers Login Logo" 
+            style="height: 52px; width: auto; object-fit: contain;"></h2>
         
         <% if (userAddress.length === 0) { %>
             <div class="text-center">
@@ -208,7 +212,7 @@ a.btn-primary:hover {
         <% } else { %>
             <div class="row">
                 <% userAddress.forEach((address, index) => { %>
-                    <div class="col-md-6 mb-3">
+                    <div class="col-md-6 mb-3 ">
                         <div class="card">
                             <div class="card-body">
                                 <h5 class="card-title"><%= address.addressType %></h5>

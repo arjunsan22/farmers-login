@@ -7,7 +7,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Profile</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
@@ -26,15 +25,12 @@
                 <input type="text" class="form-control" id="lastname" name="lastname" value="<%= user.lastname %>" required>
             </div>
             
-
-            
             <!-- Phone -->
             <div class="mb-3">
                 <label for="phone" class="form-label">Phone Number</label>
                 <input type="text" class="form-control" id="phone" name="phone" value="<%= user.phone %>" required>
             </div>
             
-   
             <!-- Submit Button -->
             <div class="text-center">
                 <button type="button" id="updateButton" class="btn btn-primary">Update Profile</button>
@@ -43,29 +39,69 @@
         </form>
     </div>
 
+    <script>
+        function validateForm() {
+            let isValid = true;
+    
+            // Clear previous error messages
+            document.querySelectorAll(".error-message").forEach(msg => msg.remove());
+    
+            // First Name Validation
+            const firstName = document.getElementById("firstname");
+            const firstNameValue = firstName.value.trim();
+            if (!/^[A-Za-z]+$/.test(firstNameValue)) {
+                showError(firstName, "First name must contain only letters and no spaces.");
+                isValid = false;
+            }
+    
+            // Last Name Validation
+            const lastName = document.getElementById("lastname");
+            const lastNameValue = lastName.value.trim();
+            if (!/^[A-Za-z]+$/.test(lastNameValue)) {
+                showError(lastName, "Last name must contain only letters and no spaces.");
+                isValid = false;
+            }
+    
+            // Phone Number Validation
+            const phone = document.getElementById("phone");
+            const phoneValue = phone.value.trim();
+            if (!/^\d{10}$/.test(phoneValue)) {
+                showError(phone, "Phone number must be exactly 10 digits.");
+                isValid = false;
+            }
+    
+            return isValid;
+        }
+    
+        function showError(input, message) {
+            const error = document.createElement("div");
+            error.className = "error-message text-danger mt-1";
+            error.innerText = message;
+            input.parentElement.appendChild(error);
+        }
+
+        document.getElementById('updateButton').addEventListener('click', function() {
+            if (validateForm()) {
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "Do you want to update your profile?",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, update it!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Submit the form
+                        document.getElementById('updateProfileForm').submit();
+                    }
+                });
+            }
+        });
+    </script>
+
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-     <!-- Bootstrap JS -->
-     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-     <script>
-         document.getElementById('updateButton').addEventListener('click', function() {
-             Swal.fire({
-                 title: 'Are you sure?',
-                 text: "Do you want to update your profile?",
-                 icon: 'warning',
-                 showCancelButton: true,
-                 confirmButtonColor: '#3085d6',
-                 cancelButtonColor: '#d33',
-                 confirmButtonText: 'Yes, update it!'
-             }).then((result) => {
-                 if (result.isConfirmed) {
-                     // Submit the form
-                     document.getElementById('updateProfileForm').submit();
-                 }
-             });
-         });
-     </script>
 </body>
 </html>
 

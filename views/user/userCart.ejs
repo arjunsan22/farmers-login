@@ -99,7 +99,6 @@
         }
     }
 </style>
-
 <div class="container-fluid py-4">
     <div class="row justify-content-center">
         <div class="col-lg-8 col-md-10">
@@ -108,29 +107,28 @@
                 <% if (cartItems && cartItems.length > 0) { %>
                     <div class="cart-items">
                         <% cartItems.forEach(item => { %>
-                            <div class="cart-item">
+                            <div class="cart-item" style="padding: 15px; margin-bottom: 15px; border: 1px solid #e0e0e0; border-radius: 10px; background-color: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
                                 <div class="row align-items-center">
                                     <div class="col-md-2 col-sm-3">
-                                        <img src="/uploads/product-images/<%= item.productImage[0] %>" class="product-image" alt="<%= item.productname %>">
+                                        <img src="/uploads/product-images/<%= item.productImage[0] %>" class="product-image" alt="<%= item.productname %>" style="width: 100%; height: auto; max-height: 100px; object-fit: cover; border-radius: 8px;">
                                     </div>
                                     <div class="col-md-6 col-sm-9">
                                         <h5 class="mb-1"><%= item.productname %></h5>
                                         <p class="text-muted mb-0">₹<%= item.salePrice.toLocaleString() %></p>
+                                        <br>
+                                        <p id="status-<%= item.product._id %>" class="text-danger" style="font-weight: bold;"></p> <!-- This will show the stock status -->
                                     </div>
-                                  
                                     <div class="col-md-3 col-sm-6">
-                                       
-                                        <div class="quantity-controls">
-                                            <button class="quantity-btn" onclick="return updateQuantity('<%= item.product._id %>', 'decrease')">-</button>
+                                        <div class="quantity-controls" style="display: flex; align-items: center; justify-content: center;">
+                                            <button class="quantity-btn" onclick="return updateQuantity('<%= item.product._id %>', 'decrease')" style="width: 30px; height: 30px; border-radius: 50%; border: none; background-color: #007bff; color: white; font-weight: bold;">-</button>
                                             <span class="mx-3 fw-bold">
                                                 <span id="quantity-<%= item.product._id %>"><%= item.quantity %></span> KG
-                                                (<span id="grams-<%= item.product._id %>"><%= item.quantity * 1000 %></span> grams)
                                             </span>
-                                            <button class="quantity-btn" onclick="return updateQuantity('<%= item.product._id %>', 'increase')">+</button>
+                                            <button class="quantity-btn" onclick="return updateQuantity('<%= item.product._id %>', 'increase')" style="width: 30px; height: 30px; border-radius: 50%; border: none; background-color: #007bff; color: white; font-weight: bold;">+</button>
                                         </div>
                                     </div>
                                     <div class="col-md-1 col-sm-2">
-                                        <button class="btn btn-outline-danger remove-btn" onclick="removeFromCart('<%= item.product._id %>')">
+                                        <button class="btn btn-outline-danger remove-btn" onclick="removeFromCart('<%= item.product._id %>')" style="border-radius: 50%; width: 35px; height: 35px;">
                                             <i class="fas fa-trash-alt"></i>
                                         </button>
                                     </div>
@@ -148,10 +146,13 @@
                 <% } %>
             </div>
         </div>
-        
+    </div>
+</div>
+        <div class="row justify-content-center">
         <% if (cartItems && cartItems.length > 0) { %>
             <div class="col-lg-4 col-md-10 mt-4 mt-lg-0">
                 <div class="checkout-card card">
+                    <% cartItems.forEach(item => { %>
                     <div class="card-header bg-white py-3">
                         <h4 class="mb-0">Order Summary</h4>
                     </div>
@@ -165,36 +166,110 @@
                             <span class="fw-bold">Total</span>
                             <span class="fw-bold fs-5">₹<%= cartTotal.toLocaleString() %></span>
                         </div>
-                        <button class="btn btn-primary checkout-btn w-100" onclick="proceedToCheckout()">
-                            Proceed to Checkout
-                        </button>
+                        <button class="btn btn-primary checkout-btn w-100" 
+                        onclick="proceedToCheckout('<%= item.product._id %>', '<%= item.quantity %>')">
+                        Proceed to Checkout
+                    </button>
+                    
                     </div>
+                    <% }) %>
                 </div>
             </div>
         <% } %>
     </div>
 </div>
+</div>
+
+
+
 <script>
+   //updating cart//
+    async function updateQuantity(productId, action) {
+    const decreaseBtn = document.querySelector(`button[onclick="return updateQuantity('${productId}', 'decrease')"]`);
+    const increaseBtn = document.querySelector(`button[onclick="return updateQuantity('${productId}', 'increase')"]`);
 
-function updateQuantity(productId, action) {
-    const quantityElement = document.getElementById(`quantity-${productId}`);
-    const gramsElement = document.getElementById(`grams-${productId}`);
-    
-    let currentQuantity = parseInt(quantityElement.innerText);
-    
-    if (action === 'increase') {
-        currentQuantity++;
-    } else if (action === 'decrease' && currentQuantity > 0) {
-        currentQuantity--;
+    decreaseBtn.disabled = true;
+    increaseBtn.disabled = true;
+
+    try {
+        const response = await fetch('/updateQuantity', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ productId, action }),
+        });
+        const data = await response.json();
+
+        if (response.ok) {
+            document.getElementById(`quantity-${productId}`).textContent = data.cartItem.quantity;
+            document.getElementById(`grams-${productId}`).textContent = data.cartItem.quantity * 1000;
+            document.getElementById('cart-total').textContent = `₹${data.cartTotal.toLocaleString()}`;
+
+            // Check if the quantity exceeds stock after the update
+            if (data.cartItem.quantity >= data.cartItem.product.quantity) {
+                document.getElementById(`status-${productId}`).textContent = "Out of Stock";
+                document.getElementById(`status-${productId}`).style.color = "red";
+            } else {
+                document.getElementById(`status-${productId}`).textContent = "";
+            }
+        } else {
+            console.log("message:", data.message);
+            if (data.message === 'Out of Stock') {
+                document.getElementById(`status-${productId}`).textContent = "Out of Stock";
+                document.getElementById(`status-${productId}`).style.color = "red";
+            }
+        }
+    } catch (error) {
+        console.error('Error updating quantity:', error);
+    } finally {
+        decreaseBtn.disabled = false;
+        increaseBtn.disabled = false;
     }
-    
-    quantityElement.innerText = currentQuantity; // Update kg display
-    gramsElement.innerText = currentQuantity * 1000; // Update grams display
-    
-    // Optionally, send updated quantity to the server here
 }
-</script>
 
+//remove products from cart //
+
+
+async function removeFromCart(productId) {
+    console.log("button triggered");
+
+    try {
+        const response = await fetch('/removeFromCart', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ productId }),
+        });
+        const data = await response.json();
+
+        if (response.ok) {
+            // Optionally, you can refresh the cart or remove the item from the DOM
+            alert(data.message); // Show success message
+            window.location.reload(); // Reload the cart to reflect changes
+        } else {
+            console.error("Error:", data.message);
+            alert(data.message); // Show error message
+        }
+    } catch (error) {
+        console.error('Error removing product:', error);
+    }
+}
+
+
+
+//proceed to checkout//
+function proceedToCheckout(productId, quantity) {
+    const productStock = parseInt(document.getElementById(`status-${productId}`).textContent) || 0; // Assuming you have the stock status in the status element
+
+    if (quantity > productStock) {
+        alert("This product is out of stock. Please adjust your cart.");
+        window.location.href = '/cart'; // Redirect to the cart page
+    } else {
+        window.location.href = `/checkout?productId=${productId}&quantity=${quantity}`;
+    }
+}
+   </script>
 <%- include('../../views/partials/user/footer') %>
-
 

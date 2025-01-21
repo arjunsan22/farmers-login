@@ -23,25 +23,78 @@
       <input type="hidden" name="productId" value="<%= product._id %>">
       <input type="hidden" name="quantity" value="<%= quantity %>">
 
-      <div class="mb-3">
-        <label for="address" class="form-label">Choose Address</label>
-        <select class="form-select" id="address" name="address" required>
-          <% user.addresses.forEach((address, index) => { %>
-            <option value="<%= address %>"><%= address %></option>
+      <h4>Choose an Address</h4>
+        <div class="row">
+          <% addresses.forEach((address, index) => { %>
+            <div class="col-md-6 mb-3">
+              <div class="card">
+                <div class="card-body">
+                  <h5 class="card-title"><%= address.addressType %></h5>
+                  <p class="card-text">
+                    <strong>Name:</strong> <%= address.name %><br>
+                    <strong>City:</strong> <%= address.city %><br>
+                    <strong>Street Mark:</strong> <%= address.StreetMark %><br>
+                    <strong>State:</strong> <%= address.state %><br>
+                    <strong>Pincode:</strong> <%= address.pincode %><br>
+                    <strong>Phone:</strong> <%= address.Phone %><br>
+                    <strong>Second Phone:</strong> <%= address.SecondPhone %><br>
+                    <strong>House No:</strong> <%= address.Houseno %>
+                  </p>
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" name="address" value="<%= address._id %>" id="address<%= index %>" required>
+                    <label class="form-check-label" for="address<%= index %>">
+                      Select this address
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
           <% }) %>
-        </select>
+        </div>
+      
+
+      <hr>
+      <h4>Add a New Address</h4>
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label for="addressType" class="form-label">Address Type</label>
+          <input type="text" class="form-control" id="addressType" name="addressType" placeholder="Home, Office, etc." required>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label for="name" class="form-label">Full Name</label>
+          <input type="text" class="form-control" id="name" name="name" placeholder="ArjunSandhya" required>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label for="streetMark" class="form-label">Street Mark</label>
+          <input type="text" class="form-control" id="streetMark" name="StreetMark" placeholder="Street, Block, etc." required>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label for="city" class="form-label">City</label>
+          <input type="text" class="form-control" id="city" name="city" placeholder="City Name" required>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label for="state" class="form-label">State</label>
+          <input type="text" class="form-control" id="state" name="state" placeholder="State Name" required>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label for="pincode" class="form-label">Pincode</label>
+          <input type="text" class="form-control" id="pincode" name="pincode" placeholder="Pincode" required>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label for="phone" class="form-label">Phone</label>
+          <input type="tel" class="form-control" id="phone" name="Phone" placeholder="Phone Number" required>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label for="secondPhone" class="form-label">Second Phone</label>
+          <input type="tel" class="form-control" id="secondPhone" name="SecondPhone" placeholder="Optional" >
+        </div>
+        <div class="col-md-6 mb-3">
+          <label for="houseNo" class="form-label">House No</label>
+          <input type="text" class="form-control" id="houseNo" name="Houseno" placeholder="House Number" required>
+        </div>
       </div>
 
-      <div class="mb-3">
-        <label for="newAddress" class="form-label">Or Enter New Address</label>
-        <textarea class="form-control" id="newAddress" name="newAddress" rows="3"></textarea>
-      </div>
-
-      <div class="mb-3">
-        <label for="phone" class="form-label">Phone Number</label>
-        <input type="tel" class="form-control" id="phone" name="phone" value="<%= user.phone %>" required>
-      </div>
-
+      <hr>
       <div class="mb-3">
         <label for="paymentMethod" class="form-label">Payment Method</label>
         <select class="form-select" id="paymentMethod" name="paymentMethod" required>
