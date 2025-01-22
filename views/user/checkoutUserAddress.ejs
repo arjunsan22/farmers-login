@@ -1,0 +1,232 @@
+<%- include("../../views/partials/user/header") %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Add Address</title>
+    <style>
+
+
+.form-container {
+            max-width: 600px;
+            margin-top: 50px;
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-container h2 {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #dc3545;
+            margin-bottom: 30px;
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .form-control {
+            border-radius: 5px;
+            border: 1px solid #ced4da;
+            transition: border-color 0.3s;
+        }
+
+        .form-control:focus {
+            border-color: #80bdff;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.25);
+        }
+
+        .btn-warning {
+            background-color: #ffc107;
+            border-color: #ffc107;
+            font-weight: bold;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        .btn-warning:hover {
+            background-color: #e0a800;
+            border-color: #d39e00;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            border-color: #dc3545;
+            font-weight: bold;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+            border-color: #bd2130;
+        }
+
+        .text-center {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h2 class="text-center mb-4 text-danger">ADD NEW ADDRESS</h2>
+        <form action="/addNewCheckoutAddress" method="POST" onsubmit="return validateForm()">
+            <!-- Address Type -->
+            <div class="mb-3">
+                <label for="addressType" class="form-label">Address Type</label>
+                <input type="text" class="form-control" id="addressType" name="addressType" placeholder="Home, Work, etc." required>
+            </div>
+            
+            <!-- Name -->
+            <div class="mb-3">
+                <label for="name" class="form-label">Full Name</label>
+                <input type="text" class="form-control" id="name" name="name" placeholder="Your Full Name" required>
+            </div>
+            
+            <!-- City -->
+            <div class="mb-3">
+                <label for="city" class="form-label">City</label>
+                <input type="text" class="form-control" id="city" name="city" placeholder="City Name" required>
+            </div>
+            
+            <!-- Street Mark -->
+            <div class="mb-3">
+                <label for="StreetMark" class="form-label">Street Mark</label>
+                <input type="text" class="form-control" id="StreetMark" name="StreetMark" placeholder="Landmark or Street" required>
+            </div>
+            
+            <!-- State -->
+            <div class="mb-3">
+                <label for="state" class="form-label">State</label>
+                <input type="text" class="form-control" id="state" name="state" placeholder="State" required>
+            </div>
+            
+            <!-- Pincode -->
+            <div class="mb-3">
+                <label for="pincode" class="form-label">Pincode</label>
+                <input type="number" class="form-control" id="pincode" name="pincode" placeholder="6-digit Pincode" required>
+            </div>
+            
+            <!-- Phone -->
+            <div class="mb-3">
+                <label for="Phone" class="form-label">Phone Number</label>
+                <input type="text" class="form-control" id="Phone" name="Phone" placeholder="Primary Phone Number" required>
+            </div>
+            
+            <!-- Second Phone -->
+            <div class="mb-3">
+                <label for="SecondPhone" class="form-label">Secondary Phone Number</label>
+                <input type="text" class="form-control" id="SecondPhone" name="SecondPhone" placeholder="Secondary Phone Number (Optional)" required>
+            </div>
+            
+            <!-- House Number -->
+            <div class="mb-3">
+                <label for="Houseno" class="form-label">House Number</label>
+                <input type="text" class="form-control" id="Houseno" name="Houseno" placeholder="House Number or Flat Number" required>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="text-center">
+                <button type="submit" class="btn btn-warning" >Add Address</button>
+                <a href="/checkout" class="btn btn-danger">Cancel</a>
+                <br><br>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Validation Script -->
+    <script>
+        function validateForm() {
+            const addressType = document.getElementById("addressType").value.trim();
+            const name = document.getElementById("name").value.trim();
+            const city = document.getElementById("city").value.trim();
+            const StreetMark = document.getElementById("StreetMark").value.trim();
+            const state = document.getElementById("state").value.trim();
+            const pincode = document.getElementById("pincode").value.trim();
+            const Phone = document.getElementById("Phone").value.trim();
+            const SecondPhone = document.getElementById("SecondPhone").value.trim();
+            const Houseno = document.getElementById("Houseno").value.trim();
+
+            const phoneRegex = /^[0-9]{10}$/; // Validate 10-digit phone numbers
+            const pincodeRegex = /^[0-9]{6}$/; // Validate 6-digit pincode
+
+            if (!addressType) {
+                alert("Address Type is required.");
+                return false;
+            }
+
+            if (!name) {
+                alert("Full Name is required.");
+                return false;
+            }
+
+            if (!city) {
+                alert("City is required.");
+                return false;
+            }
+
+            if (!StreetMark) {
+                alert("Street Mark is required.");
+                return false;
+            }
+
+            if (!state) {
+                alert("State is required.");
+                return false;
+            }
+
+            if (!pincode || !pincodeRegex.test(pincode)) {
+                alert("Enter a valid 6-digit Pincode.");
+                return false;
+            }
+
+            if (!Phone || !phoneRegex.test(Phone)) {
+                alert("Enter a valid 10-digit Primary Phone Number.");
+                return false;
+            }
+
+            if (!SecondPhone || !phoneRegex.test(SecondPhone)) {
+                alert("Enter a valid 10-digit Secondary Phone Number.");
+                return false;
+            }
+
+            if (!Houseno) {
+                alert("House Number is required.");
+                return false;
+            }
+
+            // If all validations pass
+            return true;
+        }
+    </script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  // Confirmation function using SweetAlert2
+  function confirmDelete(event) {
+    event.preventDefault(); // Prevent the default behavior (navigating to the link)
+
+    // Show SweetAlert confirmation dialog
+    Swal.fire({
+      title: 'Are You Adding Another Address?',
+      text: "Adding Address",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, Add it!',
+      cancelButtonText: 'No, some changes'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // If user clicks "Yes, delete it!" proceed with the deletion
+        window.location.href = event.target.href; // Redirect to the delete URL
+      }
+    });
+  }
+</script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+<%- include("../../views/partials/user/footer") %>

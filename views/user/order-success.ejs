@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Success</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Order Successful!</h1>
+    <p>Thank you for your order. Here are your order details:</p>
+
+    <div class="order-summary">
+      <h2>Order Summary</h2>
+      <p><strong>Order ID:</strong> <%= order.orderId %></p>
+      <p><strong>Invoice Date:</strong> <%= order.invoiceDate ? order.invoiceDate.toDateString() : "N/A" %></p>
+      <p><strong>Status:</strong> <%= order.Status %></p>
+    </div>
+
+    <div class="order-items">
+      <h3>Ordered Items</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Product Name</th>
+            <th>Quantity</th>
+            <th>Price</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% order.orderedItems.forEach(item => { %>
+            <tr>
+              <td><%= item.product.productname %></td>
+              <td><%= item.quantity %></td>
+              <td>₹<%= item.price %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="payment-summary">
+      <h3>Payment Summary</h3>
+      <p><strong>Total Price:</strong> ₹<%= order.totalPrice %></p>
+      <p><strong>Discount:</strong> ₹<%= order.discount %></p>
+      <p><strong>Final Amount:</strong> ₹<%= order.finalAmount %></p>
+    </div>
+
+    <div class="next-steps">
+      <a href="/">Go to Home</a>
+      <a href="/orders">View My Orders</a>
+    </div>
+  </div>
+</body>
+</html>

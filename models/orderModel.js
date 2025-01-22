@@ -26,7 +26,7 @@ const orderSchema= new mongoose.Schema({
    }],
    totalPrice:{
     type:Number,
-    required:true
+    default:0
    },
    discount:{
     type:Number,
@@ -34,11 +34,11 @@ const orderSchema= new mongoose.Schema({
    },
    finalAmount:{
     type:Number,
-    required:true
+
    },
    address:{
     type:Schema.Types.ObjectId,
-    ref:"User",
+    ref:"User",//User
     required:true
    },
    invoiceDate:{
@@ -46,7 +46,7 @@ const orderSchema= new mongoose.Schema({
    },
    Status:{
    type:String,
-   required:true,
+   default:"pending",
    enum:["pending","delivered","processing","shipping","cancelled","return request","returned"]
     },
     createdOn:{

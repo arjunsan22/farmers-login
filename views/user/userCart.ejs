@@ -152,7 +152,7 @@
         <% if (cartItems && cartItems.length > 0) { %>
             <div class="col-lg-4 col-md-10 mt-4 mt-lg-0">
                 <div class="checkout-card card">
-                    <% cartItems.forEach(item => { %>
+                   
                     <div class="card-header bg-white py-3">
                         <h4 class="mb-0">Order Summary</h4>
                     </div>
@@ -165,14 +165,20 @@
                         <div class="d-flex justify-content-between mb-4">
                             <span class="fw-bold">Total</span>
                             <span class="fw-bold fs-5">₹<%= cartTotal.toLocaleString() %></span>
+                   
                         </div>
-                        <button class="btn btn-primary checkout-btn w-100" 
-                        onclick="proceedToCheckout('<%= item.product._id %>', '<%= item.quantity %>')">
-                        Proceed to Checkout
-                    </button>
-                    
+                        <div>    
+                            <form action="/checkout" method="GET">
+
+                            <button class="btn btn-primary checkout-btn w-100" 
+                            onclick="proceedToCheckout('<%= JSON.stringify(cartItems.map(item => ({ productId: item.product._id, quantity: item.quantity }))) %>')">
+                            Proceed to Checkout
+                        </button>
+                   </form>
                     </div>
-                    <% }) %>
+                    
+                </div>
+                   
                 </div>
             </div>
         <% } %>
@@ -203,7 +209,7 @@
 
         if (response.ok) {
             document.getElementById(`quantity-${productId}`).textContent = data.cartItem.quantity;
-            document.getElementById(`grams-${productId}`).textContent = data.cartItem.quantity * 1000;
+          
             document.getElementById('cart-total').textContent = `₹${data.cartTotal.toLocaleString()}`;
 
             // Check if the quantity exceeds stock after the update
@@ -260,15 +266,21 @@ async function removeFromCart(productId) {
 
 
 //proceed to checkout//
-function proceedToCheckout(productId, quantity) {
-    const productStock = parseInt(document.getElementById(`status-${productId}`).textContent) || 0; // Assuming you have the stock status in the status element
 
-    if (quantity > productStock) {
+function proceedToCheckout(productId, quantity) {
+
+    const statusElement = document.getElementById(`status-${productId}`);
+    if (statusElement && statusElement.textContent === "Out of Stock") {
         alert("This product is out of stock. Please adjust your cart.");
-        window.location.href = '/cart'; // Redirect to the cart page
-    } else {
-        window.location.href = `/checkout?productId=${productId}&quantity=${quantity}`;
+        window.location.href = '/cart';
+        return;
+   
     }
+    
+
+    
+    window.location.href = `/checkout?productId=${productId}&quantity=${quantity}`;
+
 }
    </script>
 <%- include('../../views/partials/user/footer') %>

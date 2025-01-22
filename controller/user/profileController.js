@@ -109,9 +109,11 @@ const loadUserAddressPage=async (req,res) => {
 
 const  loadaddUserAddressPage=async (req,res) => {
     try{
-        const userId = req.session.userId;
+        const userId = req.session.user;
         const userData =await User.findById(userId)
-        res.render('addAddressPage',{user:userData})
+        res.render('addAddressPage',{
+            user:userData
+        })
     }catch(error){
         console.error("Error loading add address page:", error);
         res.redirect('/pagenotfound');

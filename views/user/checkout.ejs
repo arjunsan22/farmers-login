@@ -14,15 +14,25 @@
     <h2 class="text-center mb-4">Checkout</h2>
     <div class="card shadow p-4 mb-4">
       <h4>Order Details</h4>
-      <p><strong>Product:</strong> <%= product.productname %></p>
-      <p><strong>Quantity:</strong> <%= quantity %> kg</p>
-      <p><strong>Total Price:</strong> ₹<%= (product.salePrice * quantity).toFixed(2) %></p>
-    </div>
-
-    <form id="checkoutForm" action="/process-order" method="POST" class="card shadow p-4">
-      <input type="hidden" name="productId" value="<%= product._id %>">
-      <input type="hidden" name="quantity" value="<%= quantity %>">
-
+      <% products.forEach((product, index) => { %>
+          <div class="product-item <%= index !== products.length - 1 ? 'border-bottom mb-3 pb-3' : '' %>">
+              <p><strong>Product:</strong> <%= product.productname %></p>
+              <p><strong>Quantity:</strong> <%= product.quantity %> kg</p>
+              <p><strong>Price per kg:</strong> ₹<%= product.salePrice.toFixed(2) %></p>
+              <p><strong>Total:</strong> ₹<%= product.totalPrice.toFixed(2) %></p>
+          </div>
+      <% }); %>
+      
+      <div class="mt-3 pt-3 border-top">
+          <h5 class="text-end"><strong>Cart Total:</strong> ₹<%= cartTotal.toFixed(2) %></h5>
+      </div>
+  </div>
+    
+  <form id="checkoutForm" action="/process-order" method="POST" class="card shadow p-4">
+    <% products.forEach((product, index) => { %>
+        <input type="hidden" name="products[]" value="<%= product._id %>">
+        <input type="hidden" name="quantities[]" value="<%= product.quantity %>">
+    <% }); %>
       <h4>Choose an Address</h4>
         <div class="row">
           <% addresses.forEach((address, index) => { %>
@@ -45,55 +55,20 @@
                     <label class="form-check-label" for="address<%= index %>">
                       Select this address
                     </label>
+                <a href="/EditCheckoutAddress/<%= index %>" class="btn btn-warning">Edit</a>
+                
                   </div>
                 </div>
+
               </div>
             </div>
           <% }) %>
         </div>
-      
-
-      <hr>
-      <h4>Add a New Address</h4>
-      <div class="row">
-        <div class="col-md-6 mb-3">
-          <label for="addressType" class="form-label">Address Type</label>
-          <input type="text" class="form-control" id="addressType" name="addressType" placeholder="Home, Office, etc." required>
-        </div>
-        <div class="col-md-6 mb-3">
-          <label for="name" class="form-label">Full Name</label>
-          <input type="text" class="form-control" id="name" name="name" placeholder="ArjunSandhya" required>
-        </div>
-        <div class="col-md-6 mb-3">
-          <label for="streetMark" class="form-label">Street Mark</label>
-          <input type="text" class="form-control" id="streetMark" name="StreetMark" placeholder="Street, Block, etc." required>
-        </div>
-        <div class="col-md-6 mb-3">
-          <label for="city" class="form-label">City</label>
-          <input type="text" class="form-control" id="city" name="city" placeholder="City Name" required>
-        </div>
-        <div class="col-md-6 mb-3">
-          <label for="state" class="form-label">State</label>
-          <input type="text" class="form-control" id="state" name="state" placeholder="State Name" required>
-        </div>
-        <div class="col-md-6 mb-3">
-          <label for="pincode" class="form-label">Pincode</label>
-          <input type="text" class="form-control" id="pincode" name="pincode" placeholder="Pincode" required>
-        </div>
-        <div class="col-md-6 mb-3">
-          <label for="phone" class="form-label">Phone</label>
-          <input type="tel" class="form-control" id="phone" name="Phone" placeholder="Phone Number" required>
-        </div>
-        <div class="col-md-6 mb-3">
-          <label for="secondPhone" class="form-label">Second Phone</label>
-          <input type="tel" class="form-control" id="secondPhone" name="SecondPhone" placeholder="Optional" >
-        </div>
-        <div class="col-md-6 mb-3">
-          <label for="houseNo" class="form-label">House No</label>
-          <input type="text" class="form-control" id="houseNo" name="Houseno" placeholder="House Number" required>
-        </div>
+      <div>  
+              <a href="/loadCheckoutUserAddressPage" class="btn btn-primary">Add Another Address</a>
       </div>
 
+    
       <hr>
       <div class="mb-3">
         <label for="paymentMethod" class="form-label">Payment Method</label>

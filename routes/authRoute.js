@@ -104,16 +104,26 @@ router.post('/updateQuantity', cartController.updateQuantity);
 router.post('/removeFromCart', cartController.removeFromCart);
 // router.post('/cancel-cart-item', auth.isLogin, cartController.cancelItem);
 
-
+//checkout//
 router.get('/checkout',usermiddle.isLogout,checkoutController.loadCheckoutPage)
+router.get('/loadCheckoutUserAddressPage',usermiddle.isLogout,checkoutController.loadCheckoutUserAddress)        
+router.post('/addNewCheckoutAddress',checkoutController.addNewCheckoutAddress)
+router.get('/EditCheckoutAddress/:index',usermiddle.isLogout,checkoutController.loadEditCheckoutAddressPage)
+router.post('/updateCheckoutAddress/:index',checkoutController.updateCheckoutAddress)
+//place order//
+router.post('/process-order', checkoutController.Orderplacement)
+
+router.get('/order-success/:orderId',checkoutController.orderSuccess)
 
 
+
+  
 //change email//
-router.get('/changeEmail',profileController.loadchangeEmail)
+router.get('/changeEmail',usermiddle.isLogout,profileController.loadchangeEmail)
 router.post('/changeEmail',profileController.changeEmail)//worked
 router.post('/verifyEmailOTP',profileController.verifyEmailOTP)
 router.post('/verifyEmailResend-OTP',profileController.verifyEmailResendOTP)
-router.get('/reset-email',profileController.loadResetEmail)
+router.get('/reset-email',usermiddle.isLogout,profileController.loadResetEmail)
 router.post('/resetEmail',profileController.resetEmail)
 
 
