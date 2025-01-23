@@ -215,7 +215,6 @@ a.btn-primary:hover {
                     <div class="col-md-6 mb-3 ">
                         <div class="card">
                             <div class="card-body">
-                                <h5 class="card-title"><%= address.addressType %></h5>
                                 <p class="card-text">
                                     <strong>Name:</strong> <%= address.name %><br>
                                     <strong>City:</strong> <%= address.city %><br>
@@ -226,10 +225,10 @@ a.btn-primary:hover {
                                     <strong>Second Phone:</strong> <%= address.SecondPhone %><br>
                                     <strong>House No:</strong> <%= address.Houseno %>
                                 </p>
-                                <a href="/useraddress-Edit/<%= index %>" class="btn btn-warning btn-sm">Edit</a>
+                                <a href="/useraddress-Edit/<%= address._id %>" class="btn btn-warning btn-sm">Edit</a>
                                 
                                 <a 
-                                href="/useraddress-Delete/<%= index %>" 
+                                href="/useraddress-Delete/<%= address._id   %>" 
                                 class="btn btn-danger btn-sm" 
                                 onclick="return confirmDelete(event)"
                               >

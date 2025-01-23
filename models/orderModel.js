@@ -1,5 +1,5 @@
 const mongoose=require('mongoose')
-const {Schema}=mongoose;
+
 
 const {v4:uuidv4}=require('uuid')
 const orderSchema= new mongoose.Schema({
@@ -8,9 +8,14 @@ const orderSchema= new mongoose.Schema({
     default:()=>uuidv4(),
     unique:true
    },
+   userId:{
+    type: mongoose.Schema.Types.ObjectId,
+    ref:"User",
+    required:true
+   },
    orderedItems:[{
     product:{
-        type:Schema.Types.ObjectId, 
+        type: mongoose.Schema.Types.ObjectId, 
         ref:"Product",
         required:true
     },
@@ -37,8 +42,8 @@ const orderSchema= new mongoose.Schema({
 
    },
    address:{
-    type:Schema.Types.ObjectId,
-    ref:"User",//User
+    type: mongoose.Schema.Types.ObjectId,
+    ref:"Address",
     required:true
    },
    invoiceDate:{
@@ -57,6 +62,10 @@ const orderSchema= new mongoose.Schema({
     couponApplied:{
         type:Boolean,
         default:false
+    },
+    paymentMethod:{
+        type:String,
+        required:true
     }
 
     })

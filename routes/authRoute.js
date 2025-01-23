@@ -8,6 +8,9 @@ const User=require('../models/userModel')
 const profileController=require('../controller/user/profileController')
 const cartController=require('../controller/user/cartController')
 const checkoutController=require('../controller/user/checkoutController')
+
+const orderController=require('../controller/user/orderController')
+
 router.get('/pagenotfound',userController.pagenotfound)
 
 router.get('/',userController.loadhomepage);
@@ -82,11 +85,11 @@ router.get('/useraddress',usermiddle.isLogout,profileController.loadUserAddressP
 router.get('/addUserAddress',usermiddle.isLogout,profileController.loadaddUserAddressPage)
 router.post('/addNewAddress',profileController.addUserAddress)
 
-router.get('/useraddress-Edit/:index',usermiddle.isLogout,profileController.loadEditAddress);
+router.get('/useraddress-Edit/:addressId',usermiddle.isLogout,profileController.loadEditAddress);
 
-router.post('/updateAddress-Edit/:index',profileController.updateAddress)
+router.post('/updateAddress-Edit/:addressId',profileController.updateAddress)
 //delete address//
-router.get('/useraddress-Delete/:index', profileController.deleteAddress);
+router.get('/useraddress-Delete/:addressId', profileController.deleteAddress);
 // useraddress-Delete
 
 
@@ -108,14 +111,18 @@ router.post('/removeFromCart', cartController.removeFromCart);
 router.get('/checkout',usermiddle.isLogout,checkoutController.loadCheckoutPage)
 router.get('/loadCheckoutUserAddressPage',usermiddle.isLogout,checkoutController.loadCheckoutUserAddress)        
 router.post('/addNewCheckoutAddress',checkoutController.addNewCheckoutAddress)
-router.get('/EditCheckoutAddress/:index',usermiddle.isLogout,checkoutController.loadEditCheckoutAddressPage)
-router.post('/updateCheckoutAddress/:index',checkoutController.updateCheckoutAddress)
+router.get('/EditCheckoutAddress/:addressId',usermiddle.isLogout,checkoutController.loadEditCheckoutAddressPage)
+router.post('/updateCheckoutAddress/:addressId',checkoutController.updateCheckoutAddress)
 //place order//
 router.post('/process-order', checkoutController.Orderplacement)
 
 router.get('/order-success/:orderId',checkoutController.orderSuccess)
 
 
+//order-management://
+
+
+router.get('/order-history',orderController.getOrderHistory);
 
   
 //change email//

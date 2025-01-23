@@ -13,59 +13,55 @@
 <body>
     <div class="container mt-5">
         <h2 class="text-center mb-4 text-primary">EDIT ADDRESS</h2>
-        <form action="/updateCheckoutAddress/<%=index %>" method="POST" onsubmit="return validateForm()">
+        <form action="/updateCheckoutAddress/<%= userAddress._id %>" method="POST" onsubmit="return validateForm()">
             <!-- Address Type -->
-            <div class="mb-3">
-                <label for="addressType" class="form-label">Address Type</label>
-                <input type="text" class="form-control" id="addressType" name="addressType" value="<%= address.addressType %>" required>
-            </div>
-            
+          
             <!-- Name -->
             <div class="mb-3">
                 <label for="name" class="form-label">Full Name</label>
-                <input type="text" class="form-control" id="name" name="name" value="<%= address.name %>" required>
+                <input type="text" class="form-control" id="name" name="name" value="<%= userAddress.name %>" required>
             </div>
             
             <!-- City -->
             <div class="mb-3">
                 <label for="city" class="form-label">City</label>
-                <input type="text" class="form-control" id="city" name="city" value="<%= address.city %>" required>
+                <input type="text" class="form-control" id="city" name="city" value="<%= userAddress.city %>" required>
             </div>
             
             <!-- Street Mark -->
             <div class="mb-3">
                 <label for="StreetMark" class="form-label">Street Mark</label>
-                <input type="text" class="form-control" id="StreetMark" name="StreetMark" value="<%= address.StreetMark %>" required>
+                <input type="text" class="form-control" id="StreetMark" name="StreetMark" value="<%= userAddress.StreetMark %>" required>
             </div>
             
             <!-- State -->
             <div class="mb-3">
                 <label for="state" class="form-label">State</label>
-                <input type="text" class="form-control" id="state" name="state" value="<%= address.state %>" required>
+                <input type="text" class="form-control" id="state" name="state" value="<%= userAddress.state %>" required>
             </div>
             
             <!-- Pincode -->
             <div class="mb-3">
                 <label for="pincode" class="form-label">Pincode</label>
-                <input type="number" class="form-control" id="pincode" name="pincode" value="<%= address.pincode %>" required>
+                <input type="number" class="form-control" id="pincode" name="pincode" value="<%= userAddress.pincode %>" required>
             </div>
             
             <!-- Phone -->
             <div class="mb-3">
                 <label for="Phone" class="form-label">Phone Number</label>
-                <input type="text" class="form-control" id="Phone" name="Phone" value="<%= address.Phone %>" required>
+                <input type="text" class="form-control" id="Phone" name="Phone" value="<%= userAddress.Phone %>" required>
             </div>
             
             <!-- Second Phone -->
             <div class="mb-3">
                 <label for="SecondPhone" class="form-label">Secondary Phone Number</label>
-                <input type="text" class="form-control" id="SecondPhone" name="SecondPhone" value="<%= address.SecondPhone %>" required>
+                <input type="text" class="form-control" id="SecondPhone" name="SecondPhone" value="<%= userAddress.SecondPhone %>" required>
             </div>
             
             <!-- House Number -->
             <div class="mb-3">
                 <label for="Houseno" class="form-label">House Number</label>
-                <input type="text" class="form-control" id="Houseno" name="Houseno" value="<%= address.Houseno %>" required>
+                <input type="text" class="form-control" id="Houseno" name="Houseno" value="<%= userAddress.Houseno %>" required>
             </div>
 
             <!-- Submit Button -->

@@ -10,7 +10,9 @@ const loadCheckoutPage = async (req, res) => {
       console.log("user session in checkout page :",userId)
       const user = await User.findById(userId);
 
-  const userAddress=await Address.findOne({userId})
+  const userAddress=await Address.find({userId})
+
+  console.log("address : ",userAddress)
 
   const cart = await Cart.findOne({ userId })
   .populate({
@@ -36,27 +38,28 @@ const products = cart.items.map(item => ({
   
      // checking   the user has any addresses//
    
-     const addresses = userAddress
-     ? userAddress.address.map((addr) => ({
-         _id: addr._id,
-         addressType: addr.addressType,  // Ensure addressType is being passed
-         name: addr.name,  // Make sure name is included
-         city: addr.city,
-         StreetMark: addr.StreetMark,
-         state: addr.state,
-         pincode: addr.pincode,
-         Phone: addr.Phone,
-         SecondPhone: addr.SecondPhone,
-         Houseno: addr.Houseno,
-       }))
-     : [];
+    //  const addresses = userAddress
+    //  ? userAddress.address.map((addr) => ({
+    //      _id: addr._id,
+    //      addressType: addr.addressType,  // Ensure addressType is being passed
+    //      name: addr.name,  // Make sure name is included
+    //      city: addr.city,
+    //      StreetMark: addr.StreetMark,
+    //      state: addr.state,
+    //      pincode: addr.pincode,
+    //      Phone: addr.Phone,
+    //      SecondPhone: addr.SecondPhone,
+    //      Houseno: addr.Houseno,
+    //    }))
+    //  : [];
    
+
      // If no addresses, pass an empty array//
   
       res.render('checkout', {
         products,
         user,
-        addresses,
+        userAddress,
         cartTotal
 
       });
@@ -95,49 +98,34 @@ const addNewCheckoutAddress = async (req, res) => {
   try {
     const userId = req.session.user;
 
-    const { addressType, name, city, StreetMark, state, pincode, Phone, SecondPhone, Houseno } = req.body;
+    const {  name, city, StreetMark, state, pincode, Phone, SecondPhone, Houseno } = req.body;
 
     // finding the user already has an address //
-    let userAddress = await Address.findOne({ userId });
-
-    if (!userAddress) {
-        // if no address existss, create a new address//
-        userAddress = new Address({
-            userId: userId,
-            address: [
-                {
-                    addressType,
-                      name,
-                     city,
-                    StreetMark,
-                    state,
-                    pincode,
-                    Phone,
-                    SecondPhone,
-                    Houseno,
-                },
-            ],
-        });
-    } else {
-        // if address exists, push the new address into the array//
-        userAddress.address.push({
-              addressType,
-             name,
-            city,
-             StreetMark,
-            state,
-            pincode,
-            Phone,
-            SecondPhone,
-            Houseno,
-        });
-    }
-
-    await userAddress.save();
-
-          res.redirect('/checkout');
-
-  } catch (error) {
+        let userAddress = await Address.findOne({ userId });
+    
+        
+                // If no address entry exists, create a new one
+                userAddress = new Address({
+                    userId: userId,
+                              name,
+                             city,
+                            StreetMark,
+                            state,
+                            pincode,
+                            Phone,
+                            SecondPhone,
+                            Houseno,
+                        
+                    
+                });
+        
+        
+    
+            await userAddress.save();
+    
+                  res.redirect('/checkout');
+    
+        } catch (error) {
     console.error("error in adding address",error);
     res.redirect('/pagenotfound');
   }
@@ -147,215 +135,44 @@ const addNewCheckoutAddress = async (req, res) => {
 
 const loadEditCheckoutAddressPage=async (req,res) => {
   
-  try {
-    const userId = req.session.user;
-    const userData =await User.findById(userId) // Assuming session contains the user ID
-    const index = req.params.index;
-// console.log("index: ", index)
-// console.log("userid: ", userId)
-    const userAddress = await Address.findOne({ userId });
-    // console.log("address: ",userAddress)
-    if (userAddress && userAddress.address[index]) {
-        const addressToEdit = userAddress.address[index];
-        res.render('editUserCheckoutAddress', { address: addressToEdit, index ,user:userData});
-    } else {
-        res.status(404).send('Address not found');
-    }
-} catch (error) {
-    console.error(error);
-    res.status(500).send('Internal Server Error');
-}
+   try {
+          const userId = req.session.user;
+          const userData =await User.findById(userId) 
+          const {addressId}=req.params// Assuming session contains the user ID
+          const userAddress = await Address.findById( addressId );
+          // console.log(userAddress)
+          res.render('editUserCheckoutAddress',{userAddress,user:userData})
+      } catch (error) {
+          console.error(error);
+          res.status(500).send('Internal Server Error');
+      }
 
   
 }
 
 const updateCheckoutAddress=async (req,res) => {
 
-  try {
-    const userId = req.session.user;
-    const index = req.params.index;
-// console.log("update process user check : ", userId)
-    const updatedData = {
-        addressType: req.body.addressType,
-        name: req.body.name,
-        city: req.body.city,
-        StreetMark: req.body.StreetMark,
-        state: req.body.state,
-        pincode: req.body.pincode,
-        Phone: req.body.Phone,
-        SecondPhone: req.body.SecondPhone,
-        Houseno: req.body.Houseno,
-    };
-
-    const userAddress = await Address.findOne({ userId });
-    if (userAddress && userAddress.address[index]) {
-        userAddress.address[index] = updatedData; // Update the specific address
-        await userAddress.save();
-        res.redirect('/checkout');
-    } else {
-        res.status(404).send('Address not found');
-    }
-} catch (error) {
-    console.error(error);
-    res.status(500).send('Internal Server Error');
-}
-}
-
-//order placement//
-
-// const Orderplacement = async (req, res) => {
-//   try {
-//     // Extract userId from session
-//     const userId = req.session.user; // Use the correct session key based on your setup
-
-//     // Validate user session
-//     if (!userId) {
-//       return res.status(401).send('Unauthorized: User not logged in');
-//     }
-
-//     const { products, quantities, address, paymentMethod } = req.body;
-
-//     // Update product stock
-//     for (let i = 0; i < products.length; i++) {
-//       const productId = products[i];
-//       const quantity = quantities[i];
-
-//       // Decrease product stock
-//       const product = await Product.findById(productId);
-//       if (!product) {
-//         return res.status(404).send(`Product with ID ${productId} not found`);
-//       }
-
-//       if (product.quantity < quantity) {
-//         return res.status(400).send(`Insufficient stock for product: ${product.productname}`);
-//       }
-
-//       product.quantity -= quantity; // Decrement the stock
-//       if (product.quantity < 0) {
-//         product.quantity = 0; // Optional: Set to zero instead of allowing negatives
-//       }
-//       await product.save();
-//     }
-
-//     // Create an order object
-//     const order = new Order({
-//       userId,
-//       products: products.map((productId, index) => ({
-//         productId,
-//         quantity: quantities[index],
-//       })),
-//       address,
-//       paymentMethod,
+   try {
+          const userId = req.session.user;
+          
+          const {addressId} = req.params
+          const userAddress = await Address.findById(addressId);
+          userAddress.name=req.body.name,
+          userAddress.city= req.body.city,
+          userAddress.StreetMark= req.body.StreetMark,
+          userAddress.state= req.body.state,
+          userAddress.pincode= req.body.pincode,
+          userAddress.Phone=req.body.Phone,
+          userAddress.SecondPhone= req.body.SecondPhone,
+          userAddress.Houseno= req.body.Houseno,
+            await userAddress.save()
+           res.redirect('/checkout')
       
-//       status: 'Confirmed',
-//     });
-
-//     // Save the order in the database
-//     const savedOrder = await order.save();
-
-//     // Clear user's cart after successful order placement
-//     await Cart.updateOne(
-//       { userId },
-//       { $set: { items: [] } }
-//     );
-
-//     // Redirect to success page with order ID
-//     res.redirect(`/order-success/${savedOrder._id}`);
-//   } catch (error) {
-//     console.error('Error placing order:', error);
-//     res.status(500).send('Something went wrong while placing the order');
-//   }
-// };
-
-
-
-// const Orderplacement = async (req, res) => {
-//   try {
-//     // Extract userId from session
-//     const userId = req.session.user; // Use the correct session key based on your setup
-
-//     // Validate user session
-//     if (!userId) {
-//       return res.status(401).send('Unauthorized: User not logged in');
-//     }
-
-//     const { products, quantities, address, paymentMethod } = req.body;
-
-//     console.log("order address",address)
-//     // Update product stock and calculate total price
-//     let totalPrice = 0;
-//     const orderedItems = [];
-
-//     for (let i = 0; i < products.length; i++) {
-//       const productId = products[i];
-//       const quantity = quantities[i];
-
-//       // Decrease product stock
-//       const product = await Product.findById(productId);
-//       if (!product) {
-//         return res.status(404).send(`Product with ID ${productId} not found`);
-//       }
-
-//       if (product.quantity < quantity) {
-//         return res.status(400).send(`Insufficient stock for product: ${product.productname}`);
-//       }
-
-//       product.quantity -= quantity; // Decrement the stock
-//       if (product.quantity < 0) {
-//         product.quantity = 0; // Optional: Set to zero instead of allowing negatives
-//       }
-//       await product.save();
-
-//       // Calculate total price
-//       const itemTotalPrice = product.salePrice * quantity;
-//       totalPrice += itemTotalPrice;
-
-//       // Add to ordered items
-//       orderedItems.push({
-//         product: productId,
-//         quantity,
-//         price: product.salePrice,
-//       });
-//     }
-
-//     // Calculate discount and final amount (if applicable)
-//     const discount = 0; // Replace with actual discount calculation if applicable
-//     const finalAmount = totalPrice - discount;
-
-//     // Find the address by ID
-//     const selectedAddress = await Address.findById(address);
-//     if (!selectedAddress) {
-//       return res.status(404).send('Address not found');
-//     }
-
-//     // Create an order object
-//     const order = new Order({
-//       userId,
-//       orderedItems,
-//       totalPrice,
-//       discount,
-//       finalAmount,
-//       address: selectedAddress._id,
-//       paymentMethod,
-//       status: 'Confirmed',
-//     });
-
-//     // Save the order in the database
-//     const savedOrder = await order.save();
-
-//     // Clear user's cart after successful order placement
-//     await Cart.updateOne(
-//       { userId },
-//       { $set: { items: [] } }
-//     );
-
-//     // Redirect to success page with order ID
-//     res.redirect(`/order-success/${savedOrder._id}`);
-//   } catch (error) {
-//     console.error('Error placing order:', error);
-//     res.status(500).send('Something went wrong while placing the order');
-//   }
-// };
+      } catch (error) {
+          console.error(error);
+          res.status(500).send('Internal Server Error');
+      }
+}
 
 
 const Orderplacement = async (req, res) => {
@@ -411,22 +228,14 @@ const Orderplacement = async (req, res) => {
     const discount = 0; // Replace with actual discount calculation if applicable
     const finalAmount = totalPrice - discount;
 
-    // Find the address by ID
-    const selectedAddress = await Address.findOne({ "address._id": address });
-    if (!selectedAddress) {
-      return res.status(404).send('Address not found');
-    }
-
-    const addressDetails = selectedAddress.address.id(address);
-
-    // Create an order object
+    
     const order = new Order({
       userId,
       orderedItems,
       totalPrice,
       discount,
       finalAmount,
-      address: addressDetails,
+      address,
       paymentMethod,
       status: 'Confirmed',
     });
@@ -434,6 +243,7 @@ const Orderplacement = async (req, res) => {
     // Save the order in the database
     const savedOrder = await order.save();
 
+    console.log("savedOrder details :",savedOrder)
     // Clear user's cart after successful order placement
     await Cart.updateOne(
       { userId },
@@ -451,6 +261,9 @@ const Orderplacement = async (req, res) => {
 
 const orderSuccess = async (req, res) => {
   try {
+    
+    const userId=req.session.user;
+    const userData=await User.findById(userId)
     const orderId = req.params.orderId;
 
     // Find the order by ID to display its details
@@ -463,6 +276,7 @@ const orderSuccess = async (req, res) => {
     // Render the success page with order details
     res.render('order-success', {
       order,
+      user:userData
     });
   } catch (error) {
     console.error('Error displaying order success page:', error);

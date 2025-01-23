@@ -450,7 +450,7 @@
                                                 <%= products[i].quantity %> kg available
                                             <% } else if (products[i].quantity < 5 && products[i].quantity != 0) { %>
                                                 <span class="text-danger">Buy now only <%= products[i].quantity %> kg left</span>
-                                            <% } else { %>
+                                            <% } else if(products[i].quantity == 0 || products[i].quantity <0) { %>
                                                 <span class="text-danger">Out of Stock</span>
                                             <% } %>
                                         </p>

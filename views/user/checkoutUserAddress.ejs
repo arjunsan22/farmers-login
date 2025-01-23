@@ -75,11 +75,7 @@
         <h2 class="text-center mb-4 text-danger">ADD NEW ADDRESS</h2>
         <form action="/addNewCheckoutAddress" method="POST" onsubmit="return validateForm()">
             <!-- Address Type -->
-            <div class="mb-3">
-                <label for="addressType" class="form-label">Address Type</label>
-                <input type="text" class="form-control" id="addressType" name="addressType" placeholder="Home, Work, etc." required>
-            </div>
-            
+       
             <!-- Name -->
             <div class="mb-3">
                 <label for="name" class="form-label">Full Name</label>
@@ -140,7 +136,6 @@
     <!-- Validation Script -->
     <script>
         function validateForm() {
-            const addressType = document.getElementById("addressType").value.trim();
             const name = document.getElementById("name").value.trim();
             const city = document.getElementById("city").value.trim();
             const StreetMark = document.getElementById("StreetMark").value.trim();

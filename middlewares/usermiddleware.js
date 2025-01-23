@@ -14,7 +14,7 @@ const isLogin = (req, res, next) => {
       if (!req.session.user) {
         console.log("No session found. Redirecting to login.");
         return res.redirect('/login');
-      }
+      } 
   
       // Check if the user is blocked directly from session data
       if (req.session.user.isBlocked) {

@@ -7,12 +7,7 @@ var addressSchema = new mongoose.Schema({
         required:true,
         ref:"User"
     },
-    address:[{
-        addressType:{
-            type:String,
-            required:true,
-
-        },
+  
         name:{
             type:String,
             required:true,
@@ -46,8 +41,12 @@ var addressSchema = new mongoose.Schema({
             type:String,
             required:true
         },
+        is_blocked:{
+            default:false,
+            type:Boolean
+        }
         
-    }]
+    
        
     })
     module.exports=mongoose.model('Address',addressSchema)

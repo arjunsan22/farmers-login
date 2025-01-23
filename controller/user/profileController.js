@@ -96,8 +96,9 @@ const loadUserAddressPage=async (req,res) => {
     try {
         const userId = req.session.user;
         const userData =await User.findById(userId)
-        const addressData = await Address.findOne({ userId: userId });
-        res.render('userAddressPage', { user:userData,userAddress: addressData?.address || [] });
+        const addressData = await Address.find({ userId: userId ,is_blocked:false});
+        console.log(addressData)
+        res.render('userAddressPage', { user:userData,userAddress: addressData || [] });
     } catch (error) {
         console.error("Error loading user address page:", error);
         res.redirect('/pagenotfound');
@@ -111,6 +112,7 @@ const  loadaddUserAddressPage=async (req,res) => {
     try{
         const userId = req.session.user;
         const userData =await User.findById(userId)
+        
         res.render('addAddressPage',{
             user:userData
         })
@@ -125,18 +127,15 @@ const addUserAddress=async (req,res) => {
     try {
         const userId = req.session.user;
 
-        const { addressType, name, city, StreetMark, state, pincode, Phone, SecondPhone, Houseno } = req.body;
+        const {  name, city, StreetMark, state, pincode, Phone, SecondPhone, Houseno } = req.body;
 
         // Find if the user already has an address entry
         let userAddress = await Address.findOne({ userId });
 
-        if (!userAddress) {
+    
             // If no address entry exists, create a new one
             userAddress = new Address({
                 userId: userId,
-                address: [
-                    {
-                        addressType,
                           name,
                          city,
                         StreetMark,
@@ -145,23 +144,11 @@ const addUserAddress=async (req,res) => {
                         Phone,
                         SecondPhone,
                         Houseno,
-                    },
-                ],
+                    
+                
             });
-        } else {
-            // if address entry exists, push the new address into the array//
-            userAddress.address.push({
-                  addressType,
-                 name,
-                city,
-                 StreetMark,
-                state,
-                pincode,
-                Phone,
-                SecondPhone,
-                Houseno,
-            });
-        }
+    
+    
 
         await userAddress.save();
 
@@ -185,18 +172,11 @@ const addUserAddress=async (req,res) => {
 const loadEditAddress=async (req,res) => {
     try {
         const userId = req.session.user;
-        const userData =await User.findById(userId) // Assuming session contains the user ID
-        const index = req.params.index;
-console.log("index: ", index)
-console.log("userid: ", userId)
-        const userAddress = await Address.findOne({ userId });
-        // console.log("address: ",userAddress)
-        if (userAddress && userAddress.address[index]) {
-            const addressToEdit = userAddress.address[index];
-            res.render('editAddressPage', { address: addressToEdit, index ,user:userData});
-        } else {
-            res.status(404).send('Address not found');
-        }
+        const userData =await User.findById(userId) 
+        const {addressId}=req.params// Assuming session contains the user ID
+        const userAddress = await Address.findById( addressId );
+        // console.log(userAddress)
+        res.render('editAddressPage',{userAddress,user:userData})
     } catch (error) {
         console.error(error);
         res.status(500).send('Internal Server Error');
@@ -206,28 +186,20 @@ console.log("userid: ", userId)
 const updateAddress=async (req,res) => {
     try {
         const userId = req.session.user;
-        const index = req.params.index;
-// console.log("update process user check : ", userId)
-        const updatedData = {
-            addressType: req.body.addressType,
-            name: req.body.name,
-            city: req.body.city,
-            StreetMark: req.body.StreetMark,
-            state: req.body.state,
-            pincode: req.body.pincode,
-            Phone: req.body.Phone,
-            SecondPhone: req.body.SecondPhone,
-            Houseno: req.body.Houseno,
-        };
-
-        const userAddress = await Address.findOne({ userId });
-        if (userAddress && userAddress.address[index]) {
-            userAddress.address[index] = updatedData; // Update the specific address
-            await userAddress.save();
-            res.redirect('/userAddress');
-        } else {
-            res.status(404).send('Address not found');
-        }
+        
+        const {addressId} = req.params
+        const userAddress = await Address.findById(addressId);
+        userAddress.name=req.body.name,
+        userAddress.city= req.body.city,
+        userAddress.StreetMark= req.body.StreetMark,
+        userAddress.state= req.body.state,
+        userAddress.pincode= req.body.pincode,
+        userAddress.Phone=req.body.Phone,
+        userAddress.SecondPhone= req.body.SecondPhone,
+        userAddress.Houseno= req.body.Houseno,
+          await userAddress.save()
+         res.redirect('/userAddress')
+    
     } catch (error) {
         console.error(error);
         res.status(500).send('Internal Server Error');
@@ -237,15 +209,11 @@ const updateAddress=async (req,res) => {
 const deleteAddress=async (req,res) => {
     try {
         const userId = req.session.user;
-        const index = req.params.index;
-        const userAddress = await Address.findOne({ userId });
-        if (userAddress && userAddress.address[index]) {
-            userAddress.address.splice(index, 1); // Remove the specific address
-            await userAddress.save();
-            res.redirect('/userAddress');
-        } else {
-            res.status(404).send('Address not found');
-        }
+        const {addressId} = req.params;
+        const userAddress = await Address.findById(addressId);
+          userAddress.is_blocked=true
+          await userAddress.save()
+          res.redirect('/userAddress') 
     } catch (error) {
         console.error(error);
         res.status(500).send('Internal Server Error');
