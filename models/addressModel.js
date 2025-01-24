@@ -19,7 +19,7 @@ var addressSchema = new mongoose.Schema({
         },
         StreetMark:{
             type:String,
-            required:true
+           
         },
         state:{
             type:String,

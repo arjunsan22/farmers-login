@@ -7,8 +7,8 @@ const categoryContoller=require('../controller/admin/categoryCtrl')
 const productContoller=require('../controller/admin/productCtrl') 
 const multer=require('multer')
 const path = require('path');
-
-//multer setupp//
+const orderController=require('../controller/admin/adminOrderController')
+//multer setupp//for easy i store admin//
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, 'public/uploads/product-images');
@@ -67,6 +67,10 @@ router.post('/addProductOffer',productContoller.addProductOffer)
 
 router.post('/removeProductOffer',productContoller.removeProductOffer)
 
+//order management//
+
+router.get('/orders',orderController.getAllOrders)
+router.post('/orders/update-status/:orderId',orderController.updateStatus)
 
 router.get('/logout',adminController.Logout)
 

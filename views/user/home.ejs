@@ -176,6 +176,8 @@
                     <h5 class="card-title fw-bold"><%=products[i].productname%></h5>
                     <!-- prise -->
                     <p class="card-text text-muted">₹ <%=products[i].mainPrice%></p>
+                    <p class="card-text text-muted"> <%=products[i].quantity%>kg left</p>
+
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="stars">
                             ★★★★☆ <p style="font-size:medium;">4.5 ratings</p>
@@ -192,11 +194,7 @@
                         <!-- <a href="/productDetails?id=<%=products[i]._id%>" class="btn btn-outline-primary btn-sm">View Details</a> -->
 
 
-                        <button 
-                        class="btn btn-secondary" 
-                        onclick="window.location.href='/add-to-cart'">
-                        <i class="fas fa-shopping-cart"></i> 
-                    </button>
+                       
 
                     
                     </div>
@@ -240,7 +238,9 @@
                 <div class="card-body text-start">
                     <h5 class="card-title fw-bold"><%=products[i].productname%></h5>
                     <!-- prise -->
-                    <p class="card-text text-muted">₹ <%=products[i].mainPrice%></p>
+                    <p class="card-text text-muted">₹ <%=products[i].salePrice%></p>
+                    <p class="card-text text-muted"><%=products[i].quantity%>kg left</p>
+
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="stars">
                             ★★★★☆ <p style="font-size:medium;">4.5 ratings</p>
@@ -257,11 +257,7 @@
                         <!-- <a href="/productDetails?id=<%=products[i]._id%>" class="btn btn-outline-primary btn-sm">View Details</a> -->
 
 
-                        <button 
-                        class="btn btn-secondary" 
-                        onclick="window.location.href='/add-to-cart'">
-                        <i class="fas fa-shopping-cart"></i> 
-                    </button>
+                      
 
                     
                     </div>
@@ -306,6 +302,8 @@
                     <h5 class="card-title fw-bold"><%=products[i].productname%></h5>
                     <!-- prise -->
                     <p class="card-text text-muted">₹ <%=products[i].mainPrice%></p>
+                    <p class="card-text text-muted"><%=products[i].quantity%>kg left</p>
+
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="stars">
                             ★★★★☆ <p style="font-size:medium;">4.5 ratings</p>
@@ -322,11 +320,7 @@
                         <!-- <a href="/productDetails?id=<%=products[i]._id%>" class="btn btn-outline-primary btn-sm">View Details</a> -->
 
 
-                        <button 
-                        class="btn btn-secondary" 
-                        onclick="window.location.href='/add-to-cart'">
-                        <i class="fas fa-shopping-cart"></i> 
-                    </button>
+                     
 
                     
                     </div>

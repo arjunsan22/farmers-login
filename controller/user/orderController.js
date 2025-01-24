@@ -23,8 +23,23 @@ const getOrderHistory = async (req, res) => {
   };
 
 
+  const cancelOrder = async (req, res) => {
+    try {
+        const orderId = req.params.orderId;
+        const updatedOrder = await Order.findByIdAndUpdate(orderId, { Status: 'cancelled' }, { new: true });
+        if (!updatedOrder) {
+            return res.status(404).send('Order not found');
+        }
+        res.redirect('/order-history');
+    } catch (error) {
+        console.error('Error cancelling order:', error);
+        res.status(500).send('Error cancelling order');
+    }
+};
+
 
 module.exports={
 
-    getOrderHistory
+    getOrderHistory,
+    cancelOrder,
 }

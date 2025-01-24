@@ -161,7 +161,7 @@
   <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="/">Home</a></li>
-      <li class="breadcrumb-item"><a href="/products">Products</a></li>
+      <li class="breadcrumb-item"><a href="/shop">Products</a></li>
       <li class="breadcrumb-item active" aria-current="page"><%= product.productname %></li>
     </ol>
   </nav>
@@ -468,7 +468,7 @@
   </script>
 
   <!-- buy-now -->
-  <script>
+  <!-- <script>
     document.getElementById('buyNowButton').addEventListener('click', () => {
       const quantity = parseInt(document.getElementById('quantity').value);
       const availableQuantity = parseInt(document.getElementById('availableQuantity').textContent);
@@ -480,7 +480,7 @@
 
       const productId = "<%= product._id %>";
       window.location.href = `/checkout?productId=${productId}&quantity=${quantity}`;
-    });
+    }); -->
   </script>
   
 </body>

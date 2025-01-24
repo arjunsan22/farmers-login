@@ -386,6 +386,13 @@
             <aside class="col-lg-3 col-md-4">
                 <div class="filter-section">
                     <h5 class="filter-title">FILTERS</h5>
+
+                     <!-- Search Bar -->
+                     <div class="p-3">
+                        <h6 class="mb-3">Search Products</h6>
+                        <input type="text" class="form-control" id="searchInput" placeholder="Search..." value="<%= searchTerm %>">
+                    </div>
+
                     <div class="list-group">
                         <!-- Category Filter -->
                         <div class="p-3">
@@ -458,10 +465,7 @@
                                     </div>
                                 </a>
                                 <div class="product-info pt-0">
-                                    <button class="btn btn-cart" 
-                                    onclick="window.location.href='/add-to-cart'">
-                                        <i class="fas fa-shopping-cart"></i>Add to Cart
-                                    </button>
+                                    
                                 </div>
                             </div>
                         <% } %>
@@ -470,23 +474,59 @@
                             <h3>No products available</h3>
                         </div>
                     <% } %>
+                    
                 </div>
+                <!-- Pagination Section -->
+<div class="pagination-container">
+    <% if (currentPage > 1) { %>
+        <a href="?page=<%= currentPage - 1 %>&category=<%= selectedCategory %>&sortBy=<%= selectedSort %>&search=<%= searchTerm %>" class="pagination-link">Previous</a>
+    <% } else { %>
+        <span class="pagination-link disabled">Previous</span>
+    <% } %>
+
+    <% for (let i = 1; i <= totalPages; i++) { %>
+        <a href="?page=<%= i %>&category=<%= selectedCategory %>&sortBy=<%= selectedSort %>&search=<%= searchTerm %>" 
+           class="pagination-link <%= i === currentPage ? 'active' : '' %>">
+           <%= i %>
+        </a>
+    <% } %>
+
+    <% if (currentPage < totalPages) { %>
+        <a href="?page=<%= currentPage + 1 %>&category=<%= selectedCategory %>&sortBy=<%= selectedSort %>&search=<%= searchTerm %>" class="pagination-link">Next</a>
+    <% } else { %>
+        <span class="pagination-link disabled">Next</span>
+    <% } %>
+</div>
+
             </main>
+            
         </div>
+        
     </div>
 
 
     <script>
-        // Handle category and sort filter changes
+ function debounce(func, delay) {
+        let timeout;
+        return function(...args) {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func(...args), delay);
+        };
+    }
+
+        // handle category and sort filter changes//
         document.querySelectorAll('input[name="category"]').forEach(radio => {
             radio.addEventListener('change', updateFilters);
         });
 
         document.getElementById('sortSelect').addEventListener('change', updateFilters);
+        // document.getElementById('searchInput').addEventListener('input', updateFilters);
 
         function updateFilters() {
             const selectedCategory = document.querySelector('input[name="category"]:checked').value;
             const selectedSort = document.getElementById('sortSelect').value;
+
+            const searchQuery = document.getElementById('searchInput').value.trim();
             
             let url = new URL(window.location.href);
             url.searchParams.set('page', '1'); // Reset to first page when filters change
@@ -502,9 +542,23 @@
             } else {
                 url.searchParams.delete('sortBy');
             }
+
+            if (searchQuery) {
+                url.searchParams.set('search', searchQuery);
+            } else {
+                url.searchParams.delete('search');
+            }
             
             window.location.href = url.toString();
         }
+
+
+    // attach the debounced updateFilters to the search input//
+    const debouncedUpdateFilters = debounce(updateFilters, 1000); // 500ms delay//
+    document.getElementById('searchInput').addEventListener('input', debouncedUpdateFilters);
+
+  
+
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>

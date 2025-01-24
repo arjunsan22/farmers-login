@@ -149,7 +149,7 @@
                             <div class="row">
                                 <div class="col-lg-4 mb-4">
                                     <label class="form-label"> Sale Price</label>
-                                    <input placeholder="₹" name="salePrice" type="text" class="form-control">
+                                    <input placeholder="₹" name="salePrice" type="text" class="form-control" value="<%=product.salePrice%>">
                                     <div id="salePrice-error" class="error-message"></div>
                                 </div>
 
@@ -175,7 +175,7 @@
                             <label class="form-label">Category</label>
                             <select class="form-select" name="category">
                                 <%for(let i=0;i<category.length;i++) {%>
-                                <option value="<%=category[i]._id%>">
+                                <option value="<%=category[i]._id%>"<%= product.category === category[i]._id ? 'selected' : '' %>>
                                    <%=category[i].name%>
                                 </option>
 
@@ -429,7 +429,7 @@ addedImagesContainer.appendChild(thumbnail);
               clearErrorMessages();
               const name = document.getElementsByName('productName')[0].value;
               const description = document.getElementById('descriptionid').value;
-              
+              const salePrice = document.getElementsByName('salePrice')[0].value;
               const price = document.getElementsByName('regularPrice')[0].value;
               const tag = document.getElementsByName('tag')[0].value;
 
@@ -471,7 +471,7 @@ addedImagesContainer.appendChild(thumbnail);
                   isValid = false;
               }
 
-              if (!/^\d+(\.\d{1,2})?$/.test(salePrice) || parseFloat(salePrice) < 0 || parseFloat(salePrice)<= parseFloat(price)) {
+              if (!/^\d+(\.\d{1,2})?$/.test(salePrice) || parseFloat(salePrice) < 0 || parseFloat(salePrice)>parseFloat(price)) {
     displayErrorMessage('salePrice-error', 'Please enter a valid non-negative and sale price lower than the original price.');
     isValid = false;
 

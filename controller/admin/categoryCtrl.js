@@ -33,14 +33,15 @@ const loadcategoryPage=async (req,res) => {
 
 const addCategory=async (req,res) => {
   
-    const {name}=req.body;
-    console.log(name)
+    const {name,description}=req.body;
+    console.log(req.body)
+    console.log(description)
     try {
     const existingCategory=await Category.findOne({name})
     if(existingCategory){
         return res.status(400).json({error:"Category Already Exists"})
     }
-    const newCategory=new Category({ name })    
+    const newCategory=new Category({ name,description })    
     await newCategory.save();
 return res.status(200).json({ message: "Category Added Successfully" });
     // res.redirect('/admin/category');
@@ -103,7 +104,7 @@ const updateCategory=async (req,res) => {
 
     try {
         const id=req.params.id;
-        const {categoryname}=req.body
+        const {categoryname ,description}=req.body
         
     //     console.log("Category ID:", id);
     // console.log("New Category Name:", categoryname);
@@ -112,7 +113,7 @@ const existingCategory=await Category.findOne({name:categoryname})
         if(existingCategory){
             return res.status(400).json({error:"category exists,please choose another name"})
         }
-const updateCategory=await Category.findByIdAndUpdate(id,{name: categoryname }, { new: true })
+const updateCategory=await Category.findByIdAndUpdate(id,{name: categoryname ,description:description}, { new: true })
 
 if(updateCategory){
     res.redirect('/admin/category')

@@ -20,7 +20,7 @@ const loadProfilePage=async (req,res) => {
         console.log("user session in product page :",userId)
         const userData=await User.findById(userId);
         const addressData=await Address.findOne({userId:userId});
-        res.render('userProfile',{user:userData,userAddress:addressData})
+        res.render('userProfile',{user:userData,userAddress:addressData,currentYear: new Date()})
     
     }
     catch(error){

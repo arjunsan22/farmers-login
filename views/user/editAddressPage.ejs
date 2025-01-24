@@ -16,53 +16,61 @@
         <form action="/updateAddress-Edit/<%= userAddress._id %>" method="POST" onsubmit="return validateForm()">
             <!-- Address Type -->
          
-            <!-- Name -->
-            <div class="mb-3">
-                <label for="name" class="form-label">Full Name</label>
-                <input type="text" class="form-control" id="name" name="name" value="<%= userAddress.name %>" required>
-            </div>
-            
-            <!-- City -->
-            <div class="mb-3">
-                <label for="city" class="form-label">City</label>
-                <input type="text" class="form-control" id="city" name="city" value="<%= userAddress.city %>" required>
-            </div>
-            
-            <!-- Street Mark -->
-            <div class="mb-3">
-                <label for="StreetMark" class="form-label">Street Mark</label>
-                <input type="text" class="form-control" id="StreetMark" name="StreetMark" value="<%= userAddress.StreetMark %>" required>
-            </div>
-            
-            <!-- State -->
-            <div class="mb-3">
-                <label for="state" class="form-label">State</label>
-                <input type="text" class="form-control" id="state" name="state" value="<%= userAddress.state %>" required>
-            </div>
-            
-            <!-- Pincode -->
-            <div class="mb-3">
-                <label for="pincode" class="form-label">Pincode</label>
-                <input type="number" class="form-control" id="pincode" name="pincode" value="<%= userAddress.pincode %>" required>
-            </div>
-            
-            <!-- Phone -->
-            <div class="mb-3">
-                <label for="Phone" class="form-label">Phone Number</label>
-                <input type="text" class="form-control" id="Phone" name="Phone" value="<%= userAddress.Phone %>" required>
-            </div>
-            
-            <!-- Second Phone -->
-            <div class="mb-3">
-                <label for="SecondPhone" class="form-label">Secondary Phone Number</label>
-                <input type="text" class="form-control" id="SecondPhone" name="SecondPhone" value="<%= userAddress.SecondPhone %>" required>
-            </div>
-            
-            <!-- House Number -->
-            <div class="mb-3">
-                <label for="Houseno" class="form-label">House Number</label>
-                <input type="text" class="form-control" id="Houseno" name="Houseno" value="<%= userAddress.Houseno %>" required>
-            </div>
+                <!-- Name -->
+                <div class="mb-3">
+                    <label for="name" class="form-label">Full Name</label>
+                    <input type="text" class="form-control" id="name" name="name" value="<%= userAddress.name %>" required>
+                    <small class="text-danger" id="nameError"></small>
+                </div>
+                
+                <!-- City -->
+                <div class="mb-3">
+                    <label for="city" class="form-label">City</label>
+                    <input type="text" class="form-control" id="city" name="city" value="<%= userAddress.city %>" required>
+                    <small class="text-danger" id="cityError"></small>
+                </div>
+                
+                <!-- Street Mark -->
+                <div class="mb-3">
+                    <label for="StreetMark" class="form-label">Street Mark</label>
+                    <input type="text" class="form-control" id="StreetMark" name="StreetMark" value="<%= userAddress.StreetMark %>" required>
+                    <small class="text-danger" id="streetMarkError"></small>
+                </div>
+                
+                <!-- State -->
+                <div class="mb-3">
+                    <label for="state" class="form-label">State</label>
+                    <input type="text" class="form-control" id="state" name="state" value="<%= userAddress.state %>" required>
+                    <small class="text-danger" id="stateError"></small>
+                </div>
+                
+                <!-- Pincode -->
+                <div class="mb-3">
+                    <label for="pincode" class="form-label">Pincode</label>
+                    <input type="text" class="form-control" id="pincode" name="pincode" value="<%= userAddress.pincode %>" required>
+                    <small class="text-danger" id="pincodeError"></small>
+                </div>
+                
+                <!-- Phone -->
+                <div class="mb-3">
+                    <label for="Phone" class="form-label">Phone Number</label>
+                    <input type="text" class="form-control" id="Phone" name="Phone" value="<%= userAddress.Phone %>" required>
+                    <small class="text-danger" id="phoneError"></small>
+                </div>
+                
+                <!-- Second Phone -->
+                <div class="mb-3">
+                    <label for="SecondPhone" class="form-label">Secondary Phone Number</label>
+                    <input type="text" class="form-control" id="SecondPhone" name="SecondPhone" value="<%= userAddress.SecondPhone %>" required>
+                    <small class="text-danger" id="secondPhoneError"></small>
+                </div>
+                
+                <!-- House Number -->
+                <div class="mb-3">
+                    <label for="Houseno" class="form-label">House Number</label>
+                    <input type="text" class="form-control" id="Houseno" name="Houseno" value="<%= userAddress.Houseno %>" required>
+                    <small class="text-danger" id="houseNoError"></small>
+                </div>
 
             <!-- Submit Button -->
             <div class="text-center">
@@ -74,68 +82,89 @@
     </div>
     
     <!-- Validation Script -->
+    
     <script>
-        function validateForm() {
-            const name = document.getElementById("name").value.trim();
-            const city = document.getElementById("city").value.trim();
-            const StreetMark = document.getElementById("StreetMark").value.trim();
-            const state = document.getElementById("state").value.trim();
-            const pincode = document.getElementById("pincode").value.trim();
-            const Phone = document.getElementById("Phone").value.trim();
-            const SecondPhone = document.getElementById("SecondPhone").value.trim();
-            const Houseno = document.getElementById("Houseno").value.trim();
+      function validateForm() {
+    let isValid = true;
 
-            const phoneRegex = /^[0-9]{10}$/; // Validate 10-digit phone numbers
-            const pincodeRegex = /^[0-9]{6}$/; // Validate 6-digit pincode
+    const name = document.getElementById("name").value.trim();
+    const city = document.getElementById("city").value.trim();
+    const state = document.getElementById("state").value.trim();
+    const pincode = document.getElementById("pincode").value.trim();
+    const Phone = document.getElementById("Phone").value.trim();
+    const SecondPhone = document.getElementById("SecondPhone").value.trim();
+    const StreetMark = document.getElementById("StreetMark").value.trim();
+    const Houseno = document.getElementById("Houseno").value.trim();
 
-            if (!addressType) {
-                alert("Address Type is required.");
-                return false;
-            }
+    const nameRegex = /^[A-Za-z\s]+$/; // Allow letters and spaces
+    const phoneRegex = /^[0-9]{10}$/;  // Exactly 10 digits
+    const pincodeRegex = /^[0-9]{6}$/; // Exactly 6 digits
+    const streetMarkRegex = /^[A-Za-z0-9\s,.-]+$/; // Alphanumeric with spaces, comma, dot, dash
 
-            if (!name) {
-                alert("Full Name is required.");
-                return false;
-            }
+    // Clear previous error messages
+    document.getElementById("nameError").textContent = "";
+    document.getElementById("cityError").textContent = "";
+    document.getElementById("stateError").textContent = "";
+    document.getElementById("pincodeError").textContent = "";
+    document.getElementById("phoneError").textContent = "";
+    document.getElementById("secondPhoneError").textContent = "";
+    document.getElementById("streetMarkError").textContent = "";
+    document.getElementById("houseNoError").textContent = "";
 
-            if (!city) {
-                alert("City is required.");
-                return false;
-            }
+    // Name validation
+    if (!name || !nameRegex.test(name)) {
+        document.getElementById("nameError").textContent = "Name must only contain letters and spaces.";
+        isValid = false;
+    }
 
-            if (!StreetMark) {
-                alert("Street Mark is required.");
-                return false;
-            }
+    // City validation
+    if (!city || !nameRegex.test(city)) {
+        document.getElementById("cityError").textContent = "City must only contain letters and spaces.";
+        isValid = false;
+    }
 
-            if (!state) {
-                alert("State is required.");
-                return false;
-            }
+    // State validation
+    if (!state || !nameRegex.test(state)) {
+        document.getElementById("stateError").textContent = "State must only contain letters and spaces.";
+        isValid = false;
+    }
 
-            if (!pincode || !pincodeRegex.test(pincode)) {
-                alert("Enter a valid 6-digit Pincode.");
-                return false;
-            }
+    // StreetMark validation
+    if (!StreetMark || !streetMarkRegex.test(StreetMark)) {
+        document.getElementById("streetMarkError").textContent = "Street Mark can include letters, numbers, spaces, commas, dots, and dashes.";
+        isValid = false;
+    }
 
-            if (!Phone || !phoneRegex.test(Phone)) {
-                alert("Enter a valid 10-digit Primary Phone Number.");
-                return false;
-            }
+    // Pincode validation
+    if (!pincode || !pincodeRegex.test(pincode)) {
+        document.getElementById("pincodeError").textContent = "Enter a valid 6-digit pincode.";
+        isValid = false;
+    }
 
-            if (!SecondPhone || !phoneRegex.test(SecondPhone)) {
-                alert("Enter a valid 10-digit Secondary Phone Number.");
-                return false;
-            }
+    // Phone validation
+    if (!Phone || !phoneRegex.test(Phone)) {
+        document.getElementById("phoneError").textContent = "Enter a valid 10-digit phone number.";
+        isValid = false;
+    } else if (Phone === SecondPhone) {
+        document.getElementById("phoneError").textContent = "Primary and secondary phone numbers must be different.";
+        isValid = false;
+    }
 
-            if (!Houseno) {
-                alert("House Number is required.");
-                return false;
-            }
+    // Secondary Phone validation
+    if (!SecondPhone || !phoneRegex.test(SecondPhone)) {
+        document.getElementById("secondPhoneError").textContent = "Enter a valid 10-digit secondary phone number.";
+        isValid = false;
+    }
 
-            // If all validations pass
-            return true;
-        }
+    // House Number validation (optional)
+    if (!Houseno) {
+        document.getElementById("houseNoError").textContent = "House number is required.";
+        isValid = false;
+    }
+
+    return isValid; // If false, form submission is blocked
+}
+
     </script>
     
     <!-- Bootstrap JS -->

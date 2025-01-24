@@ -19,7 +19,6 @@ router.get('/',userController.loadhomepage);
 router.get('/signup',usermiddle.isLogin,userController.loadSignup)
 
 router.post('/signup',userController.Signup)
-
 router.post('/verifyotp',userController.verifyOTP)
 
 router.post('/resendotp',userController.resendOTP)
@@ -120,10 +119,9 @@ router.get('/order-success/:orderId',checkoutController.orderSuccess)
 
 
 //order-management://
-
-
 router.get('/order-history',orderController.getOrderHistory);
 
+router.post('/orders/cancel/:orderId', orderController.cancelOrder);
   
 //change email//
 router.get('/changeEmail',usermiddle.isLogout,profileController.loadchangeEmail)

@@ -197,6 +197,7 @@ const updateProduct = async (req, res) => {
             description: data.description,
             category: data.category,
             mainPrice: data.regularPrice,
+            salePrice:data.salePrice,
             quantity: data.quantity,
             tag: data.tag
         };

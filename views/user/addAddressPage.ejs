@@ -7,9 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <title>Add Address</title>
     <style>
-
-
-.form-container {
+        .form-container {
             max-width: 600px;
             margin-top: 50px;
             background-color: #ffffff;
@@ -39,6 +37,11 @@
         .form-control:focus {
             border-color: #80bdff;
             box-shadow: 0 0 5px rgba(0, 123, 255, 0.25);
+        }
+
+        .error-message {
+            color: red;
+            font-size: 0.9rem;
         }
 
         .btn-warning {
@@ -74,159 +77,152 @@
     <div class="container mt-5">
         <h2 class="text-center mb-4 text-danger">ADD NEW ADDRESS</h2>
         <form action="/addNewAddress" method="POST" onsubmit="return validateForm()">
-            <!-- Address Type -->
-            <div class="mb-3">
-                <label for="addressType" class="form-label">Address Type</label>
-                <input type="text" class="form-control" id="addressType" name="addressType" placeholder="Home, Work, etc." required>
-            </div>
-            
             <!-- Name -->
             <div class="mb-3">
                 <label for="name" class="form-label">Full Name</label>
-                <input type="text" class="form-control" id="name" name="name" placeholder="Your Full Name" required>
+                <input type="text" class="form-control" id="name" name="name" placeholder="Your Full Name">
+                <small id="nameError" class="error-message"></small>
             </div>
             
             <!-- City -->
             <div class="mb-3">
                 <label for="city" class="form-label">City</label>
-                <input type="text" class="form-control" id="city" name="city" placeholder="City Name" required>
+                <input type="text" class="form-control" id="city" name="city" placeholder="City Name">
+                <small id="cityError" class="error-message"></small>
             </div>
             
             <!-- Street Mark -->
             <div class="mb-3">
                 <label for="StreetMark" class="form-label">Street Mark</label>
-                <input type="text" class="form-control" id="StreetMark" name="StreetMark" placeholder="Landmark or Street" required>
+                <input type="text" class="form-control" id="StreetMark" name="StreetMark" placeholder="Landmark or Street">
+                <small id="StreetMarkError" class="error-message"></small>
             </div>
             
             <!-- State -->
             <div class="mb-3">
                 <label for="state" class="form-label">State</label>
-                <input type="text" class="form-control" id="state" name="state" placeholder="State" required>
+                <input type="text" class="form-control" id="state" name="state" placeholder="State">
+                <small id="stateError" class="error-message"></small>
             </div>
             
             <!-- Pincode -->
             <div class="mb-3">
                 <label for="pincode" class="form-label">Pincode</label>
-                <input type="number" class="form-control" id="pincode" name="pincode" placeholder="6-digit Pincode" required>
+                <input type="number" class="form-control" id="pincode" name="pincode" placeholder="6-digit Pincode">
+                <small id="pincodeError" class="error-message"></small>
             </div>
             
             <!-- Phone -->
             <div class="mb-3">
                 <label for="Phone" class="form-label">Phone Number</label>
-                <input type="text" class="form-control" id="Phone" name="Phone" placeholder="Primary Phone Number" required>
+                <input type="text" class="form-control" id="Phone" name="Phone" placeholder="Primary Phone Number">
+                <small id="phoneError" class="error-message"></small>
             </div>
             
             <!-- Second Phone -->
             <div class="mb-3">
                 <label for="SecondPhone" class="form-label">Secondary Phone Number</label>
-                <input type="text" class="form-control" id="SecondPhone" name="SecondPhone" placeholder="Secondary Phone Number (Optional)" required>
+                <input type="text" class="form-control" id="SecondPhone" name="SecondPhone" placeholder="Secondary Phone Number (Optional)">
+                <small id="secondPhoneError" class="error-message"></small>
             </div>
             
             <!-- House Number -->
             <div class="mb-3">
                 <label for="Houseno" class="form-label">House Number</label>
-                <input type="text" class="form-control" id="Houseno" name="Houseno" placeholder="House Number or Flat Number" required>
+                <input type="text" class="form-control" id="Houseno" name="Houseno" placeholder="House Number or Flat Number">
             </div>
 
             <!-- Submit Button -->
             <div class="text-center">
-                <button type="submit" class="btn btn-warning" >Add Address</button>
+                <button type="submit" class="btn btn-warning">Add Address</button>
                 <a href="/userAddress" class="btn btn-danger">Cancel</a>
                 <br><br>
             </div>
         </form>
     </div>
-    
+
     <!-- Validation Script -->
     <script>
         function validateForm() {
-            const addressType = document.getElementById("addressType").value.trim();
+            let isValid = true;
+
             const name = document.getElementById("name").value.trim();
             const city = document.getElementById("city").value.trim();
-            const StreetMark = document.getElementById("StreetMark").value.trim();
             const state = document.getElementById("state").value.trim();
             const pincode = document.getElementById("pincode").value.trim();
             const Phone = document.getElementById("Phone").value.trim();
             const SecondPhone = document.getElementById("SecondPhone").value.trim();
-            const Houseno = document.getElementById("Houseno").value.trim();
+            const StreetMark = document.getElementById("StreetMark").value.trim();
 
-            const phoneRegex = /^[0-9]{10}$/; // Validate 10-digit phone numbers
-            const pincodeRegex = /^[0-9]{6}$/; // Validate 6-digit pincode
+            const nameRegex = /^[A-Za-z]+$/;
+            const phoneRegex = /^[0-9]{10}$/;
+            const pincodeRegex = /^[0-9]{6}$/;
 
-            if (!addressType) {
-                alert("Address Type is required.");
-                return false;
+
+
+            // Name validation
+            if (!name || !nameRegex.test(name)) {
+                document.getElementById("nameError").textContent = "Name must only contain letters and no spaces.";
+                isValid = false;
+            } else {
+                document.getElementById("nameError").textContent = "";
             }
 
-            if (!name) {
-                alert("Full Name is required.");
-                return false;
+            // City validation
+            if (!city || !nameRegex.test(city)) {
+                document.getElementById("cityError").textContent = "City must only contain letters and no spaces.";
+                isValid = false;
+            } else {
+                document.getElementById("cityError").textContent = "";
             }
 
-            if (!city) {
-                alert("City is required.");
-                return false;
+            // State validation
+            if (!state || !nameRegex.test(state)) {
+                document.getElementById("stateError").textContent = "State must only contain letters and no spaces.";
+                isValid = false;
+            } else {
+                document.getElementById("stateError").textContent = "";
             }
 
-            if (!StreetMark) {
-                alert("Street Mark is required.");
-                return false;
+            if (!StreetMark || !nameRegex.test(StreetMark)) {
+                document.getElementById("StreetMarkError").textContent = "Street Mark must only contain letters and no spaces.";
+                isValid = false;
+            } else {
+                document.getElementById("StreetMarkError").textContent = "";
             }
 
-            if (!state) {
-                alert("State is required.");
-                return false;
-            }
-
+            // Pincode validation
             if (!pincode || !pincodeRegex.test(pincode)) {
-                alert("Enter a valid 6-digit Pincode.");
-                return false;
+                document.getElementById("pincodeError").textContent = "Enter a valid 6-digit pincode.";
+                isValid = false;
+            } else {
+                document.getElementById("pincodeError").textContent = "";
             }
 
+            // Phone validation
             if (!Phone || !phoneRegex.test(Phone)) {
-                alert("Enter a valid 10-digit Primary Phone Number.");
-                return false;
+                document.getElementById("phoneError").textContent = "Enter a valid 10-digit phone number.";
+                isValid = false;
+            } else if (Phone === SecondPhone) {
+                document.getElementById("phoneError").textContent = "Primary and secondary phone numbers must be different.";
+                isValid = false;
+            } else {
+                document.getElementById("phoneError").textContent = "";
             }
 
+            // Secondary Phone validation
             if (!SecondPhone || !phoneRegex.test(SecondPhone)) {
-                alert("Enter a valid 10-digit Secondary Phone Number.");
-                return false;
+                document.getElementById("secondPhoneError").textContent = "Enter a valid 10-digit secondary phone number.";
+                isValid = false;
+            } else {
+                document.getElementById("secondPhoneError").textContent = "";
             }
 
-            if (!Houseno) {
-                alert("House Number is required.");
-                return false;
-            }
+      
 
-            // If all validations pass
-            return true;
+            return isValid;
         }
     </script>
-    
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-  // Confirmation function using SweetAlert2
-  function confirmDelete(event) {
-    event.preventDefault(); // Prevent the default behavior (navigating to the link)
-
-    // Show SweetAlert confirmation dialog
-    Swal.fire({
-      title: 'Are You Adding Another Address?',
-      text: "Adding Address",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Yes, Add it!',
-      cancelButtonText: 'No, some changes'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        // If user clicks "Yes, delete it!" proceed with the deletion
-        window.location.href = event.target.href; // Redirect to the delete URL
-      }
-    });
-  }
-</script>
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
 <%- include("../../views/partials/user/footer") %>

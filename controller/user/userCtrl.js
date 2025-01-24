@@ -361,20 +361,20 @@ const loadProductDetails = async (req, res) => {
    //      //
 const loadShopPage = async (req, res) => {
   try {
-    const userId = req.session.user;
-    const userData = await User.findById(userId);
+    const userId=req.session.user;
+    const userData=await User.findById(userId);
     
-    // Get filter parameters
+  
     const category = req.query.category || '';
     const sortBy = req.query.sortBy || '';
-    
-    // Base filter conditions
+    const searchTerm = req.query.search || ''; 
+   
     let filter = {
       isblocked: false,
       quantity: { $gt: 0 }
     };
 
-    // Apply category filter if selected
+    // apply category filter if selected////
     if (category) {
       const categoryData = await Category.findOne({ name: category });
       if (categoryData) {
@@ -382,7 +382,10 @@ const loadShopPage = async (req, res) => {
       }
     }
 
-    // Define sort options
+    if (searchTerm) {
+      filter.productname = { $regex: searchTerm, $options: 'i' }; 
+    }
+
     let sortOption = {};
     switch (sortBy) {
       case 'priceLowToHigh':
@@ -401,24 +404,23 @@ const loadShopPage = async (req, res) => {
         sortOption.productname = -1;
         break;
       default:
-        sortOption.createdOn = -1; // Default sort by newest
+        sortOption.createdOn = -1; // iam default sort by newest //
     }
 
-    // Pagination setup
+    
     const page = parseInt(req.query.page) || 1;
     const limit = 9;
     const skip = (page - 1) * limit;
 
-    // Get total products count
+
     const totalProducts = await Product.countDocuments(filter);
 
-    // Fetch filtered and sorted products
+
     const productData = await Product.find(filter)
       .sort(sortOption)
       .skip(skip)
       .limit(limit);
 
-    // Get all categories for filter options
     const categories = await Category.find({ isListed: true });
     const categoriesWithIds = categories.map(cat => ({
       _id: cat._id,
@@ -428,21 +430,22 @@ const loadShopPage = async (req, res) => {
     const totalPages = Math.ceil(totalProducts / limit);
 
     res.render('ShopPage', {
-      user: userData,
+        user: userData,
       products: productData,
       category: categoriesWithIds,
-      currentPage: page,
+        currentPage: page,
       totalPages: totalPages,
-      selectedCategory: category,
-      selectedSort: sortBy
+     selectedCategory: category,
+      selectedSort: sortBy,
+      searchTerm: searchTerm
     });
 
   } catch (error) {
     console.error('Error loading shop page:', error);
     if (error.name === 'CastError' || error.name === 'ValidationError') {
-      res.status(400).render('pagenotfound', { message: 'Invalid request parameters' });
+      res.status(400).render('pagenotfound', { message: 'Invalid request params' });
     } else {
-      res.status(500).render('pagenotfound', { message: 'Internal server error' });
+      res.status(500).render('pagenotfound', { message: 'Internal Server Error' });
     }
   }
 };
