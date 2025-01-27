@@ -3,6 +3,7 @@ const User=require('../../models/userModel')
  const Order = require('../../models/orderModel');
 const Address=require('../../models/addressModel')
 const Cart = require('../../models/cartModel');
+
 // Render Checkout Page
 const loadCheckoutPage = async (req, res) => {
     try {
@@ -35,27 +36,7 @@ const products = cart.items.map(item => ({
  // Calculate cart total
  const cartTotal = products.reduce((sum, item) => sum + item.totalPrice, 0);
 
-  
-     // checking   the user has any addresses//
-   
-    //  const addresses = userAddress
-    //  ? userAddress.address.map((addr) => ({
-    //      _id: addr._id,
-    //      addressType: addr.addressType,  // Ensure addressType is being passed
-    //      name: addr.name,  // Make sure name is included
-    //      city: addr.city,
-    //      StreetMark: addr.StreetMark,
-    //      state: addr.state,
-    //      pincode: addr.pincode,
-    //      Phone: addr.Phone,
-    //      SecondPhone: addr.SecondPhone,
-    //      Houseno: addr.Houseno,
-    //    }))
-    //  : [];
-   
 
-     // If no addresses, pass an empty array//
-  
       res.render('checkout', {
         products,
         user,

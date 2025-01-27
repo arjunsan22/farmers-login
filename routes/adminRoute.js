@@ -72,6 +72,17 @@ router.post('/removeProductOffer',productContoller.removeProductOffer)
 router.get('/orders',orderController.getAllOrders)
 router.post('/orders/update-status/:orderId',orderController.updateStatus)
 
+
+
+
+//coupon management//
+
+router.get('/coupons', adminController.getCoupons);
+router.get('/addCoupons', adminController.getaddCoupon);
+router.post('/addCoupon', adminController.addCoupon);
+
+
+
 router.get('/logout',adminController.Logout)
 
 module.exports=router

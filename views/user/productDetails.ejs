@@ -204,8 +204,10 @@
             <p class="mt-4"><strong>Description:</strong> <%= product.description %></p>
             <p><strong>Category:</strong> <%= product.category.name %></p>
             <p class="mt-4"><strong>More:</strong> <%= product.tag %></p>
-            <p><strong>Quantity Available:</strong> <span id="availableQuantity"><%= product.quantity %></span> kg</p>
+            <p><strong>Quantity Available:</strong> <%= product.quantity %> kg</p>
             <div id="outOfStockMessage" class="text-danger" style="display: none;">Out of Stock</div>
+                <!-- <p><strong>Quantity Available:</strong> <span id="availableQuantity"><%= product.quantity %></span> kg</p> -->
+
             <div class="offer-banner bg-warning text-center text-white p-3 rounded mt-4">
               🎉 Limited Time Offer! Get <strong>10% OFF</strong> on this product. Enter your coupon code with this: <span class="text-danger">SAVE10</span> at checkout! 🎁
             </div>
@@ -332,6 +334,7 @@
           <% }) %>
         </div>
       </div>
+    </a>
     </section>
   <% } %>
 

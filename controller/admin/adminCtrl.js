@@ -2,6 +2,7 @@ const User = require("../../models/userModel");
 const bcrypt=require('bcrypt')
 const env=require('dotenv').config()
 const mongoose=require('bcrypt')
+const Coupon = require('../../models/couponModel');
 
 const loadLogin=async (req,res) => {
     try {
@@ -98,6 +99,57 @@ try {
 }    
 }
 
+//coupons//
+const getCoupons = async (req, res) => {
+    try {
+        const coupons = await Coupon.find();
+        res.render('Coupons', { coupons });
+    } catch (error) {
+        console.error('Error fetching coupons:', error);
+        res.redirect('/admin/error')
+    }
+
+};
+
+const getaddCoupon=async (req, res) => {
+    try {
+       
+        res.render('addCoupon');
+    } catch (error) {
+        console.error('Error fetching coupons:', error);
+      res.redirect('/admin/error')
+    }
+
+};
+
+
+const addCoupon = async (req, res) => {
+    try {
+        const { couponCode, couponType, description, offerPrice, minimumPrice, usageLimit, startOn, expireOn, isActive } = req.body;
+        const newCoupon = new Coupon({
+            couponCode,
+            couponType,
+            description,
+            offerPrice,
+            minimumPrice,
+            usageLimit,
+            startOn,
+            expireOn,
+            isActive
+        });
+        await newCoupon.save();
+        res.redirect('/admin/coupons');
+    } catch (error) {
+        console.error('Error adding coupon:', error);
+        res.status(500).send('Error adding coupon');
+    
+    }
+
+};
+
+
+
+
 module.exports={
     loadLogin,
     verifyadmin,
@@ -106,5 +158,8 @@ module.exports={
     Logout,
     blockUser,
     unblockUser,
+    getCoupons,
+    getaddCoupon,
+    addCoupon
     
 }
