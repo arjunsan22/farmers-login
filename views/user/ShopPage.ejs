@@ -376,6 +376,29 @@
                 }
             }
         }
+        .toast-container {
+            z-index: 1055;
+        }
+        .toast {
+            opacity: 0;
+            transform: translateY(-100%);
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .toast-header {
+            background-color: #343a40;
+            color: #fff;
+        }
+        .toast-body {
+            background-color: #9f211d;
+            color: #fff;
+        }
+        .wishlist-button.active {
+            color: red;
+        }
     </style>
 </head>
 <body>
@@ -454,15 +477,18 @@
                                         <p class="product-price">₹<%=products[i].salePrice%></p>
                                         <p>
                                             <% if (products[i].quantity > 5) { %>
-                                                <%= products[i].quantity %> kg available
-                                            <% } else if (products[i].quantity < 5 && products[i].quantity != 0) { %>
+                                              <p class="text-success"><%= products[i].quantity %> kg available</p>  
+                                            <% } else if (products[i].quantity <= 5 && products[i].quantity != 0) { %>
                                                 <span class="text-danger">Buy now only <%= products[i].quantity %> kg left</span>
                                             <% } else if(products[i].quantity == 0 || products[i].quantity <0) { %>
                                                 <span class="text-danger">Out of Stock</span>
                                             <% } %>
                                         </p>
-                                        <a href="" class="btn btn-outline-danger btn-sm"><i class="fas fa-heart"></i></a>
-                                    </div>
+                                        <div id="wishlistButton" class="position-absolute top-0 end-0 p-2">
+                                            <button class="btn btn-outline-danger btn-sm add-to-wishlist" data-product-id="<%= products[i]._id%>">
+                                                <i class="fas fa-heart"></i>
+                                            </button>
+                                        </div>                                    </div>
                                 </a>
                                 <div class="product-info pt-0">
                                     
@@ -562,6 +588,62 @@
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+
+ <!-- Toast Notification -->
+ <div class="toast-container position-fixed top-0 end-0 p-3">
+    <div id="wishlistToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <strong class="me-auto">Notification</strong>
+            <button  type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+            <!-- Toast message will be inserted here -->
+        </div>
+    </div>
+  </div>
+  
+  
+  <!-- wishlist -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const wishlistButtons = document.querySelectorAll('.add-to-wishlist');
+        const toastElement = document.getElementById('wishlistToast');
+        const toastBody = toastElement.querySelector('.toast-body');
+        const toast = new bootstrap.Toast(toastElement);
+  
+        wishlistButtons.forEach(button => {
+            button.addEventListener('click', async function(event) {
+                event.preventDefault();
+                const productId = this.getAttribute('data-product-id');
+  
+                try {
+                    const response = await fetch('/wishlist/add', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ productId })
+                    });
+  
+                    const result = await response.json();
+  
+                    if (result.success) {
+                        toastBody.textContent = result.message;
+                        toast.show();
+                    } else {
+                        toastBody.textContent = result.message;
+                        toast.show();
+                    }
+                } catch (error) {
+                    toastBody.textContent = 'An error occurred. Please try again later.';
+                    toast.show();
+                }
+            });
+        });
+    });
+    </script>
+
 </body>
 </html>
 

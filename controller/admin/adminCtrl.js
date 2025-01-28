@@ -149,6 +149,23 @@ const addCoupon = async (req, res) => {
 
 
 
+const couponStatus = async (req, res) => {
+    try {
+        const couponId = req.params.couponId;
+        const coupon = await Coupon.findById(couponId);
+        if (!coupon) {
+            return res.status(404).send('Coupon not found');
+        }
+        coupon.isActive = !coupon.isActive;
+        await coupon.save();
+        res.redirect('/admin/coupons');
+    } catch (error) {
+        console.error('Error toggling coupon status:', error);
+        res.status(500).send('Error toggling coupon status');
+    }
+};
+
+
 
 module.exports={
     loadLogin,
@@ -160,6 +177,8 @@ module.exports={
     unblockUser,
     getCoupons,
     getaddCoupon,
-    addCoupon
+    addCoupon,
+    couponStatus,
+  
     
 }

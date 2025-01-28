@@ -8,14 +8,14 @@ const User=require('../models/userModel')
 const profileController=require('../controller/user/profileController')
 const cartController=require('../controller/user/cartController')
 const checkoutController=require('../controller/user/checkoutController')
-
+const couponController = require('../controller/user/couponController');
 const orderController=require('../controller/user/orderController')
+const wishlistController=require('../controller/user/wishlistController')
+
 
 router.get('/pagenotfound',userController.pagenotfound)
 
 router.get('/',userController.loadhomepage);
-
-
 router.get('/signup',usermiddle.isLogin,userController.loadSignup)
 
 router.post('/signup',userController.Signup)
@@ -40,11 +40,11 @@ router.get('/auth/google/callback', passport.authenticate('google', { failureRed
         console.log("Session ID of google account:", req.sessionID);
         console.log("Details of user :", req.user);
 
-        res.render('home', { user: req.user, products: products });
-             }
-              catch (err) {
-             console.error(err);
-        return res.redirect('/error'); 
+        req.session.user = req.user._id;
+        res.redirect('/');             
+    }catch (err) {
+    console.error(err);
+    return res.redirect('/error'); 
     }
 });
 
@@ -95,6 +95,9 @@ router.get('/useraddress-Delete/:addressId', profileController.deleteAddress);
 //shop page//
 
 router.get('/shop',userController.loadShopPage)
+//mainSeach//
+
+router.get('/mainSearchshop',userController.mainSearch)
 
 //cart pages and add to cart
 // Cart Routes
@@ -141,6 +144,23 @@ router.get('/addnew-password',profileController.loadAddNewPasswordPage)
 router.post('/addNewPassword',profileController.addNewPassword)
 //resend//
 router.post('/changePasswordResendbutton-OTP',profileController.changePasswordResendbuttonOTP)
+
+//wishlist management//
+router.post('/wishlist/add', wishlistController.addToWishlist);
+router.post('/wishlist/remove', wishlistController.removeFromWishlist);
+
+//get page//
+
+router.get('/wishlist', wishlistController.getWishlist);
+
+
+
+
+///coupon management user//
+router.post('/applyCoupon', couponController.applyCoupon);
+
+router.post('/removeCoupon', couponController.removeCoupon);
+
 //logout
 router.get('/logout',userController.LoGout)
 

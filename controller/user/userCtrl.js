@@ -450,6 +450,93 @@ const loadShopPage = async (req, res) => {
   }
 };
 
+
+const mainSearch = async (req, res) => {
+  try {
+    const userId = req.session.user;
+    const userData = await User.findById(userId);
+
+    const searchTerm = req.query.search || '';
+    const selectedCategory = req.query.category || '';
+    const sortBy = req.query.sortBy || '';
+
+    let filter = {
+      isblocked: false,
+      quantity: { $gt: 0 }
+    };
+
+    // Apply search term filter if provided
+    if (searchTerm) {
+      const categoryData = await Category.findOne({ name: { $regex: searchTerm, $options: 'i' } });
+      if (categoryData) {
+        filter.category = categoryData._id;
+      } else {
+        filter.productname = { $regex: searchTerm, $options: 'i' };
+      }
+    }
+
+    let sortOption = {};
+    switch (sortBy) {
+      case 'priceLowToHigh':
+        sortOption.salePrice = 1;
+        break;
+      case 'priceHighToLow':
+        sortOption.salePrice = -1;
+        break;
+      case 'newArrivals':
+        sortOption.createdOn = -1;
+        break;
+      case 'aToZ':
+        sortOption.productname = 1;
+        break;
+      case 'zToA':
+        sortOption.productname = -1;
+        break;
+      default:
+        sortOption.createdOn = -1; // iam default sort by newest //
+    }
+
+    const page = parseInt(req.query.page) || 1;
+    const limit = 9;
+    const skip = (page - 1) * limit;
+
+    const totalProducts = await Product.countDocuments(filter);
+
+    const productData = await Product.find(filter)
+    .sort(sortOption)
+      .skip(skip)
+      .limit(limit);
+
+    const categories = await Category.find({ isListed: true });
+    const categoriesWithIds = categories.map(cat => ({
+      _id: cat._id,
+      name: cat.name
+    }));
+
+    const totalPages = Math.ceil(totalProducts / limit);
+
+    res.render('ShopPage', {
+      user: userData,
+      products: productData,
+      category: categoriesWithIds,
+      currentPage: page,
+      totalPages: totalPages,
+      searchTerm: searchTerm,
+      selectedCategory: selectedCategory,
+      selectedSort: sortBy,
+
+    });
+
+  } catch (error) {
+    console.error('Error loading shop page:', error);
+    if (error.name === 'CastError' || error.name === 'ValidationError') {
+      res.status(400).render('pagenotfound', { message: 'Invalid request params' });
+    } else {
+      res.status(500).render('pagenotfound', { message: 'Internal Server Error' });
+    }
+  }
+};
+
 module.exports = {
   loadhomepage,
   pagenotfound,
@@ -462,5 +549,5 @@ module.exports = {
   LoGout,
   loadProductDetails,
   loadShopPage,
-  
+  mainSearch
 };

@@ -53,19 +53,7 @@ passport.serializeUser((user,done)=>{
    done(null,user.id)
 
 })
-// passport.deserializeUser((id,done)=>{ 
-//    User.findById(id)
-//    .then(user => {
-//       if (user && user.isBlocked) {
 
-//          return done(null, false);  
-//       }
-//       done(null, user); // if the user is not blocked proceed as usual//////
-//    })
-//    .catch(err => {
-//       done(err, null);
-//    });
-// })
 passport.deserializeUser((id, done) => { 
    User.findById(id)
      .then(user => {

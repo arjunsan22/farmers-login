@@ -5,33 +5,40 @@ const bcrypt = require('bcrypt');
 const env = require('dotenv').config();
 const Cart = require('../../models/cartModel');
 
-// Add to cart
+// Add to cart//
 
 const addToCart = async (req, res) => {
     const { productId, quantity } = req.body;
-    const user = req.session.user; // Assuming user ID is stored in session
-    const userId = await User.findById(user); // Ensure `userId` is correct
+    const user = req.session.user;
+    const userId = await User.findById(user); 
 
     try {
         const product = await Product.findById(productId);
 
         if (!product) {
-            return res.status(404).json({ message: 'Product not found' });
+            return res.status(404).json({ success: false, message: 'Product not found' });
         }
 
         const cart = await Cart.findOne({ userId });
 
         if (cart) {
-            // Check if the product already exists in the cart
+
             const existingItem = cart.items.find(item => item.productId.toString() === productId);
 
             if (existingItem) {
-                existingItem.quantity += parseInt(quantity, 10); // Ensure `quantity` is treated as a number
+                const newQuantity = existingItem.quantity + parseInt(quantity, 10);
+                if (newQuantity > product.quantity) {
+                    return res.status(400).json({ success: false, message: 'Exceeds available stock' });
+                }
+                existingItem.quantity = newQuantity; // update quantity//
                 existingItem.totalPrice = existingItem.quantity * product.salePrice;
             } else {
+                if (parseInt(quantity, 10) > product.quantity) {
+                    return res.status(400).json({ success: false, message: 'Exceeds available stock' });
+                }
                 cart.items.push({
                     productId,
-                    quantity: parseInt(quantity, 10), // Convert to number
+                    quantity: parseInt(quantity, 10), // convert to number//
                     price: product.salePrice,
                     totalPrice: parseInt(quantity, 10) * product.salePrice
                 });
@@ -39,17 +46,19 @@ const addToCart = async (req, res) => {
 
             await cart.save();
         } else {
+            if (parseInt(quantity, 10) > product.quantity) {
+                return res.status(400).json({ success: false, message: 'Exceeds available stock' });
+            }
             // Create a new cart
             const newCart = new Cart({
                 userId,
                 items: [{
-                    productId,
-                    quantity: parseInt(quantity, 10), // Convert to number
-                    price: product.salePrice,
-                    totalPrice: parseInt(quantity, 10) * product.salePrice
+                     productId,
+                    quantity: parseInt(quantity, 10), 
+                      price: product.salePrice,
+                totalPrice: parseInt(quantity, 10) * product.salePrice
                 }]
             });
-
             await newCart.save();
         }
 
@@ -59,7 +68,6 @@ const addToCart = async (req, res) => {
         res.status(500).json({ success: false, message: 'Server error' });
     }
 };
-
 
 
 // Get cart items

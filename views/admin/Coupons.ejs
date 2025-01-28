@@ -53,7 +53,7 @@
                   <td><%= new Date(coupon.expireOn).toLocaleDateString() %></td>
                   <td><%= coupon.isActive ? 'Active' : 'Deactivated' %></td>
                   <td>
-                    <form action="/admin/coupons/toggleStatus/<%= coupon._id %>" method="POST" class="d-inline">
+                    <form action="/admin/couponStatus/<%= coupon._id %>" method="POST" class="d-inline">
                       <button type="submit" class="btn btn-sm <%= coupon.isActive ? 'btn-danger' : 'btn-success' %>">
                         <%= coupon.isActive ? 'Deactivate' : 'Activate' %>
                       </button>

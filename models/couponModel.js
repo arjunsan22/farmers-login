@@ -41,6 +41,17 @@ const coupenSchema=new mongoose.Schema({
         type: Boolean,
         default: true, // Status of the coupon (active/deactivated)
       },
+      availableCoupons: {
+        type: Boolean,
+        default: function () {
+          // Automatically calculated based on conditions
+          const now = new Date();
+          return this.isActive && 
+                 this.usageLimit > 0 && 
+                 now >= this.startOn && 
+                 now <= this.expireOn;
+        },
+      },
       createdOn: {
         type: Date,
         default: Date.now, // Date when the coupon was created

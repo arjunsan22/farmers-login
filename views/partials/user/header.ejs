@@ -105,10 +105,7 @@
              font-style: normal;
              color: #ffffff;">
 faRMers LOGiN   </a>
-<img src="/images/tractor.png" 
-alt="Farmers Login Logo" 
-style="height: 52px; width: auto; object-fit: contain;">
-   
+
   
       <!-- Navbar Toggler -->
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
@@ -137,23 +134,24 @@ style="height: 52px; width: auto; object-fit: contain;">
             </ul>
           </li> -->
           <li class="nav-item">
-            <a style="font-family:cursive;color: #ffffff;" class="nav-link" href="contact.html">ᑕᗝᑎ丅ᗩᑕ丅</a>
+            <a style="font-family:cursive;color: #ffffff;" class="nav-link" href="contact.html">contacts</a>
           </li>
         </ul>
   
         <!-- Search Bar -->
-        <form class="search-bar d-flex" role="search" style="background: transparent; border: none;">
-          <input class="form-control me-2 search-input" 
-                 type="search" 
-                 placeholder="Search for products..." 
-                 aria-label="Search" 
-                 style="background: transparent; border: 1px solid rgba(255, 255, 255, 0.5); color: white; outline: none;">
-          <button class="btn search-button" 
-                  type="submit" 
-                  style="background: transparent; border: none; color: white;">
-            <i class="fas fa-search"></i>
-          </button>
-        </form>
+<form class="search-bar d-flex" action="/mainSearchshop" method="GET" role="search" style="background: transparent; border: none;">
+  <input class="form-control me-2 search-input" 
+         type="search" 
+         name="search" 
+         placeholder="Search for products..." 
+         aria-label="Search" 
+         style="background: transparent; border: 1px solid rgba(255, 255, 255, 0.5); color: white; outline: none;">
+  <button class="btn search-button" 
+          type="submit" 
+          style="background: transparent; border: none; color: white;">
+    <i class="fas fa-search"></i>
+  </button>
+</form>
         
   <!-- User Profile Dropdown -->
 <% if (locals.user) { %>
@@ -187,7 +185,7 @@ style="height: 52px; width: auto; object-fit: contain;">
   
         <!-- Wishlist and Cart Icons -->
         <div class="d-flex">
-         <button class="btn"> <a style="color: #a70000;" href="wishlist.html" class="nav-link">
+         <button class="btn"> <a style="color: #a70000;" href="/wishlist" class="nav-link">
             <i  class="fas fa-heart" style="font-size: 24px;"></i>
           </a> </button>
          <button class="btn"> <a style="color: #e7e0e0;" href="/cart" class="nav-link ms-3">

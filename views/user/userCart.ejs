@@ -1,11 +1,22 @@
 <%- include('../../views/partials/user/header') %>
 <style>
-    .cart-container {
-        background-color: #f8f9fa;
-        border-radius: 15px;
-        padding: 20px;
-        box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    .body{
+font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
     }
+    .cart-container {
+    background-color: #8d8787;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    height: 500px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    animation: floatEffect 3s ease-in-out infinite;
+}
+
+.cart-container:hover {
+    transform: scale(1.05); /* Slightly enlarge on hover */
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2); /* Add a deeper shadow effect */
+}
     .cart-item {
         background-color: #fff;
         border-radius: 10px;
@@ -69,13 +80,34 @@
         margin-bottom: 20px;
     }
     .checkout-card {
-        position: sticky;
-        top: 20px;
-        border-radius: 15px;
-        box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 20px;
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    background-color: #ffffff; /* Add a nice background */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    animation: breathingEffect 3s ease-in-out infinite;
+    padding: 20px;
+    z-index: 100; /* Ensure it stays above other content */
+}
+
+/* Hover Effect */
+.checkout-card:hover {
+    transform: scale(1.03); /* Slightly enlarge */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); /* Deeper shadow on hover */
+}
+
+/* Breathing Animation */
+@keyframes breathingEffect {
+    0%, 100% {
+        transform: scale(1); /* Original size */
     }
+    50% {
+        transform: scale(1.02); /* Slightly enlarged during the animation */
+    }
+}
     .checkout-btn {
-        border-radius: 25px;
+        border-radius: 8px;
         padding: 12px;
         font-weight: 600;
         text-transform: uppercase;
@@ -103,7 +135,7 @@
     <div class="row justify-content-center">
         <div class="col-lg-8 col-md-10">
             <div class="cart-container">
-                <h3 class="mb-4 text-center">Your Shopping Cart</h3>
+                <h3 style="color: #fff;" class="mb-4 text-center">𝖸𝗈𝗎𝗋 𝖲𝗁𝗈𝗉𝗉𝗂𝗇𝗀 𝖢𝖺𝗋𝗍</h3>
                 <% if (cartItems && cartItems.length > 0) { %>
                     <div class="cart-items">
                         <% cartItems.forEach(item => { %>
@@ -128,7 +160,7 @@
                                         </div>
                                     </div>
                                     <div class="col-md-1 col-sm-2">
-                                        <button class="btn btn-outline-danger remove-btn" onclick="removeFromCart('<%= item.product._id %>')" style="border-radius: 50%; width: 35px; height: 35px;">
+                                        <button class="btn btn-outline-danger remove-btn" onclick="confirmRemoveFromCart('<%= item.product._id %>')" style="border-radius: 50%; width: 35px; height: 35px;">
                                             <i class="fas fa-trash-alt"></i>
                                         </button>
                                     </div>
@@ -141,7 +173,7 @@
                         <i class="fas fa-shopping-cart fa-4x mb-4"></i>
                         <h4 class="mb-3">Your cart is empty</h4>
                         <p class="text-muted mb-4">Looks like you haven't added anything to your cart yet.</p>
-                        <a href="/shop" class="btn btn-primary btn-lg checkout-btn">Start Shopping</a>
+                        <a href="/shop" class="btn btn-warning btn-lg checkout-btn">Start Shopping</a>
                     </div>
                 <% } %>
             </div>
@@ -170,7 +202,7 @@
                         <div>    
                             <form action="/checkout" method="GET">
 
-                            <button class="btn btn-primary checkout-btn w-100" 
+                            <button class="btn btn-danger checkout-btn w-100" 
                             onclick="proceedToCheckout('<%= JSON.stringify(cartItems.map(item => ({ productId: item.product._id, quantity: item.quantity }))) %>')">
                             Proceed to Checkout
                         </button>
@@ -187,7 +219,9 @@
 </div>
 
 
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+   
 <script>
    //updating cart//
     async function updateQuantity(productId, action) {
@@ -236,33 +270,63 @@
 
 //remove products from cart //
 
-
-async function removeFromCart(productId) {
-    console.log("button triggered");
-
-    try {
-        const response = await fetch('/removeFromCart', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ productId }),
-        });
-        const data = await response.json();
-
-        if (response.ok) {
-            // Optionally, you can refresh the cart or remove the item from the DOM
-            alert(data.message); // Show success message
-            window.location.reload(); // Reload the cart to reflect changes
-        } else {
-            console.error("Error:", data.message);
-            alert(data.message); // Show error message
+function confirmRemoveFromCart(productId) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, remove it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    removeFromCart(productId);
+                }
+            });
         }
-    } catch (error) {
-        console.error('Error removing product:', error);
-    }
-}
 
+        // Function to remove product from cart
+        async function removeFromCart(productId) {
+            try {
+                const response = await fetch('/removeFromCart', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ productId }),
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                    Swal.fire(
+                        'Removed!',
+                        data.message,
+                        'success'
+                    )
+                    .then((result) => {
+          if (result.isConfirmed) {
+            window.location.reload();
+
+          }
+        }) // Reload the cart to reflect changes
+                } else {
+                    console.error("Error:", data.message);
+                    Swal.fire(
+                        'Error!',
+                        data.message,
+                        'error'
+                    );
+                }
+            } catch (error) {
+                console.error('Error removing product:', error);
+                Swal.fire(
+                    'Error!',
+                    'An error occurred. Please try again later.',
+                    'error'
+                );
+            }
+        }
 
 
 //proceed to checkout//

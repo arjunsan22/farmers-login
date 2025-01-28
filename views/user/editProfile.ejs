@@ -3,6 +3,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <style>
+        .main{
+            height: 500px;
+        }
+    </style>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Profile</title>
@@ -11,6 +16,7 @@
 </head>
 <body>
     <div class="container mt-5">
+        <div class="main">
         <h2 class="text-center mb-4 text-primary">EDIT PROFILE</h2>
         <form action="/profile/update" id="updateProfileForm" method="POST">
             <!-- First Name -->
@@ -37,6 +43,7 @@
                 <a href="/userProfile" class="btn btn-secondary">Cancel</a>
             </div>
         </form>
+        </div>
     </div>
 
     <script>

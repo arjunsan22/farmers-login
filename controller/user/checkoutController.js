@@ -3,6 +3,7 @@ const User=require('../../models/userModel')
  const Order = require('../../models/orderModel');
 const Address=require('../../models/addressModel')
 const Cart = require('../../models/cartModel');
+const Coupon=require('../../models/couponModel')
 
 // Render Checkout Page
 const loadCheckoutPage = async (req, res) => {
@@ -36,16 +37,25 @@ const products = cart.items.map(item => ({
  // Calculate cart total
  const cartTotal = products.reduce((sum, item) => sum + item.totalPrice, 0);
 
+ const availableCoupons = await Coupon.find({ isActive: true });
+
+
+
+    // for checking  if a discounted total exists in the session //from an applied coupon//
+
 
       res.render('checkout', {
         products,
         user,
         userAddress,
-        cartTotal
+        cartTotal,
+        availableCoupons,
+      
 
       });
     } catch (error) {
       console.error(error);
+     
       res.status(500).send('Server Error');
     }
   };
@@ -205,8 +215,7 @@ const Orderplacement = async (req, res) => {
       });
     }
 
-    // Calculate discount and final amount (if applicable)
-    const discount = 0; // Replace with actual discount calculation if applicable
+    const discount = req.session.discount || 0;
     const finalAmount = totalPrice - discount;
 
     
@@ -231,6 +240,7 @@ const Orderplacement = async (req, res) => {
       { $set: { items: [] } }
     );
 
+    req.session.discount = null;
     // Redirect to success page with order ID
     res.redirect(`/order-success/${savedOrder._id}`);
   } catch (error) {

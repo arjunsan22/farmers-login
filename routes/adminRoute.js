@@ -80,7 +80,7 @@ router.post('/orders/update-status/:orderId',orderController.updateStatus)
 router.get('/coupons', adminController.getCoupons);
 router.get('/addCoupons', adminController.getaddCoupon);
 router.post('/addCoupon', adminController.addCoupon);
-
+router.post('/couponStatus/:couponId', adminController.couponStatus);
 
 
 router.get('/logout',adminController.Logout)
