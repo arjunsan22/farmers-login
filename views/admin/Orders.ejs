@@ -192,7 +192,7 @@
                   <th>Customer Name</th>
                   <th>Delivery Address</th>
                   <th>Products</th>
-                  <th>Quantity</th>
+                  <th>Return Feedback</th>
                   <th>Total Price</th>
                   <th>Status</th>
                   <th>Actions</th>
@@ -219,7 +219,7 @@
                     </td>
                     <td>
                       <% order.orderedItems.forEach(item => { %>
-                        <%= item.quantity %>kg - 
+                        <%= item.returnReason %>
                       <% }) %>
                     </td>
                     <td>₹<%= order.totalPrice %></td>

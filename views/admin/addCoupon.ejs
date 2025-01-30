@@ -17,44 +17,58 @@
         padding: 15px;
       }
     }
+    .error-message {
+      color: red;
+      font-size: 0.875rem;
+    }
   </style>
 </head>
 <body>
   <div class="main-content">
     <div class="container">
       <h2 style="font-weight: bolder;" class="text-center mb-4">CREATE COUPONS</h2>
-      <form action="/admin/addCoupon" method="POST">
+      <% if (typeof errorMessage !== 'undefined') { %>
+        <div class="alert alert-danger"><%= errorMessage %></div>
+      <% } %>
+      <form id="couponForm" action="/admin/addCoupon" method="POST">
         <div class="mb-3">
           <label for="couponCode" class="form-label">Coupon Code</label>
           <input type="text" class="form-control" id="couponCode" name="couponCode" required>
+          <div id="couponCodeError" class="error-message"></div>
         </div>
         <div class="mb-3">
           <label for="couponType" class="form-label">Coupon Type</label>
           <input type="text" class="form-control" id="couponType" name="couponType" required>
+          <div id="couponTypeError" class="error-message"></div>
         </div>
         <div class="mb-3">
           <label for="description" class="form-label">Description</label>
           <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+          <div id="descriptionError" class="error-message"></div>
         </div>
         <div class="mb-3">
           <label for="offerPrice" class="form-label">Offer Price</label>
-          <input type="number" class="form-control" id="offerPrice" name="offerPrice" required>
+          <input type="number" class="form-control" id="offerPrice" name="offerPrice" required min="0">
+          <div id="offerPriceError" class="error-message"></div>
         </div>
         <div class="mb-3">
           <label for="minimumPrice" class="form-label">Minimum Price</label>
-          <input type="number" class="form-control" id="minimumPrice" name="minimumPrice" required>
+          <input type="number" class="form-control" id="minimumPrice" name="minimumPrice" required min="0">
+          <div id="minimumPriceError" class="error-message"></div>
         </div>
         <div class="mb-3">
           <label for="usageLimit" class="form-label">Usage Limit</label>
-          <input type="number" class="form-control" id="usageLimit" name="usageLimit" required>
+          <input type="number" class="form-control" id="usageLimit" name="usageLimit" required min="1">
         </div>
         <div class="mb-3">
           <label for="startOn" class="form-label">Start On</label>
           <input type="date" class="form-control" id="startOn" name="startOn" required>
+          <div id="startOnError" class="error-message"></div>
         </div>
         <div class="mb-3">
           <label for="expireOn" class="form-label">Expire On</label>
           <input type="date" class="form-control" id="expireOn" name="expireOn" required>
+          <div id="expireOnError" class="error-message"></div>
         </div>
         <div class="mb-3">
           <label for="isActive" class="form-label">Is Active</label>
@@ -62,11 +76,65 @@
             <option value="true">Active</option>
             <option value="false">Deactivated</option>
           </select>
+          <div id="isActiveError" class="error-message"></div>
         </div>
         <button type="submit" class="btn btn-primary">Create Coupon</button>
       </form>
     </div>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    document.getElementById('couponForm').addEventListener('submit', function(event) {
+      event.preventDefault();
+      let isValid = true;
+
+      const offerPrice = parseFloat(document.getElementById('offerPrice').value);
+      const minimumPrice = parseFloat(document.getElementById('minimumPrice').value);
+
+      const offerPriceError = document.getElementById('offerPriceError');
+      const minimumPriceError = document.getElementById('minimumPriceError');
+
+      offerPriceError.textContent = '';
+      minimumPriceError.textContent = '';
+
+      if (offerPrice < 0) {
+        offerPriceError.textContent = 'Offer Price cannot be negative.';
+        isValid = false;
+      }
+
+      if (minimumPrice < 0) {
+        minimumPriceError.textContent = 'Minimum Price cannot be negative.';
+        isValid = false;
+      }
+
+      if (offerPrice > minimumPrice) {
+        offerPriceError.textContent = 'Offer Price cannot be greater than Minimum Price.';
+        isValid = false;
+      }
+      if (isValid) {
+        Swal.fire({
+          title: 'Are you sure?',
+          text: "Do you want to create this coupon?",
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Yes, create it!'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            Swal.fire(
+              'Created!',
+              'Your coupon has been created.',
+              'success'
+            ).then(() => {
+              document.getElementById('couponForm').submit(); // Submit the form if confirmed
+            });
+          }
+        });
+      }
+     
+    });
+  </script>
 </body>
 </html>

@@ -139,10 +139,13 @@ const addCoupon = async (req, res) => {
         });
         await newCoupon.save();
         res.redirect('/admin/coupons');
-    } catch (error) {
+    }  catch (error) {
         console.error('Error adding coupon:', error);
-        res.status(500).send('Error adding coupon');
-    
+        if (error.code === 11000) { // Duplicate key error code
+            res.render('addCoupon', { errorMessage: 'Coupon code already exists. Please use a different code.' });
+        } else {
+            res.status(500).send('Error adding coupon');
+        }
     }
 
 };

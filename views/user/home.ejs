@@ -8,17 +8,129 @@ a{
     text-decoration: none;
 }
         /* Product Card Styling */
-.product-card {
-    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-    border-radius: 12px;
+        .product-card {
+    position: relative;
+    border-radius: 10px;
     overflow: hidden;
+    background: #fff;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.product-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.1) 0%,
+        rgba(255, 255, 255, 0.05) 100%
+    );
+    opacity: 0;
+    transition: opacity 0.4s ease;
 }
 
 .product-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    transform: translateY(-12px) scale(1.02);
+    box-shadow: 0 20px 30px rgba(0, 0, 0, 0.1);
 }
 
+.product-card:hover::before {
+    opacity: 1;
+}
+
+/* Add shine effect on hover */
+.product-card::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        45deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.1) 45%,
+        rgba(255, 255, 255, 0.2) 50%,
+        rgba(255, 255, 255, 0.1) 55%,
+        transparent 100%
+    );
+    transform: rotate(30deg);
+    transition: transform 0.8s ease;
+    pointer-events: none;
+}
+
+.product-card:hover::after {
+    transform: rotate(30deg) translateX(50%);
+}
+
+/* Image animation */
+.product-card img {
+    transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.product-card:hover img {
+    transform: scale(1.08);
+}
+
+/* Add floating animation */
+@keyframes float {
+    0% {
+        transform: translateY(-12px) scale(1.02);
+    }
+    50% {
+        transform: translateY(-14px) scale(1.02);
+    }
+    100% {
+        transform: translateY(-12px) scale(1.02);
+    }
+}
+
+.product-card:hover {
+    animation: float 3s ease-in-out infinite;
+}
+
+/* Add subtle border glow */
+.product-card {
+    border: 1px solid transparent;
+    transition: border-color 0.3s ease;
+}
+
+.product-card:hover {
+    border-color: rgba(62, 184, 255, 0.1);
+}
+
+/* Smooth content reveal */
+.product-card .card-content {
+    opacity: 0.9;
+    transform: translateY(5px);
+    transition: all 0.4s ease;
+}
+
+.product-card:hover .card-content {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Add shadow pulse effect */
+@keyframes shadowPulse {
+    0% {
+        box-shadow: 0 20px 30px rgba(0, 0, 0, 0.1);
+    }
+    50% {
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    }
+    100% {
+        box-shadow: 0 20px 30px rgba(0, 0, 0, 0.1);
+    }
+}
+
+.product-card:hover {
+    animation: shadowPulse 2s infinite, float 3s ease-in-out infinite;
+}
 /* Product Image Styling */
 .product-img {
     height: 276px;
@@ -203,8 +315,11 @@ a{
                     <h5 class="card-title fw-bold"><%=products[i].productname%></h5>
                     <!-- prise -->
                     <p class="card-text text-muted">₹ <%=products[i].mainPrice%></p>
-                    <p class="card-text text-muted"> <%=products[i].quantity%>kg left</p>
-
+                    <%if(products[i].quantity >= 5){%>
+                    <p class="card-text text-success   fw-bold"> <%=products[i].quantity%>kg left</p>
+                    <%}else{%>
+                    <p class="card-text text-danger fw-bold"> <%=products[i].quantity%>kg left</p>
+                    <%}%>
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="stars">
                             ★★★★☆ <p style="font-size:medium;">4.5 ratings</p>
@@ -269,8 +384,11 @@ a{
                     <h5 class="card-title fw-bold"><%=products[i].productname%></h5>
                     <!-- prise -->
                     <p class="card-text text-muted">₹ <%=products[i].salePrice%></p>
-                    <p class="card-text text-muted"><%=products[i].quantity%>kg left</p>
-
+                    <%if(products[i].quantity >= 5){%>
+                        <p class="card-text text-success   fw-bold"> <%=products[i].quantity%>kg left</p>
+                        <%}else{%>
+                        <p class="card-text text-danger fw-bold"> <%=products[i].quantity%>kg left</p>
+                        <%}%>
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="stars">
                             ★★★★☆ <p style="font-size:medium;">4.5 ratings</p>
@@ -335,8 +453,11 @@ a{
                     <h5 class="card-title fw-bold"><%=products[i].productname%></h5>
                     <!-- prise -->
                     <p class="card-text text-muted">₹ <%=products[i].mainPrice%></p>
-                    <p class="card-text text-muted"><%=products[i].quantity%>kg left</p>
-
+                    <%if(products[i].quantity >= 5){%>
+                        <p class="card-text text-success   fw-bold"> <%=products[i].quantity%>kg left</p>
+                        <%}else{%>
+                        <p class="card-text text-danger fw-bold"> <%=products[i].quantity%>kg left</p>
+                        <%}%>
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="stars">
                             ★★★★☆ <p style="font-size:medium;">4.5 ratings</p>

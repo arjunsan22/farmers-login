@@ -26,6 +26,10 @@ const orderSchema= new mongoose.Schema({
     price:{
         type:Number,
         default:0
+    },
+
+    returnReason:{
+        type:String
     }
 
    }],

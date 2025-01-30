@@ -11,7 +11,7 @@ const checkoutController=require('../controller/user/checkoutController')
 const couponController = require('../controller/user/couponController');
 const orderController=require('../controller/user/orderController')
 const wishlistController=require('../controller/user/wishlistController')
-
+const walletController = require('../controller/user/walletController');
 
 router.get('/pagenotfound',userController.pagenotfound)
 
@@ -125,7 +125,8 @@ router.get('/order-success/:orderId',checkoutController.orderSuccess)
 router.get('/order-history',orderController.getOrderHistory);
 
 router.post('/orders/cancel/:orderId', orderController.cancelOrder);
-  
+router.post('/orders/return/:orderId', orderController.returnOrder); 
+
 //change email//
 router.get('/changeEmail',usermiddle.isLogout,profileController.loadchangeEmail)
 router.post('/changeEmail',profileController.changeEmail)//worked
@@ -161,8 +162,17 @@ router.post('/applyCoupon', couponController.applyCoupon);
 
 router.post('/removeCoupon', couponController.removeCoupon);
 
+
+//wallet management//
+
+router.get('/wallet', walletController.getWallet);
+router.post('/wallet/add', walletController.addFunds);
+
+
 //logout
 router.get('/logout',userController.LoGout)
+
+
 
 
 module.exports=router;

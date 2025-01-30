@@ -4,6 +4,7 @@ const User=require('../../models/userModel')
 const Address=require('../../models/addressModel')
 const Cart = require('../../models/cartModel');
 const Coupon=require('../../models/couponModel')
+const Wallet = require('../../models/walletModel');
 
 // Render Checkout Page
 const loadCheckoutPage = async (req, res) => {
@@ -178,7 +179,17 @@ const Orderplacement = async (req, res) => {
 
     const { products, quantities, address, paymentMethod } = req.body;
 
-    console.log("order address", address);
+    // console.log("order address", address);
+
+    console.log("Received products:", products);
+    console.log("Received quantities:", quantities);
+
+    // Validate request body
+    if (!Array.isArray(products) || !Array.isArray(quantities) || products.length !== quantities.length) {
+      return res.status(400).json({ success: false, message: 'Invalid products or quantities' });
+    }
+
+ 
     // Update product stock and calculate total price
     let totalPrice = 0;
     const orderedItems = [];
@@ -218,6 +229,22 @@ const Orderplacement = async (req, res) => {
     const discount = req.session.discount || 0;
     const finalAmount = totalPrice - discount;
 
+ // Handle wallet payment
+    if (paymentMethod === 'wallet') {
+      const wallet = await Wallet.findOne({ userId });
+      if (!wallet || wallet.balance < finalAmount) {
+        return res.status(400).json({ success: false, message: 'Insufficient wallet balance' });
+      }
+
+      // Deduct the final amount from the wallet
+      wallet.balance -= finalAmount;
+      wallet.transactions.push({
+        amount: finalAmount,
+        type: 'debit',
+        description: 'Order payment',
+      });
+      await wallet.save();
+    }
     
     const order = new Order({
       userId,

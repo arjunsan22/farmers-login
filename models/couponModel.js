@@ -57,12 +57,16 @@ const coupenSchema=new mongoose.Schema({
         default: Date.now, // Date when the coupon was created
         required: true,
       },
-userId:[{
-    type:mongoose.Schema.Types.ObjectId,
-    ref:"User"
-
-
-}]
+      userUsage: [{
+        userId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+        },
+        usageCount: {
+          type: Number,
+          default: 0,
+        }
+      }]
 
 })
 

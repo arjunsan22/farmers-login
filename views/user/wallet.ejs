@@ -1,0 +1,246 @@
+<%- include("../../views/partials/user/header") %>
+<body class="bg-light">
+<div class="container my-5 animate__animated animate__fadeIn">
+  <h2 class="text-center mb-4 fw-bold text-success">𝖬𝖸 𝖶𝖠𝖫𝖫𝖤𝖳</h2>
+  <% if (typeof errorMessage !== 'undefined') { %>
+    <div class="alert alert-danger animate__animated animate__shakeX"><%= errorMessage %></div>
+  <% } %>
+  <% if (wallet) { %>
+    <div class="card mb-4 balance-card">
+      <div class="card-body text-center p-4">
+        <h4 class="card-title text-white mb-3">Current Balance</h4>
+        <h1 class="display-4 fw-bold text-success balance-text">₹<%= wallet.balance.toFixed(2) %></h1>
+      </div>
+    </div>
+
+    <div class="card mb-4 transactions-card">
+      <div class="card-body">
+        <h4 class="card-title text-primary mb-4">Transaction History</h4>
+        <div class="transaction-list">
+          <% wallet.transactions.forEach(transaction => { %>
+            <div class="transaction-item animate__animated animate__fadeInRight">
+              <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
+                <div class="transaction-details">
+                  <span class="badge bg-<%= transaction.type === 'credit' ? 'success' : 'danger' %> mb-2">
+                    <%= transaction.type === 'credit' ? '+ Credit' : '- Debit' %>
+                  </span>
+                  <h5 class="mb-1">₹<%= transaction.amount.toFixed(2) %></h5>
+                  <p class="text-muted mb-1"><%= transaction.description %></p>
+                  <small class="text-muted"><i class="fas fa-clock me-1"></i><%= new Date(transaction.date).toLocaleString() %></small>
+                </div>
+                <div class="transaction-amount">
+                  <h5 class="text-<%= transaction.type === 'credit' ? 'success' : 'danger' %> fw-bold">
+                    <%= transaction.type === 'credit' ? '+' : '-' %>₹<%= transaction.amount.toFixed(2) %>
+                  </h5>
+                </div>
+              </div>
+            </div>
+          <% }); %>
+        </div>
+      </div>
+    </div>
+
+    <div class="card mb-4 add-funds-card">
+      <div class="card-body p-4">
+        <h4 class="card-title text-primary mb-4">Add Funds</h4>
+        <form action="/wallet/add" method="POST" class="add-funds-form">
+          <div class="mb-4">
+            <label for="amount" class="form-label">Amount</label>
+            <div class="input-group">
+              <span class="input-group-text">₹</span>
+              <input type="number" class="form-control form-control-lg" id="amount" name="amount" required min="0" placeholder="Enter amount">
+            </div>
+          </div>
+          <div class="mb-4">
+            <label for="description" class="form-label">Description</label>
+            <input type="text" class="form-control form-control-lg" id="description" name="description" required placeholder="Enter transaction description">
+          </div>
+          <button type="submit" class="btn btn-primary btn-lg w-100 submit-btn">
+            <i class="fas fa-plus-circle me-2"></i>Add Funds
+          </button>
+        </form>
+      </div>
+    </div>
+  <% } %>
+</div>
+
+<%- include("../../views/partials/user/footer") %>
+
+<!-- Add CSS for styling and animations -->
+<style>
+  :root {
+    --primary-color: #4e73df;
+    --success-color: #1cc88a;
+    --danger-color: #e74a3b;
+  }
+
+  body {
+    background-color: #f8f9fc;
+    font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+  }
+
+  .card {
+    border: none;
+    border-radius: 15px;
+    transition: all 0.3s ease;
+    background: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+  }
+
+  .balance-card {
+    background: linear-gradient(135deg, #e7e9ed 0%, #bbbdc2 100%);
+    color: white;
+  }
+
+  .balance-card .card-title {
+    color: rgba(255, 255, 255, 0.8);
+  }
+
+  .balance-card .balance-text {
+    color: white;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .transaction-item {
+    transition: all 0.3s ease;
+  }
+
+  .transaction-item:hover {
+    background-color: #f8f9fc;
+    transform: scale(1.01);
+  }
+
+  .submit-btn {
+    transition: all 0.3s ease;
+    background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+    border: none;
+  }
+
+  .submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(78, 115, 223, 0.4);
+  }
+
+  .form-control {
+    border-radius: 10px;
+    border: 2px solid #e3e6f0;
+    padding: 12px;
+    transition: all 0.3s ease;
+  }
+
+  .form-control:focus {
+    border-color: #4e73df;
+    box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+  }
+
+  /* Loading animation for submit button */
+  .submit-btn.loading {
+    position: relative;
+    pointer-events: none;
+  }
+
+  .submit-btn.loading:after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    top: 50%;
+    left: 50%;
+    margin: -10px 0 0 -10px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* Add animate.css classes */
+  .animate__animated {
+    animation-duration: 0.8s;
+  }
+</style>
+<!-- Add SweetAlert2 library -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- Add JavaScript for interactions -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Add loading state to form submission
+    const form = document.querySelector('.add-funds-form');
+    const submitBtn = form.querySelector('.submit-btn');
+    
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      submitBtn.classList.add('loading');
+
+      try {
+        const formData = new FormData(form);
+        const response = await fetch('/wallet/add', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: new URLSearchParams(formData)
+        });
+
+        if (response.ok) {
+          // Show success toast
+          Swal.fire({
+            toast: true,
+            position: 'top',
+            icon: 'success',
+            title: 'Money added successfully!',
+            text: `₹${formData.get('amount')} has been added to your wallet`,
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true,
+            customClass: {
+              popup: 'animated fadeInDown'
+            }
+          });
+          
+          // Reload page after successful addition
+          setTimeout(() => {
+            window.location.reload();
+          }, 3000);
+        } else {
+          throw new Error('Failed to add money');
+        }
+      } catch (error) {
+        Swal.fire({
+          toast: true,
+          position: 'top',
+          icon: 'error',
+          title: 'Failed to add money',
+          text: 'Please try again',
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true
+        });
+      } finally {
+        submitBtn.classList.remove('loading');
+      }
+    });
+
+    // Animate transaction items on scroll
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('animate__fadeInRight');
+        }
+      });
+    });
+
+    document.querySelectorAll('.transaction-item').forEach((item) => {
+      observer.observe(item);
+    });
+  });
+</script>

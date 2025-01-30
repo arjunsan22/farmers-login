@@ -78,6 +78,29 @@
                 <button type="submit" class="btn btn-danger btn-sm">Cancel Order</button>
               </form>
             <% } %>
+            <% if (order.Status === 'delivered') { %>
+              <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#returnModal-<%= order._id %>">Return Order</button>
+              <!-- Return Modal -->
+              <div class="modal fade" id="returnModal-<%= order._id %>" tabindex="-1" aria-labelledby="returnModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="returnModalLabel">Return Order</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                      <form action="/orders/return/<%= order._id %>" method="POST" class="return-order-form">
+                        <div class="mb-3">
+                          <label for="returnReason" class="form-label">Reason for Return</label>
+                          <textarea class="form-control" id="returnReason" name="returnReason" rows="3" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-warning">Submit Return Request</button>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            <% } %>
           </div>
           <div class="card-body">
 
@@ -158,7 +181,35 @@
         }
       });
     });
+
+    $('.return-order-form').on('submit', function(event) {
+        event.preventDefault();
+        var form = this;
+        Swal.fire({
+          title: 'Are you sure?',
+          text: "You are about to return this order.",
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Yes, return it!'
+        }).then((result) => {
+        if (result.isConfirmed) {
+          Swal.fire({
+            title: 'Returned!',
+            text: 'Your return request has been submitted.',
+            icon: 'success',
+            iconHtml: '<i class="fas fa-check-circle"></i>',
+            confirmButtonColor: '#3085d6'
+          }).then(() => {
+            form.submit();
+          });
+        }
+      });
+    });
+  
   });
+  
   </script>
 </body>
 </html>

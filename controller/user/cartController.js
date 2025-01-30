@@ -74,6 +74,9 @@ const addToCart = async (req, res) => {
 const getCart = async (req, res) => {
     const userId = req.session.user;
 const user=await User.findById(userId)
+if(!userId){
+    res.render('login',{message:"Login required for get Cart !"})
+}
     try {
         if(!user){
             res.redirect('/login',{message:"Login required to see cart "})
