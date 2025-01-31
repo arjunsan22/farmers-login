@@ -56,6 +56,13 @@ var productSchema = new mongoose.Schema({
         required:true,
         default:"available"
     },
+    reviews: [{
+        userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+        rating: { type: Number, required: false, min: 1, max: 5 },
+        comment: { type: String, required: false },
+        createdOn: { type: Date, default: Date.now }
+    }],
+    
     createdOn: {
         type: Date,
         default: Date.now,

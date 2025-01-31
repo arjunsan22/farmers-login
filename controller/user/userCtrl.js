@@ -25,20 +25,37 @@ let productData=await Product.find(
 
 productData.sort((a,b)=>new Date(b.createdOn)-new Date(a.createdOn));
 
+  // Calculate average ratings for each product
+  const productsWithRatings = productData.map(product => {
+    const totalRating = product.reviews && product.reviews.length > 0 
+        ? product.reviews.reduce((acc, review) => acc + review.rating, 0) 
+        : 0; // Default to 0 if no reviews
+
+    const averageRating = product.reviews && product.reviews.length > 0 
+        ? (totalRating / product.reviews.length).toFixed(1) 
+        : 0; // Default to 0 if no reviews
+
+    return { 
+        ...product.toObject(), 
+        averageRating: parseFloat(averageRating), // Convert back to number if needed
+        reviewCount: product.reviews.length // Include review count
+    };
+});    
+
     if (userId) {
       const userData = await User.findOne({ _id: userId }); // Use the ID directly
      if (userData) {
         res.locals.user = userData; // Set user data in locals
        
-        return res.render('home', { user: userData , products:productData, categories: categories, });
+        return res.render('home', { user: userData , products:productsWithRatings, categories: categories, });
       
       
       } else {
         console.log("User data not found that ID:", userId);
-        return res.render('home', { user: null ,products:productData, categories: categories});
+        return res.render('home', { user: null ,products:productsWithRatings, categories: categories});
       }
     } else {
-      return res.render('home', { user: null ,products:productData, categories: categories});
+      return res.render('home', { user: null ,products:productsWithRatings, categories: categories});
     }
     
     
@@ -339,11 +356,12 @@ const loadProductDetails = async (req, res) => {
       res.locals.user = userData; // Set user data in locals
     }
 
-    const product = await Product.findById(productId).populate('category');
+    const product = await Product.findById(productId).populate('category').populate('reviews.userId', 'firstname lastname');
     const relatedProducts = await Product.find({
       productname: { $regex: product.productname.split(' ')[0], $options: 'i' },
       _id: { $ne: productId },
     });
+   
 
     if (product && !product.isblocked) {
       res.render('productDetails', { product, relatedProducts, user: userData });
@@ -419,7 +437,26 @@ const loadShopPage = async (req, res) => {
     const productData = await Product.find(filter)
       .sort(sortOption)
       .skip(skip)
-      .limit(limit);
+      .limit(limit)
+      .populate('reviews') 
+
+  // Calculate average ratings for each product
+  const productsWithRatings = productData.map(product => {
+    const totalRating = product.reviews && product.reviews.length > 0 
+        ? product.reviews.reduce((acc, review) => acc + review.rating, 0) 
+        : 0; // Default to 0 if no reviews
+
+    const averageRating = product.reviews && product.reviews.length > 0 
+        ? (totalRating / product.reviews.length).toFixed(1) 
+        : 0; // Default to 0 if no reviews
+
+    return { 
+        ...product.toObject(), 
+        averageRating: parseFloat(averageRating), // Convert back to number if needed
+        reviewCount: product.reviews.length // Include review count
+    };
+});    
+  console.log("productsWithRatings :",productsWithRatings)
 
     const categories = await Category.find({ isListed: true });
     const categoriesWithIds = categories.map(cat => ({
@@ -431,13 +468,15 @@ const loadShopPage = async (req, res) => {
 
     res.render('ShopPage', {
         user: userData,
-      products: productData,
+      products: productsWithRatings,
       category: categoriesWithIds,
         currentPage: page,
       totalPages: totalPages,
      selectedCategory: category,
       selectedSort: sortBy,
-      searchTerm: searchTerm
+      searchTerm: searchTerm,
+   
+     
     });
 
   } catch (error) {

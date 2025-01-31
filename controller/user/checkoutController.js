@@ -5,6 +5,8 @@ const Address=require('../../models/addressModel')
 const Cart = require('../../models/cartModel');
 const Coupon=require('../../models/couponModel')
 const Wallet = require('../../models/walletModel');
+const razorpayInstance = require('../../config/razorpayConfig');
+const crypto = require('crypto');
 
 // Render Checkout Page
 const loadCheckoutPage = async (req, res) => {
@@ -51,7 +53,7 @@ const products = cart.items.map(item => ({
         userAddress,
         cartTotal,
         availableCoupons,
-      
+        razorpayKeyId: process.env.RAZORPAY_KEY_ID,
 
       });
     } catch (error) {
@@ -169,28 +171,21 @@ const updateCheckoutAddress=async (req,res) => {
 
 const Orderplacement = async (req, res) => {
   try {
-    // Extract userId from session
-    const userId = req.session.user; // Use the correct session key based on your setup
-
-    // Validate user session
+    const userId = req.session.user;
     if (!userId) {
       return res.status(401).send('Unauthorized: User not logged in');
     }
 
-    const { products, quantities, address, paymentMethod } = req.body;
-
-    // console.log("order address", address);
+    const { products, quantities, address, paymentMethod, razorpay_payment_id } = req.body;
+    console.log('Req.body=',req.body)
 
     console.log("Received products:", products);
     console.log("Received quantities:", quantities);
 
-    // Validate request body
     if (!Array.isArray(products) || !Array.isArray(quantities) || products.length !== quantities.length) {
       return res.status(400).json({ success: false, message: 'Invalid products or quantities' });
     }
 
- 
-    // Update product stock and calculate total price
     let totalPrice = 0;
     const orderedItems = [];
 
@@ -198,7 +193,6 @@ const Orderplacement = async (req, res) => {
       const productId = products[i];
       const quantity = quantities[i];
 
-      // Decrease product stock
       const product = await Product.findById(productId);
       if (!product) {
         return res.status(404).send(`Product with ID ${productId} not found`);
@@ -208,17 +202,12 @@ const Orderplacement = async (req, res) => {
         return res.status(400).send(`Insufficient stock for product: ${product.productname}`);
       }
 
-      product.quantity -= quantity; // Decrement the stock
-      if (product.quantity < 0) {
-        product.quantity = 0; // Optional: Set to zero instead of allowing negatives
-      }
+      product.quantity -= quantity;
       await product.save();
 
-      // Calculate total price
       const itemTotalPrice = product.salePrice * quantity;
       totalPrice += itemTotalPrice;
 
-      // Add to ordered items
       orderedItems.push({
         product: productId,
         quantity,
@@ -229,14 +218,12 @@ const Orderplacement = async (req, res) => {
     const discount = req.session.discount || 0;
     const finalAmount = totalPrice - discount;
 
- // Handle wallet payment
     if (paymentMethod === 'wallet') {
       const wallet = await Wallet.findOne({ userId });
       if (!wallet || wallet.balance < finalAmount) {
         return res.status(400).json({ success: false, message: 'Insufficient wallet balance' });
       }
 
-      // Deduct the final amount from the wallet
       wallet.balance -= finalAmount;
       wallet.transactions.push({
         amount: finalAmount,
@@ -244,8 +231,16 @@ const Orderplacement = async (req, res) => {
         description: 'Order payment',
       });
       await wallet.save();
+    } else if (paymentMethod === 'razorpay') {
+      const hmac = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET);
+      hmac.update(`${req.body.razorpay_order_id}|${razorpay_payment_id}`);
+      const generatedSignature = hmac.digest('hex');
+
+      if (generatedSignature !== req.body.razorpay_signature) {
+        return res.status(400).json({ success: false, message: 'Payment verification failed' });
+      }
     }
-    
+
     const order = new Order({
       userId,
       orderedItems,
@@ -257,25 +252,16 @@ const Orderplacement = async (req, res) => {
       status: 'Confirmed',
     });
 
-    // Save the order in the database
     const savedOrder = await order.save();
-
-    console.log("savedOrder details :",savedOrder)
-    // Clear user's cart after successful order placement
-    await Cart.updateOne(
-      { userId },
-      { $set: { items: [] } }
-    );
+    await Cart.updateOne({ userId }, { $set: { items: [] } });
 
     req.session.discount = null;
-    // Redirect to success page with order ID
-    res.redirect(`/order-success/${savedOrder._id}`);
+    res.json({ success: true, orderId: savedOrder._id });
   } catch (error) {
     console.error('Error placing order:', error);
     res.status(500).send('Something went wrong while placing the order');
   }
 };
-
 
 const orderSuccess = async (req, res) => {
   try {
@@ -303,7 +289,43 @@ const orderSuccess = async (req, res) => {
 
 };
 
+//rasorpay integration//
 
+const createRazorpayOrder = async (req, res) => {
+  try {
+    const { amount, currency } = req.body;
+    const options = {
+      amount: amount * 100, // amount in the smallest currency unit
+      currency,
+      receipt: `receipt_${Date.now()}`,
+    };
+    const order = await razorpayInstance.orders.create(options);
+    res.json(order);
+  } catch (error) {
+    console.error('Error creating Razorpay order:', error);
+    res.status(500).send('Something went wrong while creating the Razorpay order');
+  }
+};
+
+const verifyRazorpayPayment = async (req, res) => {
+  try {
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+    const hmac = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET);
+    hmac.update(`${razorpay_order_id}|${razorpay_payment_id}`);
+    
+    
+    const generatedSignature = hmac.digest('hex');
+
+    if (generatedSignature === razorpay_signature) {
+      res.json({ success: true, message: 'Payment verified successfully' });
+    } else {
+      res.status(400).json({ success: false, message: 'Payment verification failed' });
+    }
+  } catch (error) {
+    console.error('Error verifying Razorpay payment:', error);
+    res.status(500).send('Something went wrong while verifying the Razorpay payment');
+  }
+};
 
 module.exports={
     loadCheckoutPage,
@@ -312,5 +334,7 @@ module.exports={
     loadEditCheckoutAddressPage,
     updateCheckoutAddress,
     Orderplacement,
-    orderSuccess
+    orderSuccess,
+    createRazorpayOrder,
+    verifyRazorpayPayment,
 }

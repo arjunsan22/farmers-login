@@ -6,6 +6,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shop Page</title>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -399,6 +401,18 @@
         .wishlist-button.active {
             color: red;
         }
+  
+   
+    .star-rating {
+        font-size: 1.1rem; /* Adjust size as needed */
+        color: #FFD700; /* Gold color for filled stars */
+    }
+
+    .star-rating .far {
+        color: #ccc; /* Gray color for empty stars */
+    }
+
+        
     </style>
 </head>
 <body>
@@ -465,14 +479,18 @@
                                     <div class="product-info">
                                         <h5 class="product-title"><%=products[i].productname%></h5>
                                         <div class="d-flex align-items-center mb-2">
-                                            <div class="text-warning">
-                                                <i class="fas fa-star"></i>
-                                                <i class="fas fa-star"></i>
-                                                <i class="fas fa-star"></i>
-                                                <i class="fas fa-star"></i>
-                                                <i class="fas fa-star-half-alt"></i>
+                                            <div class="star-rating">
+                                                <% for (let j = 1; j <= 5; j++) { %>
+                                                    <span class="<%= j <= products[i].averageRating? 'fas fa-star' : 'far fa-star'   %>"></span>
+                                                <% } %>
                                             </div>
-                                            <small class="ms-2 text-muted">(4.5)</small>
+                                            <%if(products[i].averageRating>3){%>
+                                                <small class="ms-2 text-success">(<%= products[i].averageRating %>/5)</small>
+                                                <% } else { %>
+                                                <small class="ms-2 text-danger">(<%= products[i].averageRating %>/5)</small>
+                                                <% } %>
+                                            <small class="ms-2 text-muted">(<%= products[i].reviewCount %> reviews)</small>
+                                         
                                         </div>
                                         <p class="product-price">₹<%=products[i].salePrice%></p>
                                         <p>

@@ -178,7 +178,116 @@
         .wishlist-button.active {
             color: red;
         }
+        .review-container {
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
 
+.review-container:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.review-container label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+.review-container select,
+.review-container textarea,
+.review-container button {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+.review-container button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.review-container button:hover {
+    background-color: #0056b3;
+}
+.review-container {
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.review-container:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.review-container h2 {
+    font-size: 24px;
+    margin-bottom: 15px;
+    color: #333;
+    text-align: center;
+}
+
+.review-container ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.review-container li {
+    border-bottom: 1px solid #ddd;
+    padding: 10px 0;
+    transition: background-color 0.3s ease;
+}
+
+.review-container li:hover {
+    background-color: #f1f1f1;
+}
+
+.stars {
+    color: #ccc; /* Light gray for unfilled stars */
+}
+
+.stars .filled {
+    color: #ffcc00; /* Gold color for filled stars */
+}
+
+.stars span {
+    font-size: 20px; /* Adjust size as needed */
+    margin-right: 2px; /* Space between stars */
+    transition: transform 0.2s;
+}
+.stars span:hover {
+    transform: scale(1.2); /* Scale up on hover */
+}
+
+.review-container p {
+    margin: 5px 0;
+    font-size: 16px;
+}
+
+.review-container small {
+    display: block;
+    color: #666;
+    font-size: 14px;
+    margin-top: 5px;
+}
   </style>
 </head>
 
@@ -235,7 +344,7 @@
                 <!-- <p><strong>Quantity Available:</strong> <span id="availableQuantity"><%= product.quantity %></span> kg</p> -->
 
             <div class="offer-banner bg-warning text-center text-white p-3 rounded mt-4">
-              🎉 Limited Time Offer! Get <strong>10% OFF</strong> on this product. Enter your coupon code with this: <span class="text-danger">SAVE10</span> at checkout! 🎁
+              🎉 Limited Time Offer! Get <strong>100 OFF</strong> on purchase above 500. Enter your coupon code with this: <span class="text-danger">AS2</span> at checkout! 🎁
             </div>
 
             <!-- Quantity and Action Buttons -->
@@ -282,13 +391,54 @@
                 <button class="btn btn-outline-danger btn-sm add-to-wishlist" data-product-id="<%= product._id%>">
                     <i class="fas fa-heart"></i>
                 </button>
-            </div>
-
-
-                            <div class="stars">
-                ★★★★☆ <p style="font-size:medium;">4.5 ratings</p>
+            
               </div>
-              <br><br>
+
+<!-- add reviews -->
+<div class="review-container">
+  <h2 class="text-danger">Add Review</h2>
+  <form id="reviewForm" action="/products/<%= product._id %>/review" method="POST">
+      <label class="text-danger" for="rating">Give Rating:</label>
+      <select name="rating" required>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+      </select>
+      <label for="comment">Comment:</label>
+      <textarea name="comment" required></textarea>
+      <button type="submit" class="btn btn-primary">Submit Review</button>
+  </form>
+</div>
+              <br>
+              <!-- showing reviews -->
+              <div class="review-container">
+                <h2 class="text-danger">Reviews</h2>
+                <% if (product.reviews.length > 0) { %>
+                    <ul>
+                        <% product.reviews.forEach(review => { %>
+                            <li class="text-success">
+                                <strong><%= review.userId.firstname %> <%= review.userId.lastname %>:</strong>
+                                <div class="stars">
+                                    <% for (let i = 1; i <= 5; i++) { %>
+                                        <span class="<%= i <= review.rating ? 'filled' : '' %>">★</span>
+                                    <% } %>
+                                </div>
+                                <p><%= review.comment %></p>
+                                <small>Reviewed on: <%= review.createdOn.toLocaleDateString() %></small>
+                                <% if (user && user._id.equals(review.userId._id)) { %>
+                                    <button style="background-color: #9f211d;" class="btn btn-danger" onclick="removeReview('<%= review._id %>')">Remove</button>
+                                <% } %>
+                            </li>
+                        <% }); %>
+                    </ul>
+                <% } else { %>
+                    <p>No reviews yet.</p>
+                <% } %>
+            </div>
+              
+              <br>
               <div>
                 <a href="/" class="btn btn-dark btn-lg">
                   <i class="bi bi-arrow-left"></i> Back to Home
@@ -579,8 +729,129 @@
       });
   });
   </script>
-  
+
+  <!--Add and  remove review -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  document.getElementById('reviewForm').addEventListener('submit', function(event) {
+      event.preventDefault(); // Prevent the default form submission
+
+      // Create an object to hold the form data
+      const reviewData = {
+          rating: this.rating.value, // Get the rating value
+          comment: this.comment.value, // Get the comment value
+      };
+
+      // Send the data as a JSON string
+      fetch(this.action, {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json', // Set content type to JSON
+          },
+          body: JSON.stringify(reviewData), // Convert the object to a JSON string
+      })
+      .then(response => {
+          if (response.ok) {
+              Swal.fire({
+                  icon: 'success',
+                  title: 'Review Added!',
+                  text: 'Your review has been successfully added.',
+                  timer: 1500,
+                  showConfirmButton: false,
+                  position: 'top-end',
+                  toast: true,
+              });
+              setTimeout(() => {
+                  location.reload(); // Reload the page to see the new review
+              }, 1500);
+          }else if (response.status === 401) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Review Not Added',
+            text: 'Please login to post a review.',
+            position: 'top-end',
+            toast: true,
+        });
+    }
+          else if (response.status === 400) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Review Not Added',
+            text: 'You can only post one review per product.',
+            position: 'top-end',
+            toast: true,
+        });
+    }
+           else {
+              Swal.fire({
+                  icon: 'error',
+                  title: 'Failed to Add Review',
+                  text: 'There was an error adding your review.',
+                  position: 'top-end',
+                  toast: true,
+              });
+          }
+      })
+      .catch(error => {
+          console.error('Error:', error);
+          Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'An unexpected error occurred.',
+              position: 'top-end',
+              toast: true,
+          });
+      });
+  });
+</script>
+<script>
+  function removeReview(reviewId) {
+    return fetch(`/reviews/remove/${reviewId}`, { // Add return here
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => {
+        console.log('Removing review with ID:', reviewId);
+        if (response.ok) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Review Removed!',
+                text: 'Your review has been successfully removed.',
+                timer: 1500,
+                showConfirmButton: false,
+                position: 'top-end',
+                toast: true,
+            });
+            setTimeout(() => {
+                location.reload(); // Reload the page to see the changes
+            }, 1500);
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Failed to Remove Review',
+                text: 'There was an error removing your review.',
+                position: 'top-end',
+                toast: true,
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'An unexpected error occurred.',
+            position: 'top-end',
+            toast: true,
+        });
+    });
+}
+  </script>
 </body>
+
 
 </html>
 

@@ -8,14 +8,23 @@ const getOrderHistory = async (req, res) => {
       const userId = req.session.user; 
    const userData=await User.findById(userId)
   
-      
-  
+   const page = parseInt(req.query.page) || 1; 
+   const limit = 6; 
+   const skip = (page - 1) * limit; 
+   const totalOrders = await Order.countDocuments({ userId }); 
+   const totalPages = Math.ceil(totalOrders / limit); 
+
      
-      const orders = await Order.find({ userId }).populate('orderedItems.product').populate('address').sort({ createdOn: -1 })
+      const orders = await Order.find({ userId }).populate('orderedItems.product')
+      .populate('address')
+      .sort({ createdOn: -1 })
+      .skip(skip)
+      .limit(limit)
+
       console.log("orders details :",orders)
   
+      res.render('order-history', { orders ,user:userData,currentPage: page, totalPages  });
 
-      res.render('order-history', { orders ,user:userData});
     } catch (error) {
       console.error('Error fetching order history:', error);
       res.status(500).send('Something went wrong while fetching the order history');
@@ -45,7 +54,7 @@ const getOrderHistory = async (req, res) => {
             }
         }
 
-        //for wallet//
+        //for wallet and razorpays//
         if (order.paymentMethod === 'wallet') {
             const wallet = await Wallet.findOne({ userId: order.userId });
             if (wallet) {
@@ -57,7 +66,18 @@ const getOrderHistory = async (req, res) => {
               });
               await wallet.save();
             }
-          }      
+          }else if (order.paymentMethod === 'razorpay') {
+            const wallet = await Wallet.findOne({ userId: order.userId });
+            if (wallet) {
+              wallet.balance += order.finalAmount;
+              wallet.transactions.push({
+                amount: order.finalAmount,
+                type: 'credit',
+                description: ' Order cancellation refund',
+              });
+              await wallet.save();
+            }
+          }
 
         res.redirect('/order-history');
     } catch (error) {
@@ -93,7 +113,7 @@ const returnOrder = async (req, res) => {
               await product.save();
           }
       }
-  // final amount back to the user's wallet //
+  // final amount back to the user's wallet also rasorpay //
   if (order.paymentMethod === 'wallet') {
     const wallet = await Wallet.findOne({ userId: order.userId });
     if (wallet) {

@@ -192,6 +192,16 @@ a{
             background-color: #9f211d;
             color: #fff;
         }
+        
+                        .star-rating {
+                            font-size: 1.2rem; /* Adjust size as needed */
+                            color: #FFD700; /* Gold color for filled stars */
+                        }
+                        
+                        .star-rating .far {
+                            color: #ccc; /* Gray color for empty stars */
+                        }
+                    
        
     </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
@@ -321,19 +331,21 @@ a{
                     <p class="card-text text-danger fw-bold"> <%=products[i].quantity%>kg left</p>
                     <%}%>
                     <div class="d-flex justify-content-between align-items-center">
-                        <div class="stars">
-                            ★★★★☆ <p style="font-size:medium;">4.5 ratings</p>
-                          </div>
-                          
-                          <style>
-                            .stars {
-                              font-size: 30px;
-                              color: gold;
-                            }
-                          </style>
+                        <div class="star-rating">
+                            <% for (let j = 1; j <= 5; j++) { %>
+                                <span class="<%= j <= products[i].averageRating? 'fas fa-star' : 'far fa-star'   %>"></span>
+                            <% } %>
+                        </div>
+                        <small class="ms-2 text-muted">(<%= products[i].reviewCount %> reviews)</small>
+                      <%if(products[i].averageRating>3){%>
+                        <small class="ms-2 text-success">(<%= products[i].averageRating %>/5)</small>
+                        <% } else { %>
+                        <small class="ms-2 text-danger">(<%= products[i].averageRating %>/5)</small>
+                        <% } %>
+                 
+                       
                           
                        
-                        <!-- <a href="/productDetails?id=<%=products[i]._id%>" class="btn btn-outline-primary btn-sm">View Details</a> -->
 
 
                        
@@ -390,19 +402,21 @@ a{
                         <p class="card-text text-danger fw-bold"> <%=products[i].quantity%>kg left</p>
                         <%}%>
                     <div class="d-flex justify-content-between align-items-center">
-                        <div class="stars">
-                            ★★★★☆ <p style="font-size:medium;">4.5 ratings</p>
-                          </div>
-                          
-                          <style>
-                            .stars {
-                              font-size: 30px;
-                              color: gold;
-                            }
-                          </style>
+                        <div class="star-rating">
+                            <% for (let j = 1; j <= 5; j++) { %>
+                                <span class="<%= j <= products[i].averageRating? 'fas fa-star' : 'far fa-star'   %>"></span>
+                            <% } %>
+                        </div>
+                        <small class="ms-2 text-muted">(<%= products[i].reviewCount %> reviews)</small>
+                      <%if(products[i].averageRating>3){%>
+                        <small class="ms-2 text-success">(<%= products[i].averageRating %>/5)</small>
+                        <% } else { %>
+                        <small class="ms-2 text-danger">(<%= products[i].averageRating %>/5)</small>
+                        <% } %>
+                  
+                       
                           
                        
-                        <!-- <a href="/productDetails?id=<%=products[i]._id%>" class="btn btn-outline-primary btn-sm">View Details</a> -->
 
 
                       
@@ -459,19 +473,19 @@ a{
                         <p class="card-text text-danger fw-bold"> <%=products[i].quantity%>kg left</p>
                         <%}%>
                     <div class="d-flex justify-content-between align-items-center">
-                        <div class="stars">
-                            ★★★★☆ <p style="font-size:medium;">4.5 ratings</p>
-                          </div>
-                          
-                          <style>
-                            .stars {
-                              font-size: 30px;
-                              color: gold;
-                            }
-                          </style>
-                          
+                        <div class="star-rating">
+                            <% for (let j = 1; j <= 5; j++) { %>
+                                <span class="<%= j <= products[i].averageRating? 'fas fa-star' : 'far fa-star'   %>"></span>
+                            <% } %>
+                        </div>
+                        <small class="ms-2 text-muted">(<%= products[i].reviewCount %> reviews)</small>
+                      <%if(products[i].averageRating>3){%>
+                        <small class="ms-2 text-success">(<%= products[i].averageRating %>/5)</small>
+                        <% } else { %>
+                        <small class="ms-2 text-danger">(<%= products[i].averageRating %>/5)</small>
+                        <% } %>
+                 
                        
-                        <!-- <a href="/productDetails?id=<%=products[i]._id%>" class="btn btn-outline-primary btn-sm">View Details</a> -->
 
 
                      

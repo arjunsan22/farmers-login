@@ -12,6 +12,7 @@ const couponController = require('../controller/user/couponController');
 const orderController=require('../controller/user/orderController')
 const wishlistController=require('../controller/user/wishlistController')
 const walletController = require('../controller/user/walletController');
+const reviewController = require('../controller/user/reviewController');
 
 router.get('/pagenotfound',userController.pagenotfound)
 
@@ -115,14 +116,23 @@ router.get('/loadCheckoutUserAddressPage',usermiddle.isLogout,checkoutController
 router.post('/addNewCheckoutAddress',checkoutController.addNewCheckoutAddress)
 router.get('/EditCheckoutAddress/:addressId',usermiddle.isLogout,checkoutController.loadEditCheckoutAddressPage)
 router.post('/updateCheckoutAddress/:addressId',checkoutController.updateCheckoutAddress)
+
+
 //place order//
 router.post('/process-order', checkoutController.Orderplacement)
-
 router.get('/order-success/:orderId',checkoutController.orderSuccess)
+
+//razorpay//
+
+// Razorpay routes
+router.post('/create-razorpay-order', checkoutController.createRazorpayOrder);
+router.post('/verify-razorpay-payment', checkoutController.verifyRazorpayPayment);
+
 
 
 //order-management://
 router.get('/order-history',orderController.getOrderHistory);
+
 
 router.post('/orders/cancel/:orderId', orderController.cancelOrder);
 router.post('/orders/return/:orderId', orderController.returnOrder); 
@@ -168,6 +178,10 @@ router.post('/removeCoupon', couponController.removeCoupon);
 router.get('/wallet', walletController.getWallet);
 router.post('/wallet/add', walletController.addFunds);
 
+
+//review management//
+router.post('/products/:id/review', reviewController.addReview);
+router.post('/reviews/remove/:id', reviewController.removeReview);
 
 //logout
 router.get('/logout',userController.LoGout)
