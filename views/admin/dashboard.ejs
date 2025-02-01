@@ -4,22 +4,173 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
-
+    <link href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bootstrap-4/bootstrap-4.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Animate.css for animations -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <!-- Custom CSS -->
     <style>
-        /* Main Layout Fix */
+        :root {
+            --primary-color: #4e73df;
+            --secondary-color: #1cc88a;
+            --background-color: #f8f9fc;
+            --card-bg: #ffffff;
+            --text-primary: #5a5c69;
+        }
+
+        body {
+            background-color: var(--background-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+        }
+
         .main-content {
-            margin-left: 250px; /* Adjust based on your sidebar width */
-            padding: 20px;
+            margin-left: 250px;
+            padding: 25px;
+            transition: all 0.3s ease;
+            min-height: 100vh;
+            background: linear-gradient(180deg, #25272a 0%, #6677a8 100%);
         }
 
         @media (max-width: 768px) {
             .main-content {
                 margin-left: 0;
+                padding: 15px;
             }
+        }
+
+        .dashboard-header {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .welcome-text {
+            font-size: 2.5rem;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            margin: 0;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border: none;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            overflow: hidden;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card .card-body {
+            padding: 25px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stat-card .card-icon {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+
+        .stat-card .card-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: var(--text-primary);
+        }
+
+        .stat-card .card-text {
+            color: #858796;
+            font-size: 0.9rem;
+        }
+
+        .chart-container {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            margin-top: 30px;
+            height: 50vh;
+        }
+
+        .report-form {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+        }
+
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 1px solid #e3e6f0;
+            padding: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border-radius: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-gradient {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            color: white;
+        }
+
+        .btn-gradient:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(78, 115, 223, 0.4);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e3e6f0;
+        }
+
+        /* Progress bar animation */
+        @keyframes progressAnimation {
+            0% { width: 0; }
+            100% { width: 100%; }
+        }
+
+        .progress {
+            height: 8px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+
+        .progress-bar {
+            animation: progressAnimation 1.5s ease-in-out;
         }
     </style>
 </head>
@@ -30,43 +181,433 @@
 
     <!-- Main Content -->
     <div class="main-content">
-   <marquee behavior="" direction="" scrollamount="12">     <h1 style="font-family:system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;font-size:100px;" class="text-danger">
-    ĦɆŁŁØ  <span class="text-warning"> ȺĐMƗN </span></h1></marquee>
+        <!-- Dashboard Header -->
+        <div class="dashboard-header animate__animated animate__fadeIn">
+            <h1 class="welcome-text">
+                <i class="fa-solid fa-user-shield"></i>
+                Welcome, Admin
+            </h1>
+        </div>
 
-        <!-- Card Row -->
+        <!-- Stats Cards -->
+       
+        <!-- Stats Cards -->
         <div class="row">
-            <div class="col-md-4">
-                <div class="card text-white bg-primary mb-3">
-                    <div class="card-header">Total Users</div> 
+            <div class="col-xl-3 col-md-6 animate__animated animate__fadeInUp">
+                <div class="stat-card">
                     <div class="card-body">
-                        <h5 class="card-title">1,234</h5>
-                        <p class="card-text">Number of registered users.</p>
+                        <i class="fas fa-users card-icon"></i>
+                        <h5 class="card-title"><%=totalUsers%></h5>
+                        <p class="card-text">Total Users</p>
+                        <div class="progress">
+                            <div class="progress-bar bg-info" style="width: 100%"></div>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="card text-white bg-success mb-3">
-                    <div class="card-header">Total Sales</div>
+            <div class="col-xl-3 col-md-6 animate__animated animate__fadeInUp" style="animation-delay: 0.2s">
+                <div class="stat-card">
                     <div class="card-body">
-                        <h5 class="card-title">$56,789</h5>
-                        <p class="card-text">Monthly revenue generated.</p>
+                        <i class="fas fa-rupee-sign card-icon"></i>
+                        <h5 class="card-title">₹<%=totalRevenue.toLocaleString()%></h5>
+                        <p class="card-text">Total Revenue</p>
+                        <div class="progress">
+                            <div class="progress-bar bg-success" style="width: 100%"></div>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="card text-white bg-danger mb-3">
-                    <div class="card-header">Reports</div>
+            <div class="col-xl-3 col-md-6 animate__animated animate__fadeInUp" style="animation-delay: 0.4s">
+                <div class="stat-card">
                     <div class="card-body">
-                        <h5 class="card-title">27 Pending</h5>
-                        <p class="card-text">Number of pending reports to review.</p>
+                        <i class="fas fa-shopping-cart card-icon"></i>
+                        <h5 class="card-title"><%=totalOrders%></h5>
+                        <p class="card-text">Total Orders</p>
+                        <div class="progress">
+                            <div class="progress-bar bg-warning" style="width: 100%"></div>
+                        </div>
                     </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6 animate__animated animate__fadeInUp" style="animation-delay: 0.4s">
+                <div class="stat-card">
+                    <div class="card-body">
+                        <i class="fas fa-box card-icon"></i>
+                        <h5 class="card-title"><%=totalProducts%></h5>
+                        <p class="card-text">Total Products</p>
+                        <div class="progress">
+                            <div class="progress-bar bg-warning" style="width: 100%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sales Reports Section -->
+        <div class="report-form animate__animated animate__fadeIn" style="animation-delay: 0.8s">
+            <h2 class="section-title">
+                <i class="fas fa-chart-line me-2"></i>
+                Sales Reports
+            </h2>
+            <form id="reportForm" class="bg-white p-4 rounded shadow-sm">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-3">
+                        <label class="form-label">
+                            <i class="fas fa-calendar me-2"></i>
+                            Report Type
+                        </label>
+                        <select class="form-select" name="reportType" id="reportType">
+                            <option value="daily">Daily Report</option>
+                            <option value="weekly">Weekly Report</option>
+                            <option value="yearly">Yearly Report</option>
+                            <option value="custom">Custom Date Range</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 date-input" style="display: none;">
+                        <label class="form-label">
+                            <i class="fas fa-calendar-alt me-2"></i>
+                            Start Date
+                        </label>
+                        <input type="date" class="form-control" name="startDate" id="startDate">
+                    </div>
+                    <div class="col-md-3 date-input" style="display: none;">
+                        <label class="form-label">
+                            <i class="fas fa-calendar-alt me-2"></i>
+                            End Date
+                        </label>
+                        <input type="date" class="form-control" name="endDate" id="endDate">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">
+                            <i class="fas fa-file-alt me-2"></i>
+                            Format
+                        </label>
+                        <select class="form-select" name="format" id="format">
+                            <option value="pdf">PDF Report</option>
+                            <option value="excel">Excel Spreadsheet</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row mt-4">
+                    <div class="col-12 text-end">
+                        <button type="button" class="btn btn-outline-secondary me-2" id="resetForm">
+                            <i class="fas fa-undo me-2"></i>
+                            Reset
+                        </button>
+                        <button type="submit" class="btn btn-gradient" id="generateReport">
+                            <i class="fas fa-file-export me-2"></i>
+                            Generate Report
+                            <span class="spinner-border spinner-border-sm ms-2 d-none" id="loadingSpinner"></span>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <!-- Chart Section -->
+        <div class="row">
+            <div class="col-md-8">
+                <div class="chart-container animate__animated animate__fadeIn" style="animation-delay: 1s">
+                    <h2 class="section-title">
+                        <i class="fas fa-chart-area me-2"></i>
+                        Sales Overview
+                    </h2>
+                    <canvas id="salesChart"></canvas>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="chart-container animate__animated animate__fadeIn" style="animation-delay: 1.2s">
+                    <h2 class="section-title">
+                        <i class="fas fa-chart-bar me-2"></i>
+                        Order Status
+                    </h2>
+                    <canvas id="orderStatusChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+         <!-- Discount Statistics Section -->
+         <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="chart-container animate__animated animate__fadeIn" style="animation-delay: 1.4s">
+                    <h2 class="section-title">
+                        <i class="fas fa-tags me-2"></i>
+                        Discount Overview
+                    </h2>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="stat-card mb-3">
+                                <div class="card-body">
+                                    <i class="fas fa-percentage card-icon text-primary"></i>
+                                    <h5 class="card-title">₹<%=discountStats.totalDiscount.toLocaleString()%></h5>
+                                    <p class="card-text">Total Discounts Given</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="stat-card mb-3">
+                                <div class="card-body">
+                                    <i class="fas fa-ticket-alt card-icon text-success"></i>
+                                    <h5 class="card-title"><%=activeCoupons%></h5>
+                                    <p class="card-text">Active Coupons</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <canvas id="discountChart"></canvas>
                 </div>
             </div>
         </div>
     </div>
 
+
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Initialize Chart with real data
+        const ctx = document.getElementById('salesChart').getContext('2d');
+        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const monthlyStats = JSON.parse('<%- JSON.stringify(monthlyStats || []) %>');
+        const salesChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: monthNames,
+                datasets: [{
+                    label: 'Sales Revenue',
+                    data: monthlyStats,
+                    borderColor: '#4e73df',
+                    backgroundColor: 'rgba(78, 115, 223, 0.1)',
+                    borderWidth: 2,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#4e73df',
+                    pointBorderColor: '#ffffff',
+                    pointHoverRadius: 6,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return '₹' + context.raw.toLocaleString();
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return '₹' + value.toLocaleString();
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
 
+        // Handle report type selection
+        document.getElementById('reportType').addEventListener('change', function() {
+                const dateInputs = document.querySelectorAll('.date-input');
+                const isCustom = this.value === 'custom';
+                
+                dateInputs.forEach(input => {
+                    if (isCustom) {
+                        input.style.display = 'block';
+                        input.querySelector('input').required = true;
+                    } else {
+                        input.style.display = 'none';
+                        input.querySelector('input').required = false;
+                        input.querySelector('input').value = '';
+                    }
+                });
+            });
+
+            // Reset form
+            document.getElementById('resetForm').addEventListener('click', function() {
+                document.getElementById('reportForm').reset();
+                document.getElementById('reportType').dispatchEvent(new Event('change'));
+            });
+
+
+
+            
+            // Handle form submission
+            document.getElementById('reportForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const generateBtn = document.getElementById('generateReport');
+                const spinner = document.getElementById('loadingSpinner');
+                
+                // Get form values directly from elements
+                const reportType = document.getElementById('reportType').value;
+                const startDate = document.getElementById('startDate').value;
+                const endDate = document.getElementById('endDate').value;
+                const format = document.getElementById('format').value;
+
+                // Create request data
+                const requestData = {
+                    reportType: reportType,
+                    format: format
+                };
+
+                // Only add dates if report type is custom
+                if (reportType === 'custom') {
+                    requestData.startDate = startDate;
+                    requestData.endDate = endDate;
+                }
+
+                console.log('Sending data:', requestData);
+                
+                // Show loading state
+                generateBtn.disabled = true;
+                spinner.classList.remove('d-none');
+                
+                try {
+                    console.log('Making fetch request to:', '/admin/generate-report');
+                    const response = await fetch('/admin/generate-report', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(requestData)
+                    });
+
+                    console.log('Response status:', response.status);
+                    console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+
+                    const contentType = response.headers.get('content-type');
+                    console.log('Content type:', contentType);
+                    
+                    if (!response.ok) {
+                        // If the response is JSON (error message)
+                        if (contentType && contentType.includes('application/json')) {
+                            const errorData = await response.json();
+                            console.error('Error data:', errorData);
+                            throw new Error(errorData.error || 'Error generating report');
+                        }
+                        throw new Error(`Error generating report: ${response.status} ${response.statusText}`);
+                    }
+
+                    // If response is successful, handle file download
+                    const blob = await response.blob();
+                    console.log('Blob size:', blob.size);
+                    console.log('Blob type:', blob.type);
+
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `sales-report-${reportType}.${format === 'pdf' ? 'pdf' : 'xlsx'}`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    a.remove();
+
+                    // Show success message
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Report Generated!',
+                        text: 'Your report has been generated successfully.',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                } catch (error) {
+                    console.error('Detailed error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: error.message || 'Error generating report. Please try again.'
+                    });
+                } finally {
+                    // Reset loading state
+                    generateBtn.disabled = false;
+                    spinner.classList.add('d-none');
+                }
+            });
+
+            
+            //another
+
+            // Validate date range
+            document.getElementById('endDate').addEventListener('change', function() {
+                const startDate = document.getElementById('startDate').value;
+                if (startDate && this.value < startDate) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Invalid Date Range',
+                        text: 'End date must be after start date'
+                    });
+                    this.value = '';
+                }
+            });
+
+        const orderCtx = document.getElementById('orderStatusChart').getContext('2d');
+        const orderStatusData = JSON.parse('<%- JSON.stringify(orderStatusData || []) %>');
+        
+        const statusColors = {
+            'pending': '#ffc107',    
+            'processing': '#17a2b8', 
+            'shipping': '#6f42c1',   
+            'delivered': '#28a745'   
+        };
+
+        const orderStatusChart = new Chart(orderCtx, {
+            type: 'doughnut',
+            data: {
+                labels: orderStatusData.map(item => item._id.charAt(0).toUpperCase() + item._id.slice(1)),
+                datasets: [{
+                    data: orderStatusData.map(item => item.count),
+                    backgroundColor: orderStatusData.map(item => statusColors[item._id] || '#6c757d'),
+                    borderWidth: 2,
+                    borderColor: '#ffffff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            padding: 20,
+                            font: {
+                                size: 12
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.raw || 0;
+                                const total = context.dataset.data.reduce((acc, curr) => acc + curr, 0);
+                                const percentage = ((value / total) * 100).toFixed(1);
+                                return `${label}: ${value} (${percentage}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+    </script>
+    
 </body>
 </html>

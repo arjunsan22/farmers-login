@@ -32,6 +32,7 @@ const applyCoupon = async (req, res) => {
             return res.status(400).json({ success: false, message: "Coupon not valid at this time." });
         }
 
+
        
         const cartTotal = cart.items.reduce((sum, item) => sum + item.totalPrice, 0);
     console.log("cartTotal :",cartTotal)
@@ -102,12 +103,14 @@ console.log("for remove coupon code:",couponCode)
         }
 
         await coupon.save();
-
+console.log("after remove coupon",userUsage)
         req.session.discount = null;
         return res.status(200).json({
             success: true,
             message: "Coupon removed successfully!",
         });
+   
+
     } catch (error) {
         console.error("Error in removing coupon:", error);
         res.status(500).json({ success: false, message: "Server error while removing coupon." });

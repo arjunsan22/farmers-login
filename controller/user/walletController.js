@@ -6,7 +6,7 @@ const getWallet = async (req, res) => {
     try {
       const userId = req.session.user;
        const userData=await User.findById(userId)
-      console.log("wallet page:", userId);
+     
   
       let wallet = await Wallet.findOne({ userId }).populate('userId');
       if (!wallet) {

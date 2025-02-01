@@ -83,6 +83,11 @@ router.post('/addCoupon', adminController.addCoupon);
 router.post('/couponStatus/:couponId', adminController.couponStatus);
 
 
+//sales reports//
+
+router.post('/generate-report', adminController.generateSalesReport);
+
+//logout//
 router.get('/logout',adminController.Logout)
 
 module.exports=router
