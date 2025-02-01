@@ -65,7 +65,7 @@
 
 <!-- Tab Content -->
 <div class="tab-content mt-3">
-  <!-- Delivered Products Tab -->
+  <!-- Delivered Products Tab -->gfgfyuytytfyghfghgfghygfghyjuggthytyhtrfertgyrt
   <div class="tab-pane fade show active" id="deliveredProducts">
       <% const deliveredOrders = orders.filter(order => order.Status === 'delivered'); %>
       <% if (deliveredOrders.length > 0) { %>
@@ -76,6 +76,20 @@
                       <p>Order Date: <%= order.createdOn.toDateString() %></p>
                       <p>Status: <span class="status-badge status-delivered"><%= order.Status %></span></p>
                   </div>
+
+
+
+
+                  <div class="card-header">
+                    <h5 class="text-success">Order ID: <%= order.orderId.slice(-5) %></h5>
+                    <p>Order Date: <%= order.createdOn.toDateString() %></p>
+                    <p>Status: <span class="status-badge status-delivered"><%= order.Status %></span></p>
+                </div>
+                <div class="card-header">
+                  <h5 class="text-success">Order ID: <%= order.orderId.slice(-5) %></h5>
+                  <p>Order Date: <%= order.createdOn.toDateString() %></p>
+                  <p>Status: <span class="status-badge status-delivered"><%= order.Status %></span></p>
+              </div>
                   <div class="card-body">
                       <h6>Ordered Items</h6>
                       <table class="table">
