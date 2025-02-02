@@ -281,29 +281,23 @@ const forgotEmailCheck=async (req,res) => {
             if(emailSent){
                 req.session.userOtp=otp;
                 req.session.email=email;
-                res.json({
-                    success: true,
-                    message: "OTP has been sent to your email",
-                    redirectUrl: '/forgot-password-otp'
-                });
-                console.log("OTP sent successfully", otp);
-            
-            }else{
-              res.json({success:false,message:"Error in sending email"})
-           }
-    }
-    else{
-        res.json({success:false,message:"Email not found"})
-    }
-}
-    catch(error){
-        console.error(error);
-        res.json({
-            success: false,
-            message: "An error occurred. Please try again later."
-        });
-      }
+                res.render('forgotPassword-OTP')
+                console.log("OTP sent successfully",otp);
 
+            }else {
+                res.render("forgotPassword", { 
+                    message: "Error in sending email. Please try again." 
+                });
+            }
+        } else {
+            res.render("forgotPassword", { 
+                message: "Email not found. Please check your email address." 
+            });
+        }
+    } catch (error) {
+        console.error(error);
+        res.redirect('/pagenotfound');
+    }
 }
 
 
@@ -317,10 +311,12 @@ const forgotPasswordVerifyOTP=async (req,res) => {
 
         if(otp && otp===userOtp){
             res.json({success:true,redirectUrl:'/reset-password'})
-        }else{
-            res.json({success:false,message:"Invalid OTP not maching"})
-            res.render('forgotPassword-OTP',{message:"Invalid OTP"})
         }
+            else {
+                res.json({ success: false, message: "Invalid OTP. Please try again." });
+            }
+           
+        
     }
     catch(error){
         res.status(500).json({success:false,message:"Internal server error"})
@@ -349,7 +345,7 @@ const forgotPasswordResendOTP=async(req,res) => {
         const emailSent=await sendVerificationEmail(email,otp);
         if(emailSent){
             console.log("OTP resent successfully :",otp);
-            res.status(200).json({success:true,message:"OTP resent successfully"})
+            res.status(200).json({success:true,message:"Otp Resent Successfully"})
         }
     } catch (error) {
         console.error("Error resending Otp",error)
