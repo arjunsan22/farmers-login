@@ -3,42 +3,99 @@
 <html lang="en">
 <head>
   <style>
-    .status-badge {
-      padding: 8px 16px;
-      border-radius: 7px;
-      font-size: 0.875rem;
-      font-weight: 500;
-      text-transform: capitalize;
-      display: inline-block;
-    }
-    .status-pending {
-      background-color: #6c757d;
-      color: white;
-    }
-    .status-processing {
-      background-color: #17a2b8;
-      color: white;
-    }
-    .status-shipping {
-      background-color: #ffc107;
-      color: black;
-    }
-    .status-delivered {
-      background-color: #28a745;
-      color: white;
-    }
-    .status-cancelled {
-      background-color: #dc3545;
-      color: white;
-    }
-    .status-return-request {
-      background-color: #fd7e14;
-      color: white;
-    }
-    .status-returned {
-      background-color: #20c997;
-      color: white;
-    }
+.status-badge {
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-transform: capitalize;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.status-pending { background-color: #ffd54f; color: #000; }
+.status-processing { background-color: #4fc3f7; color: white; }
+.status-shipping { background-color: #7e57c2; color: white; }
+.status-delivered { background-color: #66bb6a; color: white; }
+.status-cancelled { background-color: #ef5350; color: white; }
+.status-return-request { background-color: #ff9800; color: white; }
+.status-returned { background-color: #26a69a; color: white; }
+
+.card {
+  border: none;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  transition: transform 0.2s;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+.nav-tabs .nav-link {
+  border: none;
+  color: #6c757d;
+  font-weight: 500;
+  padding: 1rem 1.5rem;
+  transition: all 0.3s;
+}
+
+.nav-tabs .nav-link.active {
+  color: #dc3545;
+  border-bottom: 2px solid #dc3545;
+}
+
+.table {
+  margin-bottom: 0;
+  background: white;
+}
+
+.table th {
+  background: #f8f9fa;
+  font-weight: 600;
+}
+
+.btn {
+  border-radius: 20px;
+  padding: 8px 20px;
+  font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .card { margin: 10px; }
+  .table { font-size: 14px; }
+  .status-badge { font-size: 12px; padding: 6px 12px; }
+}
+
+/* Additional Enhancements */
+.card-header {
+  background: linear-gradient(to right, #f8f9fa, #ffffff);
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+}
+
+.pagination .page-link {
+  border-radius: 8px;
+  margin: 0 2px;
+}
+
+.pagination .page-item.active .page-link {
+  background-color: #dc3545;
+  border-color: #dc3545;
+}
+
+.modal-content {
+  border-radius: 12px;
+  border: none;
+}
+
+.section-title {
+  color: #495057;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
   </style>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -65,7 +122,7 @@
 
 <!-- Tab Content -->
 <div class="tab-content mt-3">
-  <!-- Delivered Products Tab -->gfgfyuytytfyghfghgfghygfghyjuggthytyhtrfertgyrt
+  <!-- Delivered Products Tab -->
   <div class="tab-pane fade show active" id="deliveredProducts">
       <% const deliveredOrders = orders.filter(order => order.Status === 'delivered'); %>
       <% if (deliveredOrders.length > 0) { %>
@@ -80,16 +137,7 @@
 
 
 
-                  <div class="card-header">
-                    <h5 class="text-success">Order ID: <%= order.orderId.slice(-5) %></h5>
-                    <p>Order Date: <%= order.createdOn.toDateString() %></p>
-                    <p>Status: <span class="status-badge status-delivered"><%= order.Status %></span></p>
-                </div>
-                <div class="card-header">
-                  <h5 class="text-success">Order ID: <%= order.orderId.slice(-5) %></h5>
-                  <p>Order Date: <%= order.createdOn.toDateString() %></p>
-                  <p>Status: <span class="status-badge status-delivered"><%= order.Status %></span></p>
-              </div>
+                  
                   <div class="card-body">
                       <h6>Ordered Items</h6>
                       <table class="table">

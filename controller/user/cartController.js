@@ -72,9 +72,11 @@ const addToCart = async (req, res) => {
 
 // Get cart items
 const getCart = async (req, res) => {
+
+    
     const userId = req.session.user;
-const user=await User.findById(userId)
-if(!userId){
+    const user = await User.findById(userId);
+if(!user){
     res.render('login',{message:"Login required for get Cart !"})
 }
     try {
@@ -98,7 +100,7 @@ if(!userId){
             product: item.productId, // Ensure this is populated correctly
             quantity: item.quantity,
             totalPrice: item.totalPrice
-        }));
+        }))
 
       //  console.log("Cart Items:", cartItems); // Debugging output
 

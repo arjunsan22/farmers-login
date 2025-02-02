@@ -16,7 +16,7 @@
         .signup-container {
             max-width: 500px;
             margin: 2rem auto;
-            background: rgba(255, 255, 255, 0.95);
+           backface-visibility: 2%;
             padding: 2.5rem;
             border-radius: 20px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
@@ -44,7 +44,7 @@
 
         .form-label {
             font-weight: 600;
-            color: #2c3e50;
+            color: #caced2;
             margin-bottom: 0.5rem;
             font-size: 0.9rem;
             letter-spacing: 0.5px;
@@ -132,23 +132,48 @@
                 font-size: 2rem;
             }
         }
-        
+
+        .video-background {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    z-index: -1;
+}
+
+.video-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: -1;
+}
+
     </style>
 
 
 </head>
+<video autoplay muted loop class="video-background">
+    <source src="/images/sunset-over-flower-field.3840x2160.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+</video>
 <body class="gradient-custom">
-
+ 
     <div class="signup-container">
        
         <h2 
-                style="color:#036635; 
+                style="color:#ffffff; 
                        font-family: 'Poppins', sans-serif; 
                        font-size: 2.5rem; 
                        font-weight:bolder; 
                        text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3); 
                        letter-spacing: 2px;" 
-                class="text-center mb-4">
+                class="text-center mb-4 ">
               SIGN UP
               <img src="/images/tractor.png" 
               alt="Farmers Login Logo" 
@@ -198,7 +223,7 @@
 
         <div class="signup-box" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 176px;">
             <div class="mt-2px">
-              <p style="text-align: center;">or sign up with</p>
+              <p style="text-align: center;color: #c3cfe2;">or sign up with</p>
             </div>
             <div class="social-btns">
               <a href="/auth/google" class="btn">

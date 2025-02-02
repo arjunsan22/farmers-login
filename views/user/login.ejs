@@ -23,9 +23,152 @@
     />
     <!-- Custom CSS -->
     <style>
+     
+        /* Replace the cube animation styles with tractor animation */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            backdrop-filter: blur(5px);
+        }
+
+        .loading-spinner {
+            width: 200px;
+            height: 120px;
+            position: relative;
+        }
+
+        .tractor {
+            position: relative;
+            animation: drive 2s infinite linear;
+        }
+
+        .tractor-body {
+            width: 120px;
+            height: 60px;
+            background: #036635;
+            border-radius: 10px;
+            position: relative;
+        }
+
+        .tractor-cabin {
+            width: 50px;
+            height: 50px;
+            background: #036635;
+            position: absolute;
+            top: -30px;
+            left: 60px;
+            border-radius: 8px;
+        }
+
+        .wheel {
+            position: absolute;
+            background: #333;
+            border-radius: 50%;
+            border: 4px solid #666;
+            animation: rotate 1s infinite linear;
+        }
+
+        .wheel-back {
+            width: 50px;
+            height: 50px;
+            bottom: -20px;
+            left: 10px;
+        }
+
+        .wheel-front {
+            width: 30px;
+            height: 30px;
+            bottom: -10px;
+            right: 20px;
+        }
+
+        .exhaust {
+            position: absolute;
+            top: -20px;
+            left: 20px;
+            width: 8px;
+            height: 20px;
+            background: #666;
+            border-radius: 4px;
+        }
+
+        .smoke {
+            position: absolute;
+            top: -30px;
+            left: 15px;
+            animation: smoke 1s infinite;
+        }
+
+        .smoke::before {
+            content: '💨';
+            font-size: 20px;
+        }
+
+        @keyframes drive {
+            0% {
+                transform: translateX(-50px) translateY(0);
+            }
+            25% {
+                transform: translateX(-25px) translateY(-2px);
+            }
+            50% {
+                transform: translateX(0) translateY(0);
+            }
+            75% {
+                transform: translateX(25px) translateY(-2px);
+            }
+            100% {
+                transform: translateX(50px) translateY(0);
+            }
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes smoke {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateY(-20px) scale(1.5);
+                opacity: 0;
+            }
+        }
+
+        .loading-text {
+            position: absolute;
+            bottom: -40px;
+            color: #036635;
+            font-weight: 500;
+            font-size: 1.1rem;
+            text-align: center;
+            width: 100%;
+        }
+
+        .loading-text::after {
+            content: '';
+            animation: dots 1.5s infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
       body {
         font-family: 'Poppins', sans-serif;
-       background-image: url('/images/login4.jpg');
+       background-image: url('/images/loginbody22.webp');
        background-repeat: no-repeat;
        background-size: cover;
         display: flex;
@@ -46,7 +189,7 @@
       }
 
       .login-image {
-        background: url('/images/login5.jpg')
+        background: url('/images/loginnew1.jpg')
           no-repeat center center;
         background-size: cover;
       }
@@ -93,6 +236,21 @@
   </head>
 
   <body>
+     <!-- Loading Overlay -->
+     <div class="loading-overlay">
+      <div class="loading-spinner">
+          <div class="tractor">
+              <div class="tractor-body">
+                  <div class="exhaust"></div>
+                  <div class="smoke"></div>
+                  <div class="tractor-cabin"></div>
+                  <div class="wheel wheel-back"></div>
+                  <div class="wheel wheel-front"></div>
+              </div>
+          </div>
+          <div class="loading-text">Loading your Farmers Login...</div>
+      </div>
+  </div>
     <div class="container">
       <div class="row justify-content-center">
         <div class="col-lg-8">
@@ -191,7 +349,17 @@
     <script
       src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"
     ></script>
+    <script>
+        document.getElementById('loginform').addEventListener('submit', function(e) {
+            // Show loading animation
+            document.querySelector('.loading-overlay').style.display = 'flex';
+            
+            // Add fade-in animation
+            setTimeout(() => {
+                this.submit(); // Submit the form after 2 seconds
+            },4000);
+        });
+    </script>
   </body>
 </html>
 
-<!-- sarath password- arjun12345!@#$  -->

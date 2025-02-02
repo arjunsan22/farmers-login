@@ -68,26 +68,6 @@ const updateProfile = async (req, res) => {
     }
 };
 
-// const  uploadProfilePicture = async (req, res) => {
-//     try {
-//         const userId = req.session.user;
-//         const userData = await User.findById(userId);
-
-//         if (!req.file) {
-//             return res.status(400).send('Please upload an image');
-//         }
-
-//         const filePath = path.join('uploads/user-Images', req.file.filename);
-//         userData.userImage = filePath;
-//         await userData.save();
-//         res.redirect('/userProfile');
-//     } catch (error) {
-//         console.error('Error uploading profile picture:', error);
-//         res.render('pagenotfound');
-//     }
-// };
-
-
 
 //address management//
 
@@ -301,21 +281,28 @@ const forgotEmailCheck=async (req,res) => {
             if(emailSent){
                 req.session.userOtp=otp;
                 req.session.email=email;
-                res.render('forgotPassword-OTP')
-                console.log("OTP sent successfully",otp);
-
+                res.json({
+                    success: true,
+                    message: "OTP has been sent to your email",
+                    redirectUrl: '/forgot-password-otp'
+                });
+                console.log("OTP sent successfully", otp);
+            
             }else{
               res.json({success:false,message:"Error in sending email"})
            }
     }
     else{
-        res.render("forgotPassword",{message:"Email not found"})
+        res.json({success:false,message:"Email not found"})
     }
 }
     catch(error){
         console.error(error);
-        res.redirect('/pagenotfound');
-    }
+        res.json({
+            success: false,
+            message: "An error occurred. Please try again later."
+        });
+      }
 
 }
 

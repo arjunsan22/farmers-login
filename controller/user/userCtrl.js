@@ -4,6 +4,7 @@ const Category=require('../../models/categoryModel')
 const nodemailer=require('nodemailer')
 const bcrypt=require('bcrypt')
 const env=require('dotenv').config()
+const Order=require('../../models/orderModel')
 
 
 const loadhomepage = async (req, res) => {
@@ -377,118 +378,130 @@ const loadProductDetails = async (req, res) => {
 
 //        //   shop page and filters        
    //      //
-const loadShopPage = async (req, res) => {
-  try {
-    const userId=req.session.user;
-    const userData=await User.findById(userId);
-    
+   const loadShopPage = async (req, res) => {
+    try {
+      const userId = req.session.user;
+      const userData = await User.findById(userId);
+      
+      const category = req.query.category || '';
+      const sortBy = req.query.sortBy || '';
+      const searchTerm = req.query.search || ''; 
+     
+      let filter = {
+        isblocked: false,
+        quantity: { $gt: 0 }
+      };
   
-    const category = req.query.category || '';
-    const sortBy = req.query.sortBy || '';
-    const searchTerm = req.query.search || ''; 
-   
-    let filter = {
-      isblocked: false,
-      quantity: { $gt: 0 }
-    };
-
-    // apply category filter if selected////
-    if (category) {
-      const categoryData = await Category.findOne({ name: category });
-      if (categoryData) {
-        filter.category = categoryData._id;
+      // Apply category filter if selected
+      if (category) {
+        const categoryData = await Category.findOne({ name: category });
+        if (categoryData) {
+          filter.category = categoryData._id;
+        }
+      }
+  
+      if (searchTerm) {
+        filter.productname = { $regex: searchTerm, $options: 'i' }; 
+      }
+  
+      const page = parseInt(req.query.page) || 1;
+      const limit = 9;
+      const skip = (page - 1) * limit;
+  
+      // Get all products with their orders count
+      const productsWithOrders = await Order.aggregate([
+        { $unwind: "$orderedItems" },
+        {
+          $group: {
+            _id: "$orderedItems.product",
+            orderCount: { $sum: 1 }
+          }
+        }
+      ]);
+  
+      // Create a map of product IDs to order counts
+      const orderCountMap = new Map(
+        productsWithOrders.map(item => [item._id.toString(), item.orderCount])
+      );
+  
+      // Get products with populate
+      let productData = await Product.find(filter)
+        .populate('reviews')
+        .skip(skip)
+        .limit(limit);
+  
+      // Calculate average ratings and add order counts
+      const productsWithRatings = productData.map(product => {
+        const totalRating = product.reviews.reduce((acc, review) => acc + review.rating, 0);
+        const averageRating = product.reviews.length > 0 
+          ? (totalRating / product.reviews.length).toFixed(1) 
+          : 0;
+        
+        return {
+          ...product.toObject(),
+          averageRating: parseFloat(averageRating),
+          reviewCount: product.reviews.length,
+          orderCount: orderCountMap.get(product._id.toString()) || 0
+        };
+      });
+  
+      // Apply sorting
+      let sortedProducts = [...productsWithRatings];
+      switch (sortBy) {
+        case 'popularity':
+          sortedProducts.sort((a, b) => b.orderCount - a.orderCount);
+          break;
+        case 'topRated':
+          sortedProducts.sort((a, b) => b.averageRating - a.averageRating);
+          break;
+        case 'priceLowToHigh':
+          sortedProducts.sort((a, b) => a.salePrice - b.salePrice);
+          break;
+        case 'priceHighToLow':
+          sortedProducts.sort((a, b) => b.salePrice - a.salePrice);
+          break;
+        case 'newArrivals':
+          sortedProducts.sort((a, b) => new Date(b.createdOn) - new Date(a.createdOn));
+          break;
+        case 'aToZ':
+          sortedProducts.sort((a, b) => a.productname.localeCompare(b.productname));
+          break;
+        case 'zToA':
+          sortedProducts.sort((a, b) => b.productname.localeCompare(a.productname));
+          break;
+        default: // Featured - combination of price and recency
+          sortedProducts.sort((a, b) => {
+            const recencyScore = (new Date(b.createdOn) - new Date(a.createdOn)) / (1000 * 60 * 60 * 24); // Days
+            const priceScore = (b.salePrice - a.salePrice) * 0.1; // Weight price less
+            return recencyScore + priceScore;
+          });
+      }
+  
+      const totalProducts = await Product.countDocuments(filter);
+      const totalPages = Math.ceil(totalProducts / limit);
+      const categories = await Category.find({ isListed: true });
+  
+      res.render('ShopPage', {
+        user: userData,
+        products: sortedProducts,
+        category: categories,
+        currentPage: page,
+        totalPages: totalPages,
+        selectedCategory: category,
+        selectedSort: sortBy,
+        searchTerm: searchTerm
+      });
+  
+    } catch (error) {
+      console.error('Error loading shop page:', error);
+      if (error.name === 'CastError' || error.name === 'ValidationError') {
+        res.status(400).render('pagenotfound', { message: 'Invalid request params' });
+      } else {
+        res.status(500).render('pagenotfound', { message: 'Internal Server Error' });
       }
     }
-
-    if (searchTerm) {
-      filter.productname = { $regex: searchTerm, $options: 'i' }; 
-    }
-
-    let sortOption = {};
-    switch (sortBy) {
-      case 'priceLowToHigh':
-        sortOption.salePrice = 1;
-        break;
-      case 'priceHighToLow':
-        sortOption.salePrice = -1;
-        break;
-      case 'newArrivals':
-        sortOption.createdOn = -1;
-        break;
-      case 'aToZ':
-        sortOption.productname = 1;
-        break;
-      case 'zToA':
-        sortOption.productname = -1;
-        break;
-      default:
-        sortOption.createdOn = -1; // iam default sort by newest //
-    }
-
-    
-    const page = parseInt(req.query.page) || 1;
-    const limit = 9;
-    const skip = (page - 1) * limit;
-
-
-    const totalProducts = await Product.countDocuments(filter);
-
-
-    const productData = await Product.find(filter)
-      .sort(sortOption)
-      .skip(skip)
-      .limit(limit)
-      .populate('reviews') 
-
-  // Calculate average ratings for each product
-  const productsWithRatings = productData.map(product => {
-    const totalRating = product.reviews && product.reviews.length > 0 
-        ? product.reviews.reduce((acc, review) => acc + review.rating, 0) 
-        : 0; // Default to 0 if no reviews
-
-    const averageRating = product.reviews && product.reviews.length > 0 
-        ? (totalRating / product.reviews.length).toFixed(1) 
-        : 0; // Default to 0 if no reviews
-
-    return { 
-        ...product.toObject(), 
-        averageRating: parseFloat(averageRating), // Convert back to number if needed
-        reviewCount: product.reviews.length // Include review count
-    };
-});    
-  console.log("productsWithRatings :",productsWithRatings)
-
-    const categories = await Category.find({ isListed: true });
-    const categoriesWithIds = categories.map(cat => ({
-      _id: cat._id,
-      name: cat.name
-    }));
-
-    const totalPages = Math.ceil(totalProducts / limit);
-
-    res.render('ShopPage', {
-        user: userData,
-      products: productsWithRatings,
-      category: categoriesWithIds,
-        currentPage: page,
-      totalPages: totalPages,
-     selectedCategory: category,
-      selectedSort: sortBy,
-      searchTerm: searchTerm,
-   
-     
-    });
-
-  } catch (error) {
-    console.error('Error loading shop page:', error);
-    if (error.name === 'CastError' || error.name === 'ValidationError') {
-      res.status(400).render('pagenotfound', { message: 'Invalid request params' });
-    } else {
-      res.status(500).render('pagenotfound', { message: 'Internal Server Error' });
-    }
-  }
-};
-
+  };
+//main search/////////////////////////////////////////////
 
 const mainSearch = async (req, res) => {
   try {
@@ -514,56 +527,92 @@ const mainSearch = async (req, res) => {
       }
     }
 
-    let sortOption = {};
-    switch (sortBy) {
-      case 'priceLowToHigh':
-        sortOption.salePrice = 1;
-        break;
-      case 'priceHighToLow':
-        sortOption.salePrice = -1;
-        break;
-      case 'newArrivals':
-        sortOption.createdOn = -1;
-        break;
-      case 'aToZ':
-        sortOption.productname = 1;
-        break;
-      case 'zToA':
-        sortOption.productname = -1;
-        break;
-      default:
-        sortOption.createdOn = -1; // iam default sort by newest //
-    }
-
     const page = parseInt(req.query.page) || 1;
     const limit = 9;
     const skip = (page - 1) * limit;
 
-    const totalProducts = await Product.countDocuments(filter);
+    // Get all products with their orders count
+    const productsWithOrders = await Order.aggregate([
+      { $unwind: "$orderedItems" },
+      {
+        $group: {
+          _id: "$orderedItems.product",
+          orderCount: { $sum: 1 }
+        }
+      }
+    ]);
 
+    // Create a map of product IDs to order counts
+    const orderCountMap = new Map(
+      productsWithOrders.map(item => [item._id.toString(), item.orderCount])
+    );
+
+    // Get products with populate for reviews
     const productData = await Product.find(filter)
-    .sort(sortOption)
+      .populate('reviews')
       .skip(skip)
       .limit(limit);
 
-    const categories = await Category.find({ isListed: true });
-    const categoriesWithIds = categories.map(cat => ({
-      _id: cat._id,
-      name: cat.name
-    }));
+    // Calculate average ratings and add order counts
+    const productsWithRatings = productData.map(product => {
+      const totalRating = product.reviews.reduce((acc, review) => acc + review.rating, 0);
+      const averageRating = product.reviews.length > 0 
+        ? (totalRating / product.reviews.length).toFixed(1) 
+        : 0;
+      
+      return {
+        ...product.toObject(),
+        averageRating: parseFloat(averageRating),
+        reviewCount: product.reviews.length,
+        orderCount: orderCountMap.get(product._id.toString()) || 0
+      };
+    });
 
+    // Apply sorting
+    let sortedProducts = [...productsWithRatings];
+    switch (sortBy) {
+      case 'popularity':
+        sortedProducts.sort((a, b) => b.orderCount - a.orderCount);
+        break;
+      case 'topRated':
+        sortedProducts.sort((a, b) => b.averageRating - a.averageRating);
+        break;
+      case 'priceLowToHigh':
+        sortedProducts.sort((a, b) => a.salePrice - b.salePrice);
+        break;
+      case 'priceHighToLow':
+        sortedProducts.sort((a, b) => b.salePrice - a.salePrice);
+        break;
+      case 'newArrivals':
+        sortedProducts.sort((a, b) => new Date(b.createdOn) - new Date(a.createdOn));
+        break;
+      case 'aToZ':
+        sortedProducts.sort((a, b) => a.productname.localeCompare(b.productname));
+        break;
+      case 'zToA':
+        sortedProducts.sort((a, b) => b.productname.localeCompare(a.productname));
+        break;
+      default: // Featured - combination of price and recency
+        sortedProducts.sort((a, b) => {
+          const recencyScore = (new Date(b.createdOn) - new Date(a.createdOn)) / (1000 * 60 * 60 * 24); // Days
+          const priceScore = (b.salePrice - a.salePrice) * 0.1; // Weight price less
+          return recencyScore + priceScore;
+        });
+    }
+
+    const totalProducts = await Product.countDocuments(filter);
     const totalPages = Math.ceil(totalProducts / limit);
+    const categories = await Category.find({ isListed: true });
 
     res.render('ShopPage', {
       user: userData,
-      products: productData,
-      category: categoriesWithIds,
+      products: sortedProducts,
+      category: categories,
       currentPage: page,
       totalPages: totalPages,
       searchTerm: searchTerm,
       selectedCategory: selectedCategory,
-      selectedSort: sortBy,
-
+      selectedSort: sortBy
     });
 
   } catch (error) {
@@ -575,7 +624,6 @@ const mainSearch = async (req, res) => {
     }
   }
 };
-
 module.exports = {
   loadhomepage,
   pagenotfound,
