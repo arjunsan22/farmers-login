@@ -44,9 +44,9 @@ var addressSchema = new mongoose.Schema({
         is_blocked:{
             default:false,
             type:Boolean
-        }
-        
+        },
+  
+
     
-       
-    })
+    },{timestamps:true})
     module.exports=mongoose.model('Address',addressSchema)

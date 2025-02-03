@@ -122,6 +122,8 @@ router.post('/updateCheckoutAddress/:addressId',checkoutController.updateCheckou
 router.post('/process-order', checkoutController.Orderplacement)
 router.get('/order-success/:orderId',checkoutController.orderSuccess)
 
+
+
 //razorpay//
 
 // Razorpay routes

@@ -427,7 +427,7 @@ document.querySelectorAll('.apply-coupon').forEach(button => {
           }
         });
       } else {
-        // For non-Razorpay payments (COD, wallet)
+        // For non-Razorpay payments COD, wallet//
         console.log("Processing non-Razorpay payment:", paymentMethod);
         
         // Convert FormData to object for proper submission
@@ -456,14 +456,39 @@ document.querySelectorAll('.apply-coupon').forEach(button => {
             console.log("Order processing result:", resultJson);
             if (resultJson.success) {
               window.location.href = `/order-success/${resultJson.orderId}`;
-            } else {
-              alert(resultJson.message || 'Order processing failed');
-            }
-          },
-          error: function(xhr, status, error) {
-            console.error("Order processing error:", error);
-            alert('An error occurred while processing your order');
-          }
+            }else {
+        // Show SweetAlert for insufficient wallet balance
+        if (paymentMethod === 'wallet' && resultJson.status === 'false') {
+          Swal.fire({
+            icon: 'error',
+            title: 'Insufficient Wallet Balance',
+            text: 'You do not have enough balance in your wallet to complete this purchase.',
+            confirmButtonColor: '#d33',
+            confirmButtonText: 'OK'
+          });
+        } 
+        else {
+          // For other errors
+          Swal.fire({
+            icon: 'error',
+            title: 'Order Failed',
+            text: resultJson.message || 'Order processing failed',
+            confirmButtonColor: '#d33',
+            confirmButtonText: 'OK'
+          });
+        }
+      }
+    },
+    error: function(xhr, status, error) {
+      console.error("Order processing error:", error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'An error occurred while processing your order',
+        confirmButtonColor: '#d33',
+        confirmButtonText: 'OK'
+      });
+    }
         });
       }
     });

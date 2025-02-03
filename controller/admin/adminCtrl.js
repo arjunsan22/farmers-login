@@ -51,29 +51,42 @@ else{
 const loadDashboard = async (req, res) => {
     if (req.session.admin) {
         try {
-           
-            // Fetch total users
-            const totalUsers = await User.countDocuments({ isBlocked: false ,isAdmin:false});
-            
-            // Fetch total products
+            const totalUsers = await User.countDocuments({ isBlocked: false, isAdmin: false });
             const totalProducts = await Product.countDocuments({ isblocked: false });
-          
             
-            // Fetch total orders and calculate revenue
+            // Get all orders and total products sold using aggregation
             const orders = await Order.find({
-                Status: { $in: ["pending","delivered","processing","shipping"] }
+                Status: { $in: ["pending", "delivered", "processing", "shipping"] }
             });
+
+            const totalProductsAgg = await Order.aggregate([
+                {
+                    $match: {
+                        Status: { $in: ["pending", "delivered", "processing", "shipping"] }
+                    }
+                },
+                {
+                    $unwind: "$orderedItems"
+                },
+                {
+                    $group: {
+                        _id: null,
+                        totalQuantity: { $sum: "$orderedItems.quantity" }
+                    }
+                }
+            ]);
+
             const totalOrders = orders.length;
-          
-            
+            const totalProductsSold = totalProductsAgg[0]?.totalQuantity || 0;
+
             const totalRevenue = orders.reduce((acc, order) => {
                 return acc + (order.finalAmount || 0);
             }, 0);
-           
+
             const monthlyData = await Order.aggregate([
                 {
                     $match: {
-                        Status: { $in: ["pending","delivered","processing","shipping"] },
+                        Status: { $in: ["pending", "delivered", "processing", "shipping"] },
                         createdOn: { $gte: new Date(new Date().getFullYear(), 0, 1) }
                     }
                 },
@@ -85,6 +98,7 @@ const loadDashboard = async (req, res) => {
                 },
                 { $sort: { _id: 1 } }
             ]);
+
             const orderStatusData = await Order.aggregate([
                 {
                     $group: {
@@ -95,72 +109,65 @@ const loadDashboard = async (req, res) => {
                 { $sort: { _id: 1 } }
             ]);
 
-
             // Format monthly data for chart
             const monthlyStats = Array(12).fill(0);
             monthlyData.forEach(item => {
                 monthlyStats[item._id - 1] = item.total;
             });
 
-//coupon statistics//
+            // Coupon statistics
+            const coupons = await Coupon.find();
+            const activeCoupons = coupons.filter(coupon => 
+                coupon.isActive && 
+                new Date() >= coupon.startOn && 
+                new Date() <= coupon.expireOn
+            ).length;
 
-const coupons = await Coupon.find();
-const activeCoupons = coupons.filter(coupon => 
-    coupon.isActive && 
-    new Date() >= coupon.startOn && 
-    new Date() <= coupon.expireOn
-).length;
+            // Calculate discount statistics
+            const ordersWithDiscounts = await Order.find({
+                Status: { $in: ["pending", "delivered", "processing", "shipping"] },
+                discount: { $gt: 0 } 
+            });
 
-// Calculate discount statistics using the discount field from orders
-const ordersWithDiscounts = await Order.find({
-    Status: { $in: ["pending", "delivered", "processing", "shipping"] },
-    discount: { $gt: 0 } 
-});
+            const discountStats = {
+                totalDiscount: 0,
+                ordersWithDiscount: 0,
+                discountByType: {
+                    "Coupon Discount": {
+                        count: 0,
+                        totalAmount: 0
+                    }
+                }
+            };
 
-const discountStats = {
-    totalDiscount: 0,
-    ordersWithDiscount: 0,
-    discountByType: {
-        "Coupon Discount": {
-            count: 0,
-            totalAmount: 0
-        }
-    }
-};
-
-ordersWithDiscounts.forEach(order => {
-    if (order.discount && order.discount > 0) {
-        discountStats.totalDiscount += order.discount;
-        discountStats.ordersWithDiscount++;
-        
-        // Since we don't have coupon types, we'll use a single category
-        discountStats.discountByType["Coupon Discount"].count++;
-        discountStats.discountByType["Coupon Discount"].totalAmount += order.discount;
-    }
-});
-
-
-
-
+            ordersWithDiscounts.forEach(order => {
+                if (order.discount && order.discount > 0) {
+                    discountStats.totalDiscount += order.discount;
+                    discountStats.ordersWithDiscount++;
+                    discountStats.discountByType["Coupon Discount"].count++;
+                    discountStats.discountByType["Coupon Discount"].totalAmount += order.discount;
+                }
+            });
 
             res.render('dashboard', {
                 totalUsers,
                 totalProducts,
                 totalOrders,
+                totalProductsSold,
                 totalRevenue,
                 monthlyStats,
                 orderStatusData,
                 discountStats,
-    activeCoupons
+                activeCoupons
             });
         } catch (error) {
             console.error('Dashboard Error:', error);
             res.redirect('/admin/error');
         }
+    } else {
+        res.redirect('/admin/login');
     }
 }
-
-
 
 
 const errorPage=async (req,res) => {

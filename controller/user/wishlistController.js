@@ -7,7 +7,7 @@ const getWishlist = async (req, res) => {
     try {
       const userId = req.session.user;
       if(!userId){
-        res.render('login',{message:"Login Required For Access Wishlist"})
+       return res.render('login',{message:"Login Required For Access Wishlist"})
       }
       const userData=await User.findById(userId)
 

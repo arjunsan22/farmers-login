@@ -220,6 +220,7 @@ const Orderplacement = async (req, res) => {
 
     if (paymentMethod === 'wallet') {
       const wallet = await Wallet.findOne({ userId });
+      console.log("wallet",wallet.balance)
       if (!wallet || wallet.balance < finalAmount) {
         return res.status(400).json({ success: false, message: 'Insufficient wallet balance' });
       }
@@ -326,6 +327,8 @@ const verifyRazorpayPayment = async (req, res) => {
     res.status(500).send('Something went wrong while verifying the Razorpay payment');
   }
 };
+
+
 
 module.exports={
     loadCheckoutPage,

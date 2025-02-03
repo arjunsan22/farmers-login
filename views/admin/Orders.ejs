@@ -200,23 +200,38 @@
               </thead>
               <tbody>
                 <% orders.forEach(order => { %>
-                  <tr>
+                  <tr><%if (order.orderedItems.length > 0) {%>
                     <td><%= order.orderId.slice(-5) %></td>
                     <td><%= order.userId.firstname %> <%= order.userId.lastname %></td>
+                    
                     <td>
                       <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#addressModal" data-address='<%= JSON.stringify(order.address) %>'>
                         <i class="fas fa-map-marker-alt me-1"></i> View Address
                       </button>
                     </td>
+                    <%}else{%>
+                    <td>order not available</td>
+                    <td>user not available</td>
                     <td>
+                      <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#addressModal" data-address='<%= JSON.stringify(order.address) %>'>
+                        <i class="fas fa-map-marker-alt me-1"></i> no address
+                      </button>
+                    </td>
+                    <%}%> 
+                    <td>
+                   
                       <ul class="list-unstyled mb-0">
                         <% order.orderedItems.forEach(item => { %>
                           <li class="mb-1">
-                            <%= item.product.productname %> (<%= item.quantity %>kg) - ₹<%= item.price %>
+                            <% if (item.product) { %>
+                              <%= item.product.productname %> (<%= item.quantity %>kg) - ₹<%= item.price %>
+                            <% } else { %>
+                              <span class="text-muted">Deleted Product</span> (<%= item.quantity %>kg) - ₹<%= item.price %>
+                            <% } %>
                           </li>
                         <% }) %>
                       </ul>
-                    </td>
+ </td>
                     <td>
                       <% order.orderedItems.forEach(item => { %>
                         <%= item.returnReason %>

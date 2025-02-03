@@ -8,12 +8,15 @@ const getWallet = async (req, res) => {
        const userData=await User.findById(userId)
      
   
-      let wallet = await Wallet.findOne({ userId }).populate('userId');
+      let wallet = await Wallet.findOne({ userId }).sort({}).populate('userId');
       if (!wallet) {
-        // Create a new wallet for the user if it doesn't exist
+        // Create a new wallet for the user if it doesn't exist//
         wallet = new Wallet({ userId, balance: 0, transactions: [] });
         await wallet.save();
-      }
+      }else {
+        
+        wallet.transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+    }
   
       res.render('wallet', { wallet ,user:userData});
     } catch (error) {

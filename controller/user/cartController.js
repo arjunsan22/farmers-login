@@ -76,12 +76,10 @@ const getCart = async (req, res) => {
     
     const userId = req.session.user;
     const user = await User.findById(userId);
-if(!user){
-    res.render('login',{message:"Login required for get Cart !"})
-}
+
     try {
         if(!user){
-            res.redirect('/login',{message:"Login required to see cart "})
+           return res.render('login',{message:"Login required to see cart "})
         }
         const cart = await Cart.findOne({ userId }).populate('items.productId').populate({
             path: 'items.productId',
