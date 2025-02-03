@@ -186,11 +186,32 @@
             from { text-shadow: 0 0 0 rgba(25, 135, 84, 0); }
             to { text-shadow: 0 0 10px rgba(25, 135, 84, 0.3); }
         }
+        .breadcrumb {
+    background-color: #f8f9fa;
+    padding: 10px 15px;
+    border-radius: 0.25rem;
+    margin-bottom: 1rem;
+}
+
+.breadcrumb-item a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.breadcrumb-item a:hover {
+    color: #0056b3;
+}
     </style>
 
 </head>
 <body>
 <div class="container-fluid">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Profile</li>
+        </ol>
+    </nav>
     <div class="row">
         <!-- Sidebar -->
         <!-- Sidebar -->

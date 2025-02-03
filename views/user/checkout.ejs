@@ -37,11 +37,32 @@
     .remove-coupon {
       display: none;
     }
+    .breadcrumb {
+    background-color: #f8f9fa;
+    padding: 10px 15px;
+    border-radius: 0.25rem;
+    margin-bottom: 1rem;
+}
 
+.breadcrumb-item a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.breadcrumb-item a:hover {
+    color: #0056b3;
+}
   </style>
 </head>
 <body>
   <div class="container my-5">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="/">Home</a></li>
+          <li class="breadcrumb-item"><a href="/cart">Cart</a></li>
+          <li class="breadcrumb-item active" aria-current="page">Checkout</li>
+      </ol>
+  </nav>
     <h2 class="text-center mb-4">Checkout</h2>
     <div class="card shadow p-4 mb-4">
       <h4>Order Details</h4>

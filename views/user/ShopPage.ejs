@@ -461,15 +461,38 @@
             font-size: 13px;
         }
     }
-        
+    .breadcrumb {
+    background-color: #f8f9fa;
+    padding: 10px 15px;
+    border-radius: 0.25rem;
+    margin-bottom: 1rem;
+}
+
+.breadcrumb-item a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.breadcrumb-item a:hover {
+    color: #0056b3;
+}
     </style>
 </head>
 <body>
+     <!-- BREADCRUMBS -->
+     
     <div class="container-fluid py-4">
         <div class="row">
             <!-- Filter Section -->
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/">Home</a></li>
+                    <li class="breadcrumb-item"><a href="/shop">Shop</a></li>
+                </ol>
+            </nav>
 
             <aside class="col-lg-3 col-md-4">
+                
                 <div class="filter-section">
                     <h5 class="filter-title">FILTERS</h5>
 

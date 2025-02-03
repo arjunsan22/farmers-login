@@ -1,6 +1,29 @@
+<style>
+         .breadcrumb {
+    background-color: #f8f9fa;
+    padding: 10px 15px;
+    border-radius: 0.25rem;
+    margin-bottom: 1rem;
+}
+
+.breadcrumb-item a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.breadcrumb-item a:hover {
+    color: #0056b3;
+}
+</style>
 <%- include("../../views/partials/user/header") %>
 <body class="bg-light">
 <div class="container my-5 animate__animated animate__fadeIn">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/userProfile">Profile</a></li>
+        <li class="breadcrumb-item active" aria-current="page">wallet</li>
+    </ol>
+</nav>
   <h2 class="text-center mb-4 fw-bold text-success">𝖬𝖸 𝖶𝖠𝖫𝖫𝖤𝖳</h2>
   <% if (typeof errorMessage !== 'undefined') { %>
     <div class="alert alert-danger animate__animated animate__shakeX"><%= errorMessage %></div>

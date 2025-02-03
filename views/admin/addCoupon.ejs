@@ -136,5 +136,23 @@
      
     });
   </script>
+  <!-- for dates -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const today = new Date().toISOString().split('T')[0]; // to get today's date in yy-mm-dd format//
+        document.getElementById('startOn').setAttribute('min', today);
+        document.getElementById('expireOn').setAttribute('min', today);
+    });
+    //i  add an event listener for changes to the "Start On" date//
+    document.getElementById('startOn').addEventListener('change', function() {
+        const startDate = new Date(this.value);
+        const expireOnInput = document.getElementById('expireOn');
+
+        if (startDate) {
+            const minExpireDate = startDate.toISOString().split('T')[0]; 
+            expireOnInput.setAttribute('min', minExpireDate);
+        }
+    });
+</script>
 </body>
 </html>

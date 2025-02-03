@@ -96,6 +96,21 @@
   font-weight: 600;
   margin-bottom: 1rem;
 }
+.breadcrumb {
+    background-color: #f8f9fa;
+    padding: 10px 15px;
+    border-radius: 0.25rem;
+    margin-bottom: 1rem;
+}
+
+.breadcrumb-item a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.breadcrumb-item a:hover {
+    color: #0056b3;
+}
   </style>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -107,9 +122,13 @@
 
 
   <div class="container my-5">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="/userProfile">Profile</a></li>
+          <li class="breadcrumb-item active" aria-current="page">Order-History</li>
+      </ol>
+  </nav>
     <h2 class="text-center text-danger mb-4"><strong> 𝙾𝚁𝙳𝙴𝚁𝚂 𝙷𝙸𝚂𝚃𝙾𝚁𝚈 </strong></h2>
-
-
 <!-- Navigation Tabs -->
 <ul class="nav nav-tabs" id="orderTabs">
   <li class="nav-item">

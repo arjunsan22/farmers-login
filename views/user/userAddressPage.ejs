@@ -193,12 +193,32 @@ a.btn-primary:hover {
         font-size: 0.75rem;
     }
 }
+.breadcrumb {
+    background-color:rgb(172, 143, 143)(190, 171, 213);
+    padding: 10px 15px;
+    border-radius: 0.25rem;
+    margin-bottom: 1rem;
+}
 
+.breadcrumb-item a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.breadcrumb-item a:hover {
+    color: #0056b3;
+}
     </style>
 </head>
 <body>
     <br><br><br>
     <div class="container mt-5">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/userProfile">Profile</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Address</li>
+            </ol>
+        </nav>
         <h2 class="text-center mb-4 text-white fs-2">MY ADDRESSES 
             <img src="/images/tractor.png" 
             alt="Farmers Login Logo" 
