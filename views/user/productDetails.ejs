@@ -288,6 +288,32 @@
     font-size: 14px;
     margin-top: 5px;
 }
+/* now */
+    .star-rating {
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: start;
+        gap: 5px;
+    }
+
+    .star-rating input {
+        display: none;
+    }
+
+    .star-rating label {
+        font-size: 25px;
+        color: gray;
+        cursor: pointer;
+    }
+
+    .star-rating input:checked ~ label {
+        color: gold;
+    }
+
+    .star-rating label:hover,
+    .star-rating label:hover ~ label {
+        color: gold;
+    }
   </style>
 </head>
 
@@ -384,7 +410,7 @@
               <br>
               
               <button class="btn btn-cart btn-warning" id="addToCartButton" onclick="addToCart('<%=product._id%>')">
-                <i class="fas fa-shopping-cart"></i> Add to Cart
+                <i class="fas fa-shopping-cart"></i> addToCart
               </button>
 
               <div id="wishlistButton" class="position-absolute top-0 end-0 p-2">
@@ -398,14 +424,20 @@
 <div class="review-container">
   <h2 class="text-danger">Add Review</h2>
   <form id="reviewForm" action="/products/<%= product._id %>/review" method="POST">
-      <label class="text-danger" for="rating">Give Rating:</label>
-      <select name="rating" required>
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
-          <option value="5">5</option>
-      </select>
+      <label class="text-danger">Give Rating:</label>
+      <div class="star-rating">
+          <input type="radio" id="star5" name="rating" value="5" required />
+          <label for="star5">★</label>
+          <input type="radio" id="star4" name="rating" value="4" required />
+          <label for="star4">★</label>
+          <input type="radio" id="star3" name="rating" value="3" required />
+          <label for="star3">★</label>
+          <input type="radio" id="star2" name="rating" value="2" required />
+          <label for="star2">★</label>
+          <input type="radio" id="star1" name="rating" value="1" required />
+          <label for="star1">★</label>
+      </div>
+
       <label for="comment">Comment:</label>
       <textarea name="comment" required></textarea>
       <button type="submit" class="btn btn-primary">Submit Review</button>

@@ -55,7 +55,12 @@ const updateStatus = async (req, res) => {
         const orderId = req.params.orderId;
         const { Status } = req.body;
         console.log(Status)
-        const updatedOrder = await Order.findByIdAndUpdate(orderId, { Status }, { new: true });
+        const updateData = { Status };
+if(Status==="delivered"){
+    updateData.deliveryDate=new Date();
+}
+console.log(updateData)
+        const updatedOrder = await Order.findByIdAndUpdate(orderId, updateData, { new: true });
         if (!updatedOrder) {
             return res.status(404).send('Order not found');
         }

@@ -85,6 +85,16 @@
       </div>
     </div>
   <% } %>
+  <!-- Pagination Controls -->
+  <nav aria-label="Page navigation">
+    <ul class="pagination justify-content-center mt-4">
+        <% for (let i = 1; i <= totalPages; i++) { %>
+            <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+            </li>
+        <% } %>
+    </ul>
+</nav>
 </div>
 
 <%- include("../../views/partials/user/footer") %>
@@ -148,6 +158,15 @@
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(78, 115, 223, 0.4);
   }
+  .pagination .page-link {
+  border-radius: 8px;
+  margin: 0 2px;
+}
+
+.pagination .page-item.active .page-link {
+  background-color: #dc3545;
+  border-color: #dc3545;
+}
 
   .form-control {
     border-radius: 10px;
@@ -203,7 +222,7 @@
     form.addEventListener('submit', async function(e) {
       e.preventDefault();
       submitBtn.classList.add('loading');
-
+      
       try {
         const formData = new FormData(form);
         const response = await fetch('/wallet/add', {
@@ -234,7 +253,20 @@
           setTimeout(() => {
             window.location.reload();
           }, 3000);
-        } else {
+        }else if (response.status === 400) {
+          Swal.fire({
+            toast: true,
+            position: 'top',
+            icon: 'error',
+            title: '20000 rupees only added at a time',
+            text: 'Please try again',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true
+          });
+
+        } 
+        else {
           throw new Error('Failed to add money');
         }
       } catch (error) {
