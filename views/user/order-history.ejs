@@ -260,14 +260,23 @@
               </form>
             <% } %>
             <% 
-            const currentDate = new Date(); // Get today's date
-            const deliveryDate = new Date(order.deliveryDate); // Convert delivery date to Date object
-            const returnEligible = (currentDate - deliveryDate) / (1000 * 60 *60  ) <= 7; // Check if within 7 days
-          %>
+  // Get today's date (only year, month, day)
+  const currentDate = new Date();
+  currentDate.setHours(0, 0, 0, 0); // Reset time to midnight
+
+  // Convert delivery date to a Date object and reset time to midnight
+  const deliveryDate = new Date(order.deliveryDate);
+  deliveryDate.setHours(0, 0, 0, 0); 
+
+  // Check if the difference in days is within 7 days
+  const differenceInDays = (currentDate - deliveryDate) / (1000 * 60 * 60 * 24);
+  const returnEligible = differenceInDays <= 7; // Only compare days
+%>
+
             <% if (order.Status === 'delivered' && returnEligible) { %>
 
-              <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#returnModal-<%= order._id %>">Return Order </button>
-              <p class="text-danger">Delivered on <%= order.deliveryDate.toDateString() %>, return is possible as order is only 7 days</p>
+              <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#returnModal-<%=order._id %>">Return Order </button>
+              <p class="text-danger">Delivered on <%= deliveryDate.toDateString() %>, return is possible as order is only 7 days</p>
               <!-- Return Modal -->
               <div class="modal fade" id="returnModal-<%= order._id %>" tabindex="-1" aria-labelledby="returnModalLabel" aria-hidden="true">
                 <div class="modal-dialog">

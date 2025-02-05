@@ -21,7 +21,7 @@ let productData=await Product.find(
     category:{$in:categories.map(category=>category._id)}
     ,quantity:{$gt:0}
   
-  })
+  }).populate('category')
   //console.log(productData);
 
 productData.sort((a,b)=>new Date(b.createdOn)-new Date(a.createdOn));
@@ -40,6 +40,7 @@ productData.sort((a,b)=>new Date(b.createdOn)-new Date(a.createdOn));
         ...product.toObject(), 
         averageRating: parseFloat(averageRating), // Convert back to number if needed
         reviewCount: product.reviews.length // Include review count
+        ,categoryOffer:product.category?.categoryOffer || 0
     };
 });    
 
@@ -357,15 +358,15 @@ const loadProductDetails = async (req, res) => {
       res.locals.user = userData; // Set user data in locals
     }
 
-    const product = await Product.findById(productId).populate('category').populate('reviews.userId', 'firstname lastname');
+    const product = await Product.findById(productId).populate('category','categoryOffer').populate('reviews.userId', 'firstname lastname');
     const relatedProducts = await Product.find({
       productname: { $regex: product.productname.split(' ')[0], $options: 'i' },
       _id: { $ne: productId },
-    });
+    }).populate('category','categoryOffer').populate('reviews');
    
-
+const categoryOffer=product?.category?.categoryOffer || 0;
     if (product && !product.isblocked) {
-      res.render('productDetails', { product, relatedProducts, user: userData });
+      res.render('productDetails', { product, relatedProducts, user: userData,categoryOffer });
     } else {
       res.status(404).send('Product not found');
     }

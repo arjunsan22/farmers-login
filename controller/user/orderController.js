@@ -21,7 +21,7 @@ const getOrderHistory = async (req, res) => {
       .skip(skip)
       .limit(limit)
 
-      console.log("orders details :",orders)
+      // console.log("orders details :",orders)
   
       res.render('order-history', { orders ,user:userData,currentPage: page, totalPages  });
 
@@ -91,7 +91,8 @@ const getOrderHistory = async (req, res) => {
 const returnOrder = async (req, res) => {
   try {
       const orderId = req.params.orderId;
-      const { returnReason } = req.body;
+      const { returnReason} = req.body;
+console.log("returnReason :",returnReason)
 
       const order = await Order.findById(orderId);
       if (!order) {
@@ -99,7 +100,7 @@ const returnOrder = async (req, res) => {
       }
 
    
-      order.Status = 'return request';
+      order.Status = 'returned';
       order.orderedItems.forEach(item => {
           item.returnReason = returnReason;
       });
@@ -126,6 +127,18 @@ const returnOrder = async (req, res) => {
       await wallet.save();
     }
   }
+  else if (order.paymentMethod === 'razorpay') {
+    const wallet = await Wallet.findOne({ userId: order.userId });
+    if (wallet) {
+      wallet.balance += order.finalAmount;
+      wallet.transactions.push({
+        amount: order.finalAmount,
+        type: 'credit',
+        description: ' Order return refund',
+      });
+      await wallet.save();
+    }
+  }   
 
 
       res.redirect('/order-history');
