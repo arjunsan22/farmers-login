@@ -283,6 +283,9 @@
 
               <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#returnModal-<%=order._id %>">Return Order </button>
               <p class="text-danger">Delivered on <%= deliveryDate.toDateString() %>, return is possible as order is only 7 days</p>
+              <a href="/orders/download-invoice/<%= order._id %>" class="btn btn-success btn-sm">
+                <i class="fas fa-download"></i> Download Invoice
+            </a>
               <!-- Return Modal -->
               <div class="modal fade" id="returnModal-<%= order._id %>" tabindex="-1" aria-labelledby="returnModalLabel" aria-hidden="true">
                 <div class="modal-dialog">

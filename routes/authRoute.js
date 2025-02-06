@@ -134,6 +134,8 @@ router.post('/verify-razorpay-payment', checkoutController.verifyRazorpayPayment
 
 //order-management://
 router.get('/order-history',orderController.getOrderHistory);
+router.get('/orders/download-invoice/:orderId', orderController.downloadInvoice);
+
 
 
 router.post('/orders/cancel/:orderId', orderController.cancelOrder);

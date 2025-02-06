@@ -2,6 +2,10 @@ const Order=require('../../models/orderModel')
 const User = require("../../models/userModel");
 const Product = require('../../models/productModel');
 const Wallet = require('../../models/walletModel');
+const PDFDocument = require('pdfkit');
+const fs = require('fs');
+const path = require('path');
+
 
 const getOrderHistory = async (req, res) => {
     try {
@@ -149,10 +153,189 @@ console.log("returnReason :",returnReason)
 };
 
 
+const downloadInvoice = async (req, res) => {
+  try {
+      const orderId = req.params.orderId;
+      const order = await Order.findById(orderId)
+          .populate('orderedItems.product')
+          .populate('address')
+          .populate('userId');
+
+      if (!order) {
+          return res.status(404).send('Order not found');
+      }
+
+      // Create a new PDF document with better margins
+      const doc = new PDFDocument({
+          size: 'A4',
+          margin: 40
+      });
+
+      const invoiceName = `invoice-${order.orderId}.pdf`;
+      const publicPath = path.join(__dirname, '..', '..', 'public');
+      const invoicesDir = path.join(publicPath, 'invoices');
+      const invoicePath = path.join(invoicesDir, invoiceName);
+
+      if (!fs.existsSync(invoicesDir)) {
+          fs.mkdirSync(invoicesDir, { recursive: true });
+      }
+
+      const writeStream = fs.createWriteStream(invoicePath);
+      writeStream.on('error', (error) => {
+          console.error('Error writing to file:', error);
+          return res.status(500).send('Error generating invoice');
+      });
+
+      doc.pipe(writeStream);
+
+      // Flipkart-style header with blue background
+      doc.rect(0, 0, doc.page.width, 150)
+         .fill('#2874F0');
+
+      // White text for header
+      doc.fillColor('#FFFFFF')
+         .fontSize(30)
+         .font('Helvetica-Bold')
+         .text('INVOICE', 40, 40)
+         .fontSize(12)
+         .font('sans-serif')
+         .text('Order ID: ' + order.orderId.slice(-5), 40, 80)
+         .text('Order Date: ' + order.createdOn.toLocaleDateString(), 40, 100);
+
+      // Company logo section (right side of header)
+      doc.fontSize(16)
+         .font('sans-serif-Bold')
+         .text('FARMERS LOGIN', 400, 40)
+         .fontSize(10)
+         .font('sans-serif')
+         .text('www.farmerslogin.com', 400, 65)
+         .text('farmerslogin@gmail.com', 400, 80)
+         .text('Customer Care: +91 1234567890', 400, 95);
+
+      // Order Status Banner
+      doc.rect(0, 150, doc.page.width, 30)
+         .fill('#47BD4A');
+      doc.fillColor('#FFFFFF')
+         .fontSize(12)
+         .font('Helvetica-Bold')
+         .text('Order Status: Delivered', 40, 158);
+
+      // Shipping & Billing Information
+      doc.fillColor('#2874F0')
+         .fontSize(14)
+         .text('SHIPPING DETAILS', 40, 200)
+         .fillColor('#000000')
+         .fontSize(10)
+         .font('Helvetica');
+
+      // Modern address box
+      doc.rect(40, 220, 250, 100)
+         .lineWidth(1)
+         .stroke('#E4E4E4');
+      
+      doc.font('Helvetica')
+         .fontSize(10)
+         .fillColor('#000000')
+         .text(order.address.name, 50, 230)
+         .text(order.address.Houseno + ', ' + order.address.StreetMark, 50, 250)
+         .text(order.address.city + ', ' + order.address.state, 50, 270)
+         .text('PIN: ' + order.address.pincode, 50, 290)
+         .text('Phone: ' + order.address.Phone, 50, 310);
+
+      // Items Table Header
+      doc.rect(40, 350, doc.page.width - 80, 30)
+         .fill('#F1F3F6');
+      
+      doc.fillColor('#2874F0')
+         .fontSize(10)
+         .font('Helvetica-Bold')
+         .text('ITEM', 50, 360)
+         .text('QTY', 300, 360)
+         .text('PRICE', 400, 360)
+         .text('TOTAL', 500, 360);
+
+      // Items Table Content
+      let yPosition = 390;
+      order.orderedItems.forEach((item, index) => {
+          // Alternate row colors
+          if (index % 2 === 0) {
+              doc.rect(40, yPosition - 5, doc.page.width - 80, 25)
+                 .fill('#FAFAFA');
+          }
+
+          doc.fillColor('#000000')
+             .fontSize(10)
+             .font('Helvetica')
+             .text(item.product.productname, 50, yPosition)
+             .text(item.quantity.toString(), 300, yPosition)
+             .text('₹' + item.price.toLocaleString(), 400, yPosition)
+             .text('₹' + (item.price * item.quantity).toLocaleString(), 500, yPosition);
+
+          yPosition += 25;
+      });
+
+      // Price Summary Box
+      const summaryY = yPosition + 20;
+      doc.rect(350, summaryY, 200, 120)
+         .fill('#F1F3F6');
+
+      doc.fontSize(12)
+         .font('Helvetica')
+         .fillColor('#000000')
+         .text('Price Summary', 360, summaryY + 10)
+         .fontSize(10)
+         .text('Subtotal:', 360, summaryY + 35)
+         .text('₹' + order.totalPrice.toLocaleString(), 480, summaryY + 35)
+         .text('Discount:', 360, summaryY + 55)
+         .text('₹' + order.discount.toLocaleString(), 480, summaryY + 55)
+         .font('Helvetica-Bold')
+         .fontSize(12)
+         .text('Final Amount:', 360, summaryY + 85)
+         .fillColor('#47BD4A')
+         .text('₹' + order.finalAmount.toLocaleString(), 480, summaryY + 85);
+
+      // Footer
+      const footerY = doc.page.height - 100;
+      doc.rect(0, footerY, doc.page.width, 100)
+         .fill('#2874F0');
+
+      doc.fillColor('#FFFFFF')
+         .fontSize(12)
+         .font('Helvetica-Bold')
+         .text('Thank you for shopping with Farmers Login!', 40, footerY + 20)
+         .fontSize(10)
+         .font('Helvetica')
+         .text('For any assistance, please contact our 24x7 Customer Care', 40, footerY + 40)
+         .text('Email:farmerslogin@gmail.com | Phone: +91 8590924576', 40, footerY + 60);
+
+      // Finalize PDF
+      doc.end();
+
+      // Handle file download
+      writeStream.on('finish', () => {
+          res.download(invoicePath, invoiceName, (err) => {
+              if (err && !res.headersSent) {
+                  console.error('Error downloading invoice:', err);
+                  res.status(500).send('Error downloading invoice');
+              }
+              fs.unlink(invoicePath, (unlinkErr) => {
+                  if (unlinkErr) console.error('Error deleting invoice file:', unlinkErr);
+              });
+          });
+      });
+
+  } catch (error) {
+      console.error('Error generating invoice:', error);
+      if (!res.headersSent) {
+          res.status(500).send('Error generating invoice');
+      }
+  }
+};
 
 module.exports={
 
     getOrderHistory,
     cancelOrder,
-    returnOrder
+    returnOrder,
+    downloadInvoice
 }
