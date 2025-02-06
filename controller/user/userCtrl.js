@@ -19,7 +19,7 @@ let productData=await Product.find(
   {isblocked:false,
     
     category:{$in:categories.map(category=>category._id)}
-    ,quantity:{$gt:0}
+   
   
   }).populate('category')
   //console.log(productData);
@@ -390,7 +390,7 @@ const categoryOffer=product?.category?.categoryOffer || 0;
      
       let filter = {
         isblocked: false,
-        quantity: { $gt: 0 }
+        
       };
   
       // Apply category filter if selected
@@ -429,8 +429,9 @@ const categoryOffer=product?.category?.categoryOffer || 0;
       let productData = await Product.find(filter)
         .populate('reviews')
         .skip(skip)
-        .limit(limit);
-  
+        .limit(limit)
+        .populate('category','categoryOffer');
+
       // Calculate average ratings and add order counts
       const productsWithRatings = productData.map(product => {
         const totalRating = product.reviews.reduce((acc, review) => acc + review.rating, 0);
@@ -443,6 +444,7 @@ const categoryOffer=product?.category?.categoryOffer || 0;
           averageRating: parseFloat(averageRating),
           reviewCount: product.reviews.length,
           orderCount: orderCountMap.get(product._id.toString()) || 0
+          ,categoryOffer:product.category?.categoryOffer || 0
         };
       });
   
@@ -477,7 +479,6 @@ const categoryOffer=product?.category?.categoryOffer || 0;
             return recencyScore + priceScore;
           });
       }
-  
       const totalProducts = await Product.countDocuments(filter);
       const totalPages = Math.ceil(totalProducts / limit);
       const categories = await Category.find({ isListed: true });

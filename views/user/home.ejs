@@ -429,8 +429,10 @@ a{
                     <p class="card-text text-muted">₹ <%=products[i].mainPrice%></p>
                     <%if(products[i].quantity >= 5){%>
                     <p class="card-text text-success   fw-bold"> <%=products[i].quantity%>kg left</p>
-                    <%}else{%>
-                    <p class="card-text text-danger fw-bold"> <%=products[i].quantity%>kg left</p>
+                    <%}else if(products[i].quantity<5 && products[i].quantity>0){%>
+                    <p class="card-text text-warning fw-bold"> <%=products[i].quantity%>kg left</p>
+                    <%}else if(products[i].quantity==0){%>
+                    <p class="card-text text-danger fw-bold">out of stock</p>
                     <%}%>
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="star-rating">
@@ -504,8 +506,10 @@ a{
                     <p class="card-text text-muted">₹ <%=products[i].salePrice%></p>
                     <%if(products[i].quantity >= 5){%>
                         <p class="card-text text-success   fw-bold"> <%=products[i].quantity%>kg left</p>
-                        <%}else{%>
-                        <p class="card-text text-danger fw-bold"> <%=products[i].quantity%>kg left</p>
+                        <%}else if(products[i].quantity<5 && products[i].quantity>0){%>
+                        <p class="card-text text-warning fw-bold"> <%=products[i].quantity%>kg left</p>
+                        <%}else if(products[i].quantity==0){%>
+                        <p class="card-text text-danger fw-bold">out of stock</p>
                         <%}%>
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="star-rating">
@@ -579,8 +583,10 @@ a{
                     <p class="card-text text-muted">₹ <%=products[i].mainPrice%></p>
                     <%if(products[i].quantity >= 5){%>
                         <p class="card-text text-success   fw-bold"> <%=products[i].quantity%>kg left</p>
-                        <%}else{%>
-                        <p class="card-text text-danger fw-bold"> <%=products[i].quantity%>kg left</p>
+                        <%}else if(products[i].quantity<5 && products[i].quantity>0){%>
+                        <p class="card-text text-warning fw-bold"> <%=products[i].quantity%>kg left</p>
+                        <%}else if(products[i].quantity==0){%>
+                        <p class="card-text text-danger fw-bold">out of stock</p>
                         <%}%>
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="star-rating">

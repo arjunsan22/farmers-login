@@ -42,8 +42,11 @@ const products = cart.items.map(item => ({
 
  const availableCoupons = await Coupon.find({ isActive: true });
 
-
-
+ let finalTotal = cartTotal;
+      if (req.session.couponApplied) {
+        finalTotal = req.session.couponApplied.finalTotal;
+      }
+console.log(finalTotal)
     // for checking  if a discounted total exists in the session //from an applied coupon//
 
 
@@ -54,7 +57,8 @@ const products = cart.items.map(item => ({
         cartTotal,
         availableCoupons,
         razorpayKeyId: process.env.RAZORPAY_KEY_ID,
-
+        finalTotal,
+        session: req.session
       });
     } catch (error) {
       console.error(error);
@@ -215,8 +219,18 @@ const Orderplacement = async (req, res) => {
       });
     }
 
-    const discount = req.session.discount || 0;
+    const discount =  req.session.couponApplied ? req.session.couponApplied.discount : 0;
     const finalAmount = totalPrice - discount;
+    console.log("discount",discount)
+console.log("finalAmount",finalAmount)
+
+if (paymentMethod === 'cod' && finalAmount > 1000) {
+  return res.status(400).json({ 
+    success: false, 
+    message: 'Cash on Delivery is not available for orders above ₹1,000. Please choose a different payment method.',
+    status: 'cod_restricted'
+  });
+}
 
     if (paymentMethod === 'wallet') {
       const wallet = await Wallet.findOne({ userId });
@@ -256,7 +270,7 @@ const Orderplacement = async (req, res) => {
     const savedOrder = await order.save();
     await Cart.updateOne({ userId }, { $set: { items: [] } });
 
-    req.session.discount = null;
+    req.session.couponApplied = null;
     res.json({ success: true, orderId: savedOrder._id });
   } catch (error) {
     console.error('Error placing order:', error);

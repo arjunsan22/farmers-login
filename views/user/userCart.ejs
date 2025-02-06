@@ -324,7 +324,7 @@
                                 <span class="fw-bold fs-4">₹<%= cartTotal.toLocaleString() %></span>
                             </div>
                             <form action="/checkout" method="GET" class="mt-4">
-                                <button class="checkout-btn w-100" 
+                                <button id="checkoutButton" class="checkout-btn w-100" 
                                         onclick="proceedToCheckout('<%= JSON.stringify(cartItems.map(item => ({ productId: item.product._id, quantity: item.quantity }))) %>')">
                                     Proceed to Checkout
                                 </button>
@@ -345,9 +345,11 @@
     async function updateQuantity(productId, action) {
     const decreaseBtn = document.querySelector(`button[onclick="return updateQuantity('${productId}', 'decrease')"]`);
     const increaseBtn = document.querySelector(`button[onclick="return updateQuantity('${productId}', 'increase')"]`);
+    const checkoutButton = document.getElementById('checkoutButton');
 
     decreaseBtn.disabled = true;
     increaseBtn.disabled = true;
+    
 
     try {
         const response = await fetch('/updateQuantity', {
@@ -368,14 +370,24 @@
             if (data.cartItem.quantity >= data.cartItem.product.quantity) {
                 document.getElementById(`status-${productId}`).textContent = "Out of Stock";
                 document.getElementById(`status-${productId}`).style.color = "red";
+                decreaseBtn.disabled = true;
+                increaseBtn.disabled = true;
+                checkoutButton.disabled = true;
             } else {
-                document.getElementById(`status-${productId}`).textContent = "";
+                document.getElementById(`status-${productId}`).textContent = "In Stock";
+                document.getElementById(`status-${productId}`).style.color = "green";       
+                decreaseBtn.disabled = false;
+                increaseBtn.disabled = false;
+                checkoutButton.disabled = false;
             }
         } else {
             console.log("message:", data.message);
             if (data.message === 'Out of Stock') {
                 document.getElementById(`status-${productId}`).textContent = "Out of Stock";
                 document.getElementById(`status-${productId}`).style.color = "red";
+                decreaseBtn.disabled = true;
+                increaseBtn.disabled = true;
+                checkoutButton.disabled = true;
             }
         }
     } catch (error) {

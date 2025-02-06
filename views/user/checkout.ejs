@@ -75,9 +75,32 @@
           </div>
       <% }); %>
     </div>
-    <!-- Coupon Section -->
+        <!-- Coupon Section -->
     <div class="card shadow p-4 mb-4">
       <h4>Apply Coupon</h4>
+      <!-- Custom Coupon Input -->
+      <div class="mb-4">
+        <!-- <div class="input-group">
+          <input type="text" class="form-control" id="customCouponInput" 
+                 placeholder="Enter coupon code" 
+                 value="<%= session.couponApplied ? session.couponApplied.code : '' %>">
+          <button class="btn btn-primary" id="applyCustomCoupon" 
+                  style="display: <%= session.couponApplied ? 'none' : 'inline-block' %>">Apply</button>
+          <button class="btn btn-danger ms-2" id="removeCustomCoupon" 
+                  style="display: <%= session.couponApplied ? 'inline-block' : 'none' %>">Remove</button>
+      </div> -->
+      <div class="input-group">
+        <input type="text" class="form-control" id="customCouponInput" 
+               placeholder="Enter coupon code" 
+               value="<%= session?.couponApplied?.code || '' %>">
+        <button class="btn btn-primary <%= session?.couponApplied ? 'd-none' : 'd-inline-block' %>" 
+                id="applyCustomCoupon">Apply</button>
+        <button class="btn btn-danger ms-2 <%= session?.couponApplied ? 'd-inline-block' : 'd-none' %>" 
+                id="removeCustomCoupon">Remove</button>
+    </div>
+        <div id="customCouponFeedback" class="mt-2"></div>
+      </div>
+      <h5>Available Coupons</h5>
       <div class="row">
         <% availableCoupons.forEach((coupon) => { %>
           <div class="col-md-6 mb-3">
@@ -88,8 +111,7 @@
                 <p class="card-text"><strong>Offer:</strong> ₹<%= coupon.offerPrice %> off</p>
                 <p class="card-text"><strong>Minimum Purchase:</strong> ₹<%= coupon.minimumPrice %></p>
                 <p class="card-text"><strong>Valid From:</strong> <%= new Date(coupon.startOn).toLocaleDateString() %> <strong>To:</strong> <%= new Date(coupon.expireOn).toLocaleDateString() %></p>
-                <button class="btn btn-primary apply-coupon" data-coupon-code="<%= coupon.couponCode %>">Apply</button>
-                <button class="btn btn-danger ms-2 remove-coupon" type="button" data-coupon-code="<%= coupon.couponCode %>">Remove</button>
+                <button class="btn btn-secondary copy-coupon" data-coupon-code="<%= coupon.couponCode %>">Use This Coupon</button>
               </div>
             </div>
           </div>
@@ -97,18 +119,19 @@
       </div>
     </div>
 
+
     <div class="mt-3 pt-3 border-top">
       <h5 class="text-end">
         <strong>Cart Total:</strong>
-        <span id="cartTotalDisplay">₹<%= cartTotal.toFixed(2) %></span>
+        <span id="cartTotalDisplay">₹<%= session.couponApplied ? session.couponApplied.originalTotal.toFixed(2) : cartTotal.toFixed(2) %></span>
       </h5>
       <h5 class="text-end text-success">
         <strong>Discount:</strong>
-        ₹<span id="discount">0.00</span>
+        ₹<span id="discount"><%= session.couponApplied ? session.couponApplied.discount.toFixed(2) : '0.00' %></span>
       </h5>
       <h5 class="text-end">
-        <strong>Final Total:</strong>
-        ₹<span id="finalTotal"><%= cartTotal.toFixed(2) %></span>
+        <strong>Final Total  :</strong>
+       <span id="finalTotal"><%= session.couponApplied ? session.couponApplied.finalTotal.toFixed(2) : cartTotal.toFixed(2) %></span>
       </h5>
       <div id="couponFeedback" class="text-danger mt-2"></div>
     </div>
@@ -167,177 +190,185 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-//new code//
- 
+    // Initialize coupon state from session data when page loads
+    document.addEventListener('DOMContentLoaded', () => {
+        const sessionData = JSON.parse(` <%- JSON.stringify(session.couponApplied || null) %>`);
+            if (sessionData) {
+            // Fill in the coupon input
+            document.getElementById('customCouponInput').value = sessionData.code;
+            
+            // Update the totals
+            const cartTotalDisplay = document.getElementById('cartTotalDisplay');
+            const discountElement = document.getElementById('discount');
+            const finalTotalElement = document.getElementById('finalTotal');
 
-document.querySelectorAll('.apply-coupon').forEach(button => {
-      button.addEventListener('click', async () => {
-        const couponCode = button.getAttribute('data-coupon-code');
-        const cardBody = button.closest('.card-body');
-        
-        try {
-          const response = await fetch('/applyCoupon', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ couponCode }),
-          });
+            if (cartTotalDisplay) cartTotalDisplay.innerText = `₹${sessionData.originalTotal.toFixed(2)}`;
+            if (discountElement) discountElement.innerText = sessionData.discount.toFixed(2);
+            if (finalTotalElement) finalTotalElement.innerText = `₹${sessionData.finalTotal.toFixed(2)}`;
 
-          const result = await response.json();
-          console.log('Apply coupon response:', result);
+            // Show remove button and hide apply button
+            document.getElementById('applyCustomCoupon').style.display = 'none';
+            document.getElementById('removeCustomCoupon').style.display = 'inline-block';
 
-          if (result && typeof result.success !== 'undefined') {
-            if (result.success === true) {
-              // Show success message with SweetAlert
-              Swal.fire({
-                icon: 'success',
-                title: 'Coupon Applied!',
-                text: result.message,
-                toast: true,
-                position: 'top-end',
-                showConfirmButton: false,
-                timer: 3000,
-                timerProgressBar: true
-              });
-
-              // Update totals dynamically
-              const cartTotalDisplay = document.getElementById('cartTotalDisplay');
-              const discountElement = document.getElementById('discount');
-              const finalTotalElement = document.getElementById('finalTotal');
-
-              if (cartTotalDisplay) cartTotalDisplay.innerText = `₹${result.originalTotal.toFixed(2)}`;
-              if (discountElement) discountElement.innerText = result.discount.toFixed(2);
-              if (finalTotalElement) finalTotalElement.innerText = `₹${result.finalTotal.toFixed(2)}`;
-
-              // Hide all apply buttons and show all remove buttons
-              document.querySelectorAll('.card-body').forEach(body => {
-                const applyBtn = body.querySelector('.apply-coupon');
-                const removeBtn = body.querySelector('.remove-coupon');
-                
-                if (applyBtn && removeBtn) {
-                  if (body === cardBody) {
-                    // For the clicked coupon
-                    applyBtn.style.display = 'none';
-                    removeBtn.style.display = 'inline-block';
-                  } else {
-                    // For other coupons
-                    applyBtn.style.display = 'none';
-                    removeBtn.style.display = 'none';
-                  }
-                }
-              });
-            } else {
-              // Show error message with SweetAlert
-              Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: result.message || 'Failed to apply coupon',
-                toast: true,
-                position: 'top-end',
-                showConfirmButton: false,
-                timer: 3000,
-                timerProgressBar: true
-              });
-            }
-          } else {
-            throw new Error('Invalid response format');
-          }
-        } catch (error) {
-          console.error('Error applying coupon:', error);
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: error.message || 'An error occurred. Please try again later.',
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 3000,
-            timerProgressBar: true
-          });
+            // Show success feedback
+            document.getElementById('customCouponFeedback').innerHTML = `
+                <div class="alert alert-success">
+                    Coupon "${sessionData.code}" applied successfully!
+                </div>
+            `;
         }
-      });
     });
 
-    document.querySelectorAll('.remove-coupon').forEach(button => {
-      button.addEventListener('click', async () => {
-        const couponCode = button.getAttribute('data-coupon-code');
-        
-        try {
-          const response = await fetch('/removeCoupon', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ couponCode }),
-          });
-
-          const result = await response.json();
-          console.log('Remove coupon response:', result);
-
-          if (result && typeof result.success !== 'undefined') {
-            if (result.success === true) {
-              // Show success message with SweetAlert
-              Swal.fire({
-                icon: 'success',
-                title: 'Coupon Removed',
-                text: result.message,
-                toast: true,
-                position: 'top-end',
-                showConfirmButton: false,
-                timer: 3000,
-                timerProgressBar: true
-              });
-
-              // Reset totals dynamically
-              const cartTotalDisplay = document.getElementById('cartTotalDisplay');
-              const discountElement = document.getElementById('discount');
-              const finalTotalElement = document.getElementById('finalTotal');
-
-              if (cartTotalDisplay) cartTotalDisplay.innerText = `₹<%= cartTotal.toFixed(2) %>`;
-              if (discountElement) discountElement.innerText = '0.00';
-              if (finalTotalElement) finalTotalElement.innerText = `₹<%= cartTotal.toFixed(2) %>`;
-
-              // Show all apply buttons and hide all remove buttons
-              document.querySelectorAll('.card-body').forEach(body => {
-                const applyBtn = body.querySelector('.apply-coupon');
-                const removeBtn = body.querySelector('.remove-coupon');
-                
-                if (applyBtn && removeBtn) {
-                  applyBtn.style.display = 'inline-block';
-                  removeBtn.style.display = 'none';
-                }
-              });
-            } else {
-              // Show error message with SweetAlert
-              Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: result.message || 'Failed to remove coupon',
-                toast: true,
-                position: 'top-end',
-                showConfirmButton: false,
-                timer: 3000,
-                timerProgressBar: true
-              });
-            }
-          } else {
-            throw new Error('Invalid response format');
-          }
-        } catch (error) {
-          console.error('Error removing coupon:', error);
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: error.message || 'An error occurred. Please try again later.',
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 3000,
-            timerProgressBar: true
-          });
-        }
-      });
+    // Copy coupon code to input
+    document.querySelectorAll('.copy-coupon').forEach(button => {
+        button.addEventListener('click', () => {
+            const couponCode = button.getAttribute('data-coupon-code');
+            document.getElementById('customCouponInput').value = couponCode;
+            // Automatically trigger the apply button
+            document.getElementById('applyCustomCoupon').click();
+        });
     });
 
+    // Apply coupon handler
+    document.getElementById('applyCustomCoupon').addEventListener('click', async () => {
+        const couponCode = document.getElementById('customCouponInput').value.trim();
+        if (!couponCode) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Empty Coupon',
+                text: 'Please enter a coupon code',
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true
+            });
+            return;
+        }
+
+        try {
+            const response = await fetch('/applyCoupon', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ couponCode }),
+            });
+
+            const result = await response.json();
+            console.log('Coupon response:', result);
+
+            if (result.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Coupon Applied!',
+                    text: result.message,
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true
+                });
+
+                // Update totals
+                const cartTotalDisplay = document.getElementById('cartTotalDisplay');
+                const discountElement = document.getElementById('discount');
+                const finalTotalElement = document.getElementById('finalTotal');
+
+                if (cartTotalDisplay) cartTotalDisplay.innerText = `₹${result.originalTotal.toFixed(2)}`;
+                if (discountElement) discountElement.innerText = result.discount.toFixed(2);
+                if (finalTotalElement) finalTotalElement.innerText = `₹${result.finalTotal.toFixed(2)}`;
+
+                // Show remove button and hide apply button
+                document.getElementById('applyCustomCoupon').style.display = 'none';
+                document.getElementById('removeCustomCoupon').style.display = 'inline-block';
+
+                // Show success feedback
+                document.getElementById('customCouponFeedback').innerHTML = `
+                    <div class="alert alert-success">
+                        Coupon "${couponCode}" applied successfully!
+                    </div>
+                `;
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Invalid Coupon',
+                    text: result.message || 'This coupon code is not valid',
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true
+                });
+            }
+        } catch (error) {
+            console.error('Error applying coupon:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'An error occurred while applying the coupon',
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true
+            });
+        }
+    });
+
+    // Remove coupon handler
+    document.getElementById('removeCustomCoupon').addEventListener('click', async () => {
+        const couponCode = document.getElementById('customCouponInput').value.trim();
+        
+        try {
+            const response = await fetch('/removeCoupon', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ couponCode }),
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Coupon Removed',
+                    text: result.message,
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true
+                });
+
+                // Reset totals
+                const cartTotalDisplay = document.getElementById('cartTotalDisplay');
+                const discountElement = document.getElementById('discount');
+                const finalTotalElement = document.getElementById('finalTotal');
+
+                if (cartTotalDisplay) cartTotalDisplay.innerText = `₹<%= cartTotal.toFixed(2) %>`;
+                if (discountElement) discountElement.innerText = '0.00';
+                if (finalTotalElement) finalTotalElement.innerText = `₹<%= cartTotal.toFixed(2) %>`;
+
+                // Reset UI
+                document.getElementById('customCouponInput').value = '';
+                document.getElementById('customCouponFeedback').innerHTML = '';
+                document.getElementById('applyCustomCoupon').style.display = 'inline-block';
+                document.getElementById('removeCustomCoupon').style.display = 'none';
+            }
+        } catch (error) {
+            console.error('Error removing coupon:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Failed to remove coupon',
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true
+            });
+        }
+    });
 </script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>

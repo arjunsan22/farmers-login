@@ -57,7 +57,12 @@ const applyCoupon = async (req, res) => {
         const finalCartTotal = cartTotal - discount;
         console.log("finalCartTotal :",finalCartTotal)
       
-        req.session.discount = discount;
+        req.session.couponApplied = {
+            code: couponCode,
+            discount: discount,
+            originalTotal: cartTotal,
+            finalTotal: finalCartTotal
+        };
 
        // updating the usage count of the user by 1//
        if (userUsage) {
@@ -82,7 +87,7 @@ return res.status(200).json({
         res.status(500).json({ success: false, message: "Server error while applying coupon." });
     }
 };
-
+////////////////////////////////REMOVE COUPON//////////////////////////////////////////
 const removeCoupon = async (req, res) => {
     try {
         const { couponCode } = req.body;
@@ -104,7 +109,7 @@ console.log("for remove coupon code:",couponCode)
 
         await coupon.save();
 console.log("after remove coupon",userUsage)
-        req.session.discount = null;
+req.session.couponApplied = null;
         return res.status(200).json({
             success: true,
             message: "Coupon removed successfully!",

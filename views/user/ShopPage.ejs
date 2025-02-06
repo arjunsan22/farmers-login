@@ -476,6 +476,66 @@
 .breadcrumb-item a:hover {
     color: #0056b3;
 }
+.offer-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: linear-gradient(135deg, #ff416c, #ff4b2b);
+    color: white;
+    font-weight: bold;
+    font-size: 14px;
+    padding: 6px 14px;
+    border-radius: 12px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    transform: rotate(-10deg);
+    display: inline-block;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Badge Hover Effect */
+.offer-badge:hover {
+    transform: rotate(0deg) scale(1.1);
+    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Bounce-In Animation */
+@keyframes bounceIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.5) translateY(-20px);
+    }
+    50% {
+        opacity: 0.7;
+        transform: scale(1.05) translateY(5px);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* Pulsing Animation */
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0px 4px 8px rgba(255, 75, 43, 0.4);
+    }
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0px 6px 12px rgba(255, 75, 43, 0.6);
+    }
+    100% {
+        transform: scale(1);
+        box-shadow: 0px 4px 8px rgba(255, 75, 43, 0.4);
+    }
+}
+
+/* Apply animations */
+.animate-offer {
+    animation: bounceIn 0.6s ease-out, pulse 1.9s infinite alternate ease-in-out;
+}
+
+
     </style>
 </head>
 <body>
@@ -545,10 +605,17 @@
                             <div class="product-card">
                                 <a href="/productDetails/<%= products[i]._id %>" class="text-decoration-none">
                                     <div class="product-img-wrapper">
+                                       
                                         <img src="/uploads/product-images/<%=products[i].productImage[0]%>" 
                                              class="product-img" 
                                              alt="<%=products[i].productname%>">
+                                             <% if (products[i].categoryOffer > 0) { %>
+                                                <div class="offer-badge animate-offer">
+                                                    <span><%= products[i].categoryOffer %>% OFF</span>
+                                                </div>
+                                            <% } %>
                                     </div>
+                                   
                                     
                                     <div class="product-info">
                                         <h5 class="product-title"><%=products[i].productname%></h5>
@@ -569,11 +636,11 @@
                                         <p class="product-price">₹<%=products[i].salePrice%></p>
                                         <p>
                                             <% if (products[i].quantity > 5) { %>
-                                              <p class="text-success"><%= products[i].quantity %> kg available</p>  
+                                              <p class="text-success"><strong><%= products[i].quantity %> kg available</strong></p>  
                                             <% } else if (products[i].quantity <= 5 && products[i].quantity != 0) { %>
-                                                <span class="text-danger">Buy now only <%= products[i].quantity %> kg left</span>
+                                                <span class="text-danger"><strong> Buy now only <%= products[i].quantity %> kg left</strong></span>
                                             <% } else if(products[i].quantity == 0 || products[i].quantity <0) { %>
-                                                <span class="text-danger">Out of Stock</span>
+                                                <span class="text-danger"><strong>Out of Stock</strong></span>
                                             <% } %>
                                         </p>
                                    

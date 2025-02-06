@@ -399,43 +399,252 @@ const generateSalesReport = async (req, res) => {
         });
 
         try {
-            if (format === 'pdf') {
-                console.log('Generating PDF report...');
-                const doc = new PDFDocument();
-                const chunks = [];
+if (format === 'pdf') {
+    console.log('Generating PDF report...');
+    const doc = new PDFDocument();
+    const chunks = [];
 
-                doc.on('data', chunk => chunks.push(chunk));
-                doc.on('end', () => {
-                    console.log('PDF generation completed');
-                    const result = Buffer.concat(chunks);
-                    res.setHeader('Content-Type', 'application/pdf');
-                    res.setHeader('Content-Disposition', `attachment; filename=sales-report-${reportType}.pdf`);
-                    res.send(result);
-                });
+    doc.on('data', chunk => chunks.push(chunk));
+    doc.on('end', () => {
+        console.log('PDF generation completed');
+        const result = Buffer.concat(chunks);
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `attachment; filename=sales-report-${reportType}.pdf`);
+        res.send(result);
+    });
 
-                // Add content to PDF
-                doc.fontSize(20).text('Sales Report', { align: 'center' });
-                doc.moveDown();
-                doc.fontSize(12).text(`Report Period: ${reportType}`);
-                doc.text(`Date Range: ${startDateTime.toLocaleDateString()} to ${endDateTime.toLocaleDateString()}`);
-                doc.moveDown();
+    // Header
+    doc.fontSize(24)
+        .font('Helvetica-Bold')
+        .text('Sales Report', { align: 'center' });
+    doc.moveDown();
 
-                doc.fontSize(14).text('Summary');
-                doc.fontSize(12).text(`Total Orders: ${totalOrders}`);
-                doc.text(`Total Revenue: ₹${totalRevenue.toLocaleString()}`);
-                doc.text(`Total Discounts: ₹${totalDiscount.toLocaleString()}`);
-                doc.moveDown();
+    // Report Information
+    doc.fontSize(12)
+        .font('Helvetica')
+        .text(`Report Type: ${reportType.charAt(0).toUpperCase() + reportType.slice(1)}`, { align: 'left' })
+        .text(`Generated On: ${new Date().toLocaleString()}`)
+        .text(`Period: ${startDateTime.toLocaleDateString()} to ${endDateTime.toLocaleDateString()}`);
+    doc.moveDown();
 
-                doc.fontSize(14).text('Daily Breakdown');
-                Object.entries(dailyRevenue).forEach(([date, stats]) => {
-                    doc.fontSize(12).text(`Date: ${date}`);
-                    doc.text(`Revenue: ₹${stats.revenue.toLocaleString()}`);
-                    doc.text(`Discounts: ₹${stats.discount.toLocaleString()}`);
-                    doc.text(`Orders: ${stats.orders}`);
-                    doc.moveDown();
-                });
-                doc.end();
-            } else {
+    // Summary Section
+    doc.fontSize(16)
+        .font('Helvetica-Bold')
+        .text('Summary', { underline: true });
+    doc.moveDown();
+
+    // Create a summary table
+    const summaryTableTop = doc.y;
+    const summaryTableLeft = 50;
+    const colWidth = 150;
+    const rowHeight = 30;
+
+    // Draw summary table
+    doc.lineWidth(1)
+        .rect(summaryTableLeft, summaryTableTop, colWidth * 2, rowHeight * 4)
+        .stroke();
+
+    // Add vertical line
+    doc.moveTo(summaryTableLeft + colWidth, summaryTableTop)
+        .lineTo(summaryTableLeft + colWidth, summaryTableTop + rowHeight * 4)
+        .stroke();
+
+    // Add horizontal lines and data
+    let currentY = summaryTableTop;
+    const summaryData = [
+        ['Total Orders:', totalOrders],
+        ['Total Revenue:', `₹${totalRevenue.toLocaleString()}`],
+        ['Total Discounts:', `₹${totalDiscount.toLocaleString()}`],
+        ['Average Order Value:', `₹${(totalRevenue / totalOrders).toFixed(2)}`]
+    ];
+
+    summaryData.forEach((row, index) => {
+        // Draw horizontal line
+        if (index > 0) {
+            doc.moveTo(summaryTableLeft, currentY)
+                .lineTo(summaryTableLeft + colWidth * 2, currentY)
+                .stroke();
+        }
+
+        // Add text
+        doc.fontSize(10)
+            .font('Helvetica-Bold')
+            .text(row[0], summaryTableLeft + 10, currentY + 10)
+            .font('Helvetica')
+            .text(row[1].toString(), summaryTableLeft + colWidth + 10, currentY + 10);
+
+        currentY += rowHeight;
+    });
+
+    doc.moveDown(2);
+
+    // Order Status Breakdown
+    doc.fontSize(16)
+        .font('Helvetica-Bold')
+        .text('Order Status Breakdown', { underline: true });
+    doc.moveDown();
+
+    // Create status table
+    const statusTableTop = doc.y;
+    const statusData = Object.entries(ordersByStatus);
+    
+    // Draw status table
+    doc.lineWidth(1)
+        .rect(summaryTableLeft, statusTableTop, colWidth * 2, rowHeight * (statusData.length + 1))
+        .stroke();
+
+    // Add header
+    doc.fontSize(10)
+        .font('Helvetica-Bold')
+        .text('Status', summaryTableLeft + 10, statusTableTop + 10)
+        .text('Count', summaryTableLeft + colWidth + 10, statusTableTop + 10);
+
+    // Add vertical line
+    doc.moveTo(summaryTableLeft + colWidth, statusTableTop)
+        .lineTo(summaryTableLeft + colWidth, statusTableTop + rowHeight * (statusData.length + 1))
+        .stroke();
+
+    // Add status data
+    let statusY = statusTableTop + rowHeight;
+    statusData.forEach((row, index) => {
+        doc.moveTo(summaryTableLeft, statusY)
+            .lineTo(summaryTableLeft + colWidth * 2, statusY)
+            .stroke();
+
+        doc.fontSize(10)
+            .font('Helvetica')
+            .text(row[0].charAt(0).toUpperCase() + row[0].slice(1), summaryTableLeft + 10, statusY + 10)
+            .text(row[1].toString(), summaryTableLeft + colWidth + 10, statusY + 10);
+
+        statusY += rowHeight;
+    });
+
+    doc.moveDown(2);
+
+  // Daily Revenue Breakdown
+  doc.fontSize(16)
+  .font('Helvetica-Bold')
+  .text('Daily Revenue Breakdown', { underline: true });
+doc.moveDown();
+
+// Table configuration
+const tableConfig = {
+  startX: 50,
+  width: 480,
+  rowHeight: 30,
+  headerHeight: 35,
+  fontSize: 9,
+  headerFontSize: 10,
+  columns: [
+      { header: 'Date', width: 120, align: 'left' },
+      { header: 'Revenue', width: 120, align: 'right' },
+      { header: 'Discounts', width: 120, align: 'right' },
+      { header: 'Orders', width: 120, align: 'right' }
+  ]
+};
+
+const dailyData = Object.entries(dailyRevenue);
+const tableHeight = tableConfig.headerHeight + (dailyData.length * tableConfig.rowHeight);
+
+// Check if new page is needed
+if (doc.y + tableHeight > doc.page.height - 50) {
+  doc.addPage();
+}
+
+const tableTop = doc.y;
+
+// Draw table outline
+doc.lineWidth(1)
+  .rect(tableConfig.startX, tableTop, tableConfig.width, tableHeight)
+  .stroke();
+
+// Draw headers
+let currentX = tableConfig.startX;
+doc.fontSize(tableConfig.headerFontSize)
+  .font('Helvetica-Bold');
+
+tableConfig.columns.forEach((column, index) => {
+  // Draw header cell
+  doc.text(
+      column.header,
+      currentX + 10,
+      tableTop + (tableConfig.headerHeight - tableConfig.headerFontSize) / 2,
+      { width: column.width - 20 }
+  );
+
+  currentX += column.width;
+
+  // Draw vertical lines
+  if (index < tableConfig.columns.length - 1) {
+      doc.moveTo(currentX, tableTop)
+          .lineTo(currentX, tableTop + tableHeight)
+          .stroke();
+  }
+});
+
+// Draw header separator line
+doc.moveTo(tableConfig.startX, tableTop + tableConfig.headerHeight)
+  .lineTo(tableConfig.startX + tableConfig.width, tableTop + tableConfig.headerHeight)
+  .stroke();
+
+// Add data rows
+doc.font('Helvetica')
+  .fontSize(tableConfig.fontSize);
+
+dailyData.forEach(([ date, stats ], rowIndex) => {
+  const rowY = tableTop + tableConfig.headerHeight + (rowIndex * tableConfig.rowHeight);
+  
+  // Draw horizontal line for each row (except last)
+  if (rowIndex < dailyData.length - 1) {
+      doc.moveTo(tableConfig.startX, rowY + tableConfig.rowHeight)
+          .lineTo(tableConfig.startX + tableConfig.width, rowY + tableConfig.rowHeight)
+          .stroke();
+  }
+
+  // Add row data
+  let xPos = tableConfig.startX;
+  
+  // Date
+  doc.text(date, xPos + 10, rowY + (tableConfig.rowHeight - tableConfig.fontSize) / 2);
+  xPos += tableConfig.columns[0].width;
+
+  // Revenue
+  doc.text(
+      `₹${stats.revenue.toLocaleString()}`,
+      xPos + 10,
+      rowY + (tableConfig.rowHeight - tableConfig.fontSize) / 2,
+      { width: tableConfig.columns[1].width - 20, align: 'right' }
+  );
+  xPos += tableConfig.columns[1].width;
+
+  // Discounts
+  doc.text(
+      `₹${stats.discount.toLocaleString()}`,
+      xPos + 10,
+      rowY + (tableConfig.rowHeight - tableConfig.fontSize) / 2,
+      { width: tableConfig.columns[2].width - 20, align: 'right' }
+  );
+  xPos += tableConfig.columns[2].width;
+
+  // Orders
+  doc.text(
+      stats.orders.toString(),
+      xPos + 10,
+      rowY + (tableConfig.rowHeight - tableConfig.fontSize) / 2,
+      { width: tableConfig.columns[3].width - 20, align: 'right' }
+  );
+});
+
+doc.moveDown(2);
+
+// Footer
+doc.fontSize(8)
+  .font('Helvetica')
+  .text('End of Report', { align: 'center' });
+
+doc.end();
+
+} else {
                 console.log('Generating Excel report...');
                 const workbook = new ExcelJS.Workbook();
                 const worksheet = workbook.addWorksheet('Sales Report');
