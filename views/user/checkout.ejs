@@ -178,7 +178,11 @@
         <select class="form-select" id="paymentMethod" name="paymentMethod" required>
           <option value="">Select Payment Method</option>
           <option value="cod" id="codOption">Cash on Delivery</option>
+        <%if(wallet && wallet.balance>=finalTotal){%>
           <option value="wallet">Wallet</option>
+        <%}else{%>
+        <strong> <option class="text-danger" disabled> Wallet payment not available. Your Wallet Balance is ₹<%= wallet?.balance %> You need to pay ₹<%= finalTotal %> for this order</option></strong> 
+          <%}%>
           <option value="razorpay">Razorpay</option>
         </select>
         <small id="codWarning" class="text-danger d-none">
@@ -376,183 +380,6 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
-//   $(document).ready(function () {
-//     $("#checkoutForm").submit(function (event) {
-//       event.preventDefault();
-//       const form = $(this)[0];
-//       const formData = new FormData(form);
-//       const paymentMethod = $("#paymentMethod").val();
-
-//       // Debug log the form data
-//       console.log("Form Data Contents:");
-//       formData.forEach((value, key) => {
-//         console.log(key + ": " + value);
-//       });
-
-//       if (paymentMethod === "razorpay") {
-//         const amount = parseFloat($("#finalTotal").text().replace("₹", "")) 
-
-//         $.ajax({
-//           url: "/create-razorpay-order",
-//           type: "POST",
-//           contentType: "application/json",
-//           data: JSON.stringify({ amount, currency: "INR" }),
-//           success: function (order) {
-//             console.log("Razorpay order created:", order);
-
-//             const options = {
-//               key: "<%= razorpayKeyId %>",
-//               amount: order.amount,
-//               currency: order.currency,
-//               name: "Farmers Login",
-//               description: "Test Transaction",
-//               order_id: order.id,
-//               handler: function (response) {
-//                 console.log("Razorpay payment success:", response);
-
-//                 // Create a new FormData object with the form data
-//                 const finalFormData = new FormData(form);
-                
-//                 // Add Razorpay response to formData
-//                 finalFormData.append("razorpay_payment_id", response.razorpay_payment_id);
-//                 finalFormData.append("razorpay_order_id", response.razorpay_order_id);
-//                 finalFormData.append("razorpay_signature", response.razorpay_signature);
-
-//                 // Convert FormData to object for proper submission
-//                 const formDataObj = {};
-//                 finalFormData.forEach((value, key) => {
-//                   if (key.endsWith('[]')) {
-//                     const baseKey = key.slice(0, -2);
-//                     if (!formDataObj[baseKey]) {
-//                       formDataObj[baseKey] = [];
-//                     }
-//                     formDataObj[baseKey].push(value);
-//                   } else {
-//                     formDataObj[key] = value;
-//                   }
-//                 });
-
-//                 // Log the data being sent
-//                 console.log("Submitting order with data:", formDataObj);
-
-//                 $.ajax({
-//                   url: "/process-order",
-//                   type: "POST",
-//                   data: JSON.stringify(formDataObj),
-//                   contentType: "application/json",
-//                   success: function (resultJson) {
-//                     console.log("Order processing result:", resultJson);
-//                     if (resultJson.success) {
-//                       window.location.href = `/order-success/${resultJson.orderId}`;
-//                     } else {
-//                       alert(resultJson.message || 'Order processing failed');
-//                     }
-//                   },
-//                   error: function(xhr, status, error) {
-//                     console.error("Order processing error:", error);
-//                     alert('An error occurred while processing your order');
-//                   }
-//                 });
-//               },
-//               prefill: {
-//                 name: "ARJUN SANDHYA",
-//                 email: "arjsan@example.com",
-//                 contact: "8590924576",
-//               },
-//               theme: {
-//                 color: "#3399cc",
-//               },
-//               modal: {
-//                 ondismiss: function() {
-//                   console.log("Razorpay modal dismissed");
-//                 }
-//               }
-//             };
-
-//             const rzp1 = new Razorpay(options);
-//             rzp1.on('payment.failed', function (response) {
-//               console.error("Payment failed:", response.error);
-//               alert(response.error.description);
-//             });
-//             rzp1.open();
-//           },
-//           error: function(xhr, status, error) {
-//             console.error("Error creating Razorpay order:", error);
-//             alert('Error creating payment order');
-//           }
-//         });
-//       } else {
-//         // For non-Razorpay payments COD, wallet//
-//         console.log("Processing non-Razorpay payment:", paymentMethod);
-        
-//         // Convert FormData to object for proper submission
-//         const formDataObj = {};
-//         formData.forEach((value, key) => {
-//           if (key.endsWith('[]')) {
-//             const baseKey = key.slice(0, -2);
-//             if (!formDataObj[baseKey]) {
-//               formDataObj[baseKey] = [];
-//             }
-//             formDataObj[baseKey].push(value);
-//           } else {
-//             formDataObj[key] = value;
-//           }
-//         });
-
-//         // Log the data being sent
-//         console.log("Submitting order with data:", formDataObj);
-        
-//         $.ajax({
-//         url: "/process-order",
-//         type: "POST",
-//         data: JSON.stringify(formDataObj),
-//         contentType: "application/json",
-//         success: function (resultJson) {
-//           console.log("Order processing result:", resultJson);
-//           if (resultJson.success) {
-//             window.location.href = `/order-success/${resultJson.orderId}`;
-//           } else {
-//             if (resultJson.status === 'cod_restricted') {
-//               Swal.fire({
-//                 icon: 'error',
-//                 title: 'COD Not Available',
-//                 text: resultJson.message,
-//                 confirmButtonColor: '#d33',
-//                 confirmButtonText: 'OK'
-//               });
-//             } else if (paymentMethod === 'wallet' && resultJson.status === 'false') {
-//               Swal.fire({
-//                 icon: 'error',
-//                 title: 'Insufficient Wallet Balance',
-//                 text: 'You do not have enough balance in your wallet to complete this purchase.',
-//                 confirmButtonColor: '#d33',
-//                 confirmButtonText: 'OK'
-//               });
-//             } else {
-//               Swal.fire({
-//                 icon: 'error',
-//                 title: 'Order Failed',
-//                 text: resultJson.message || 'Order processing failed',
-//                 confirmButtonColor: '#d33',
-//                 confirmButtonText: 'OK'
-//               });
-//             }
-//           }
-//         },
-//         error: function(xhr, status, error) {
-//           console.error("Order processing error:", error);
-//           Swal.fire({
-//             icon: 'error',
-//             title: 'Error',
-//             text: 'An error occurred while processing your order',
-//             confirmButtonColor: '#d33',
-//             confirmButtonText: 'OK'
-//           });
-//         }
-//       });
-//     }
-//   });
-// });
 $(document).ready(function () {
   // Add new function to check and update COD availability
   function updateCODAvailability() {
@@ -708,6 +535,9 @@ $(document).ready(function () {
         contentType: "application/json",
         success: function (resultJson) {
           console.log("Order processing result:", resultJson);
+          console.log("Payment method:", paymentMethod);
+          console.log("Response status:", resultJson.status);
+
           if (resultJson.success) {
             window.location.href = `/order-success/${resultJson.orderId}`;
           } else {
@@ -719,7 +549,7 @@ $(document).ready(function () {
                 confirmButtonColor: '#d33',
                 confirmButtonText: 'OK'
               });
-            } else if (paymentMethod === 'wallet' && resultJson.status === 'false') {
+            } else if (paymentMethod === 'wallet' && resultJson.status === 'insufficient_balance') {
               Swal.fire({
                 icon: 'error',
                 title: 'Insufficient Wallet Balance',

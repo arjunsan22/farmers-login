@@ -172,6 +172,14 @@
         .progress-bar {
             animation: progressAnimation 1.5s ease-in-out;
         }
+        .chart-container {
+    position: relative;
+    width: 100%;
+    height: 0;
+    padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+    overflow: hidden;
+}
+
     </style>
 </head>
 <body>
@@ -372,6 +380,48 @@
                 </div>
             </div>
         </div>
+        
+<!-- Best Selling Products Section -->
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="chart-container animate__animated animate__fadeIn">
+            <h2 class="section-title">
+                <i class="fas fa-crown me-2"></i>
+                Top 10 Best Selling Products
+            </h2>
+            <canvas id="bestSellingProductsChart"></canvas>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="chart-container animate__animated animate__fadeIn">
+            <h2 class="section-title">
+                <i class="fas fa-list me-2"></i>
+                Top 10 Categories
+            </h2>
+            <canvas id="bestSellingCategoriesChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Sales Analysis Section with Time Filter -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="chart-container animate__animated animate__fadeIn">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="section-title mb-0">
+                    <i class="fas fa-chart-line me-2"></i>
+                    Sales Analysis
+                </h2>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-outline-primary active" data-time-frame="weekly">Weekly</button>
+                    <button type="button" class="btn btn-outline-primary" data-time-frame="monthly">Monthly</button>
+                    <button type="button" class="btn btn-outline-primary" data-time-frame="yearly">Yearly</button>
+                </div>
+            </div>
+            <canvas id="salesAnalysisChart"></canvas>
+        </div>
+    </div>
+</div>
     </div>
 
 
@@ -621,6 +671,135 @@
             }
         });
 
+    </script>
+    <!-- new -->
+    <script>
+        // Initialize Best Selling Products Chart
+const bestSellingProducts = JSON.parse('<%- JSON.stringify(bestSellingProducts) %>');
+const bestSellingProductsCtx = document.getElementById('bestSellingProductsChart').getContext('2d');
+new Chart(bestSellingProductsCtx, {
+    type: 'bar',
+    data: {
+        labels: bestSellingProducts.map(product => product.productName),
+        datasets: [{
+            label: 'Units Sold',
+            data: bestSellingProducts.map(product => product.totalQuantity),
+            backgroundColor: 'rgba(78, 115, 223, 0.8)',
+            borderColor: 'rgba(78, 115, 223, 1)',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            }
+        }
+    }
+});
+
+// Initialize Best Selling Categories Chart
+const bestSellingCategories = JSON.parse('<%- JSON.stringify(bestSellingCategories) %>');
+const bestSellingCategoriesCtx = document.getElementById('bestSellingCategoriesChart').getContext('2d');
+new Chart(bestSellingCategoriesCtx, {
+    type: 'pie',
+    data: {
+        labels: bestSellingCategories.map(category => category.categoryName),
+        datasets: [{
+            data: bestSellingCategories.map(category => category.totalQuantity),
+            backgroundColor: [
+                '#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b',
+                '#858796', '#5a5c69', '#476840', '#f39c12', '#00c0ef'
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'right'
+            }
+        }
+    }
+});
+
+// Sales Analysis Chart with Time Filter
+const salesData = {
+    weekly: JSON.parse('<%- JSON.stringify(weeklySales) %>'),
+    monthly: JSON.parse('<%- JSON.stringify(monthlySales) %>'),
+    yearly: JSON.parse('<%- JSON.stringify(yearlySales) %>')
+};
+
+let salesAnalysisChart = null;
+
+function updateSalesChart(timeFrame) {
+    const data = salesData[timeFrame];
+    const ctx = document.getElementById('salesAnalysisChart').getContext('2d');
+    
+    if (salesAnalysisChart) {
+        salesAnalysisChart.destroy();
+    }
+
+    salesAnalysisChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: data.map(item => item._id),
+            datasets: [{
+                label: 'Sales Revenue',
+                data: data.map(item => item.totalSales),
+                borderColor: '#4e73df',
+                backgroundColor: 'rgba(78, 115, 223, 0.1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return '₹' + context.raw.toLocaleString();
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return '₹' + value.toLocaleString();
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Initialize with weekly data
+updateSalesChart('weekly');
+
+// Add event listeners for time frame buttons
+document.querySelectorAll('[data-time-frame]').forEach(button => {
+    button.addEventListener('click', function() {
+        // Remove active class from all buttons
+        document.querySelectorAll('[data-time-frame]').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        // Add active class to clicked button
+        this.classList.add('active');
+        // Update chart
+        updateSalesChart(this.dataset.timeFrame);
+    });
+});
     </script>
     
 </body>

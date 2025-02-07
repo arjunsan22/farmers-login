@@ -148,6 +148,142 @@ const loadDashboard = async (req, res) => {
                     discountStats.discountByType["Coupon Discount"].totalAmount += order.discount;
                 }
             });
+    //new////////////////////////// Calculate Average Order Value (AOV)////////////////////////////////new////////////////////////
+            const aov = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+
+            // Get Best Selling Products (Top 10)
+            const bestSellingProducts = await Order.aggregate([
+                {
+                    $match: {
+                        Status: { $in: ["pending", "delivered", "processing", "shipping"] }
+                    }
+                },
+                { $unwind: "$orderedItems" },
+                {
+                    $group: {
+                        _id: "$orderedItems.product", // Changed from productId to product
+                        totalQuantity: { $sum: "$orderedItems.quantity" },
+                        totalRevenue: { $sum: { $multiply: ["$orderedItems.price", "$orderedItems.quantity"] } }
+                    }
+                },
+                {
+                    $lookup: {
+                        from: "products",
+                        localField: "_id",
+                        foreignField: "_id",
+                        as: "productDetails"
+                    }
+                },
+                { $unwind: "$productDetails" },
+                {
+                    $project: {
+                        productName: "$productDetails.productname",
+                        totalQuantity: 1,
+                        totalRevenue: 1,
+                        category: "$productDetails.category"
+                    }
+                },
+                { $sort: { totalQuantity: -1 } },
+                { $limit: 10 }
+            ]);
+            
+            // Get Best Selling Categories (Top 10)
+            const bestSellingCategories = await Order.aggregate([
+                {
+                    $match: {
+                        Status: { $in: ["pending", "delivered", "processing", "shipping"] }
+                    }
+                },
+                { $unwind: "$orderedItems" },
+                {
+                    $lookup: {
+                        from: "products",
+                        localField: "orderedItems.product", // Changed from productId to product
+                        foreignField: "_id",
+                        as: "product"
+                    }
+                },
+                { $unwind: "$product" },
+                {
+                    $lookup: {
+                        from: "categories",
+                        localField: "product.category",
+                        foreignField: "_id",
+                        as: "category"
+                    }
+                },
+                { $unwind: "$category" },
+                {
+                    $group: {
+                        _id: "$category._id",
+                        categoryName: { $first: "$category.name" },
+                        totalQuantity: { $sum: "$orderedItems.quantity" },
+                        totalRevenue: { $sum: { $multiply: ["$orderedItems.price", "$orderedItems.quantity"] } }
+                    }
+                },
+                { $sort: { totalQuantity: -1 } },
+                { $limit: 10 }
+            ]);
+            console.log(bestSellingProducts)
+   console.log(bestSellingCategories)
+            // Get Sales Data with Time Filter
+            const getSalesData = async (timeFrame) => {
+                const now = new Date();
+                let startDate;
+                
+                switch(timeFrame) {
+                    case 'yearly':
+                        startDate = new Date(now.getFullYear(), 0, 1);
+                        break;
+                    case 'monthly':
+                        startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+                        break;
+                    case 'weekly':
+                        startDate = new Date(now - 7 * 24 * 60 * 60 * 1000);
+                        break;
+                    default:
+                        startDate = new Date(now - 30 * 24 * 60 * 60 * 1000);
+                }
+            
+                return await Order.aggregate([
+                    {
+                        $match: {
+                            Status: { $in: ["pending", "delivered", "processing", "shipping"] },
+                            createdOn: { $gte: startDate } // This matches your schema field name
+                        }
+                    },
+                    {
+                        $group: {
+                            _id: {
+                                $dateToString: { 
+                                    format: timeFrame === 'yearly' ? "%Y-%m" : "%Y-%m-%d", 
+                                    date: "$createdOn" // This matches your schema field name
+                                }
+                            },
+                            totalSales: { $sum: "$finalAmount" },
+                            orderCount: { $sum: 1 }
+                        }
+                    },
+                    { $sort: { "_id": 1 } }
+                ]);
+            };
+            // Get sales data for different time frames
+            const yearlySales = await getSalesData('yearly');
+            const monthlySales = await getSalesData('monthly');
+            const weeklySales = await getSalesData('weekly');
+
+            
+            // Calculate growth metrics
+            const calculateGrowth = (currentPeriod, previousPeriod) => {
+                if (!previousPeriod || previousPeriod === 0) return 0;
+                return ((currentPeriod - previousPeriod) / previousPeriod) * 100;
+            };
+
+            const currentMonthSales = monthlySales[monthlySales.length - 1]?.totalSales || 0;
+            const previousMonthSales = monthlySales[monthlySales.length - 2]?.totalSales || 0;
+            const monthOverMonthGrowth = calculateGrowth(currentMonthSales, previousMonthSales);
+
+
 
             res.render('dashboard', {
                 totalUsers,
@@ -158,7 +294,15 @@ const loadDashboard = async (req, res) => {
                 monthlyStats,
                 orderStatusData,
                 discountStats,
-                activeCoupons
+                activeCoupons,
+                // New data
+                aov,
+                bestSellingProducts,
+                bestSellingCategories,
+                yearlySales,
+                monthlySales,
+                weeklySales,
+                monthOverMonthGrowth
             });
         } catch (error) {
             console.error('Dashboard Error:', error);
@@ -710,6 +854,7 @@ module.exports={
     getaddCoupon,
     addCoupon,
     couponStatus,
-    generateSalesReport
+    generateSalesReport,
+    
     
 }   
