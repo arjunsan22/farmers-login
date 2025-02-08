@@ -18,7 +18,6 @@ const loadCheckoutPage = async (req, res) => {
 
   const userAddress=await Address.find({userId})
 
-  console.log("address : ",userAddress)
 
   const cart = await Cart.findOne({ userId })
   .populate({
@@ -51,7 +50,6 @@ console.log(finalTotal)
     // for checking  if a discounted total exists in the session //from an applied coupon//
 const wallet=await Wallet.findOne({userId})
 
-console.log("wallet balance",wallet)
       res.render('checkout', {
         products,
         user,
@@ -292,11 +290,9 @@ const Orderplacement = async (req, res) => {
     if (!userId) {
       return res.status(401).send('Unauthorized: User not logged in');
     }
-
+console.log("order placement req body  : ",req.body)
     const { products, quantities, address, paymentMethod, razorpay_payment_id } = req.body;
-    console.log('Req.body=', req.body);
-    console.log("Received products:", products);
-    console.log("Received quantities:", quantities);
+  
 
     if (!Array.isArray(products) || !Array.isArray(quantities) || products.length !== quantities.length) {
       return res.status(400).json({ success: false, message: 'Invalid products or quantities' });
@@ -377,13 +373,66 @@ const Orderplacement = async (req, res) => {
           }
         }
       );
-    } else if (paymentMethod === 'razorpay') {
+    }  else if (paymentMethod === 'razorpay') {
+      console.log('Razorpay payment verification started');
+      console.log('Order ID:', req.body.razorpay_order_id);
+      console.log('Payment ID:', razorpay_payment_id);
+      console.log('Signature:', req.body.razorpay_signature);
+
+      // If payment_status is failed, create order with payment_pending status
+      if (req.body.payment_status === 'failed') {
+        const order = new Order({
+          userId,
+          orderedItems,
+          totalPrice,
+          discount,
+          finalAmount,
+          address,
+          paymentMethod,
+          Status: 'payment_pending',
+          paymentDetails: {
+            error: req.body.payment_error,
+            status: 'failed'
+          }
+        });
+        await order.save();
+        return res.json({ 
+          success: true, 
+          orderId: order._id,
+          status: 'payment_pending'
+        });
+      }
+
+      // Verify signature for successful payments
       const hmac = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET);
       hmac.update(`${req.body.razorpay_order_id}|${razorpay_payment_id}`);
       const generatedSignature = hmac.digest('hex');
+      console.log("Generated signature:", generatedSignature);
+      console.log("Received signature:", req.body.razorpay_signature);
 
       if (generatedSignature !== req.body.razorpay_signature) {
-        return res.status(400).json({ success: false, message: 'Payment verification failed' });
+        console.log("Signature verification failed");
+        const order = new Order({
+          userId,
+          orderedItems,
+          totalPrice,
+          discount,
+          finalAmount,
+          address,
+          paymentMethod,
+          Status: 'payment_pending',
+          paymentDetails: {
+            error: 'Signature verification failed',
+            status: 'failed'
+          }
+        });
+        await order.save();
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Payment verification failed',
+          orderId: order._id,
+          status: 'payment_pending'
+        });
       }
     }
 
@@ -396,7 +445,7 @@ const Orderplacement = async (req, res) => {
       finalAmount,
       address,
       paymentMethod,
-      status: 'Confirmed',
+      Status: 'pending',
     });
 
     // Save order and update product quantities
@@ -411,7 +460,7 @@ const Orderplacement = async (req, res) => {
     res.status(500).json({ success: false, message: error.message || 'Something went wrong while placing the order' });
   }
 };
-
+///////////////////////////////order success page//////////////////////////////////////
 const orderSuccess = async (req, res) => {
   try {
     
@@ -458,12 +507,20 @@ const createRazorpayOrder = async (req, res) => {
 
 const verifyRazorpayPayment = async (req, res) => {
   try {
+    console.log('Razorpay payment verification started');
+  console.log('Order ID:', req.body.razorpay_order_id);
+  console.log('Payment ID:', req.body.razorpay_payment_id);
+  console.log('Signature:', req.body.razorpay_signature);
+        
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
     const hmac = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET);
     hmac.update(`${razorpay_order_id}|${razorpay_payment_id}`);
     
     
     const generatedSignature = hmac.digest('hex');
+    console.log('Generated Signature:', generatedSignature);
+    console.log('Received Signature:', razorpay_signature);
+  
 
     if (generatedSignature === razorpay_signature) {
       res.json({ success: true, message: 'Payment verified successfully' });

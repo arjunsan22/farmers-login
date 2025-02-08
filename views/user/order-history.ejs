@@ -27,6 +27,7 @@
 .status-cancelled { background-color: #ef5350; color: white; }
 .status-return-request { background-color: #ff9800; color: white; }
 .status-returned { background-color: #26a69a; color: white; }
+.status-payment_pending { background-color: #972300; color: white; }
 
 .card {
   border: none;
@@ -117,6 +118,7 @@
 .breadcrumb-item a:hover {
     color: #0056b3;
 }
+
   </style>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -249,7 +251,9 @@
                 <% if (order.Status === 'delivered') { %>status-delivered<% } %>
                 <% if (order.Status === 'cancelled') { %>status-cancelled<% } %>
                 <% if (order.Status === 'return request') { %>status-return-request<% } %>
-                <% if (order.Status === 'returned') { %>status-returned<% } %>">
+                <% if (order.Status === 'returned') { %>status-returned<% } %>
+                <% if (order.Status === 'payment_pending') { %>status-payment_pending<% } %>">
+                
                 <% if (order.Status === 'pending') { %><i class="fas fa-clock"></i><% } %>
                 <% if (order.Status === 'processing') { %><i class="fas fa-spinner"></i><% } %>
                 <% if (order.Status === 'shipping') { %><i class="fas fa-shipping-fast"></i><% } %>
@@ -257,9 +261,15 @@
                 <% if (order.Status === 'cancelled') { %><i class="fas fa-times-circle"></i><% } %>
                 <% if (order.Status === 'return request') { %><i class="fas fa-undo"></i><% } %>
                 <% if (order.Status === 'returned') { %><i class="fas fa-undo-alt"></i><% } %>
+                <% if (order.Status === 'payment_pending') { %><i class="fas fa-credit-card"></i><% } %>
                 <%= order.Status %>
               </span>
             </p>
+            <!-- for payment pending issues -->
+<% if (order.Status === 'payment_pending') { %>
+  <button class="btn btn-warning" onclick="continuePayment('<%= order._id %>')">Continue Payment</button>
+<% } %>
+<!-- for oder cancellation -->
             <% if (order.Status === 'pending' || order.Status === 'processing') { %>
               <form action="/orders/cancel/<%= order._id %>" method="POST" class="cancel-order-form d-inline">
                 <button type="submit" class="btn btn-danger btn-sm">Cancel Order</button>
@@ -278,7 +288,7 @@
   const differenceInDays = (currentDate - deliveryDate) / (1000 * 60 * 60 * 24);
   const returnEligible = differenceInDays <= 7; // Only compare days
 %>
-
+<!-- invoice download and return order -->
             <% if (order.Status === 'delivered' && returnEligible) { %>
 
               <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#returnModal-<%=order._id %>">Return Order </button>
@@ -429,6 +439,12 @@
   
   });
   
+  </script>
+  <script>
+    function continuePayment(orderId) {
+      // Redirect to the checkout page with the order ID
+      window.location.href = `/checkout/${orderId}`; // Adjust the URL as necessary
+    }
   </script>
 </body>
 </html>

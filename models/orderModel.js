@@ -56,12 +56,14 @@ const orderSchema= new mongoose.Schema({
    Status:{
    type:String,
    default:"pending",
-   enum:["pending","delivered","processing","shipping","cancelled","return request","returned"]
+   enum:["pending","delivered","processing","shipping","cancelled","return request","returned","payment_pending"]
     },
     createdOn:{
         type:Date,
         default:Date.now,
         required:true
+
+
     },
     couponApplied:{
         type:Boolean,
