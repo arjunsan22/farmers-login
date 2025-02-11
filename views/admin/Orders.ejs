@@ -242,15 +242,38 @@
                     <td>
                       <form class="update-status-form" action="/admin/orders/update-status/<%= order._id %>" method="POST">
                         <select name="Status" class="form-select form-select-sm mb-2">
-                          <option value="pending" <%= order.Status === 'pending' ? 'selected' : '' %>>Pending</option>
-                          <option value="processing" <%= order.Status === 'processing' ? 'selected' : '' %>>Processing</option>
-                          <option value="shipping" <%= order.Status === 'shipping' ? 'selected' : '' %>>Shipping</option>
-                          <option value="delivered" <%= order.Status === 'delivered' ? 'selected' : '' %>>Delivered</option>
-                          <option value="cancelled" <%= order.Status === 'cancelled' ? 'selected' : '' %>>Cancelled</option>
-                          <!-- <option value="return request" <%= order.Status === 'return request' ? 'selected' : '' %>>Return Request</option> -->
-                          <option value="returned" <%= order.Status === 'returned' ? 'selected' : '' %>>Returned</option>
+                          <% 
+                            const statusProgression = {
+                              'pending': ['processing', 'cancelled'],
+                              'processing': ['shipping', 'cancelled'],
+                              'shipping': ['delivered', 'cancelled'],
+                              'delivered': ['returned'],
+                              'return request': ['returned'],
+                              'cancelled': [],
+                              'returned': [],
+                              'payment_pending': ['pending', 'cancelled']
+                            };
+                            
+                            const validNextStatuses = statusProgression[order.Status] || [];
+                            
+                            // Always show current status
+                            %>
+                            <option value="<%= order.Status %>" selected><%= order.Status %></option>
+                            <% 
+                            // Show only valid next statuses
+                            validNextStatuses.forEach(status => { 
+                              if (status !== order.Status) {
+                            %>
+                              <option value="<%= status %>"><%= status %></option>
+                            <% 
+                              }
+                            }); 
+                            %>
                         </select>
-                        <button type="submit" class="btn btn-primary btn-sm w-100">Update Status</button>
+                        <button type="submit" class="btn btn-primary btn-sm w-100" 
+                          <%= validNextStatuses.length === 0 ? 'disabled' : '' %>>
+                          Update Status
+                        </button>
                       </form>
                     </td>
                   </tr>

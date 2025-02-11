@@ -2,9 +2,11 @@ const Order=require('../../models/orderModel')
 const User = require("../../models/userModel");
 const Product = require('../../models/productModel');
 const Wallet = require('../../models/walletModel');
+const razorpayInstance = require('../../config/razorpayConfig');
 const PDFDocument = require('pdfkit');
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 
 
 const getOrderHistory = async (req, res) => {
@@ -16,7 +18,7 @@ const getOrderHistory = async (req, res) => {
    const limit = 4; 
    const skip = (page - 1) * limit; 
    const totalOrders = await Order.countDocuments({ userId }); 
-   const totalPages = Math.ceil(totalOrders / limit); 
+   const totalPages  = Math.ceil(totalOrders / limit); 
 
      
       const orders = await Order.find({ userId }).populate('orderedItems.product')
@@ -27,7 +29,7 @@ const getOrderHistory = async (req, res) => {
 
       // console.log("orders details :",orders)
   
-      res.render('order-history', { orders ,user:userData,currentPage: page, totalPages  });
+      res.render('order-history', { orders ,user:userData,currentPage: page, totalPages ,razorpayKeyId:process.env.RAZORPAY_KEY_ID  });
 
     } catch (error) {
       console.error('Error fetching order history:', error);
@@ -104,7 +106,7 @@ console.log("returnReason :",returnReason)
       }
 
    
-      order.Status = 'returned';
+      order.Status = 'return request';
       order.orderedItems.forEach(item => {
           item.returnReason = returnReason;
       });
@@ -198,16 +200,16 @@ const downloadInvoice = async (req, res) => {
          .font('Helvetica-Bold')
          .text('INVOICE', 40, 40)
          .fontSize(12)
-         .font('sans-serif')
+         .font('Helvetica')
          .text('Order ID: ' + order.orderId.slice(-5), 40, 80)
          .text('Order Date: ' + order.createdOn.toLocaleDateString(), 40, 100);
 
       // Company logo section (right side of header)
       doc.fontSize(16)
-         .font('sans-serif-Bold')
+         .font('Helvetica')
          .text('FARMERS LOGIN', 400, 40)
          .fontSize(10)
-         .font('sans-serif')
+         .font('Helvetica')
          .text('www.farmerslogin.com', 400, 65)
          .text('farmerslogin@gmail.com', 400, 80)
          .text('Customer Care: +91 1234567890', 400, 95);
@@ -332,10 +334,94 @@ const downloadInvoice = async (req, res) => {
   }
 };
 
+
+const createRazorpayOrderFromHistory = async (req, res) => {
+  try {
+      const orderId = req.params.orderId;
+      const order = await Order.findById(orderId);
+      
+      if (!order) {
+          return res.status(404).json({ error: 'Order not found' });
+      }
+
+      // Create Razorpay order
+      const razorpayOrder = await razorpayInstance.orders.create({
+        amount: Math.round(order.finalAmount * 100) , // Convert to paise
+          currency: 'INR',
+          receipt: order.orderId
+      });
+      console.log("razorpay order created:", razorpayOrder);
+
+      res.json({
+          orderId: razorpayOrder.id,
+          amount: razorpayOrder.amount,
+          currency: razorpayOrder.currency
+      });
+  } catch (error) {
+      console.error('Error creating Razorpay order:', error);
+      res.status(500).json({ error: 'Failed to create order' });
+  }
+};
+
+
+const verifyPayment = async (req, res) => {
+  try {
+    console.log("verify payment : ",req.body)  
+    const { payment, order: orderId } = req.body;
+      
+      // Create signature hash to verify payment//
+      
+      const secret = process.env.RAZORPAY_KEY_SECRET;
+      
+      const shasum = crypto.createHmac('sha256', secret);
+      shasum.update(`${payment.razorpay_order_id}|${payment.razorpay_payment_id}`);
+      const digest = shasum.digest('hex');
+
+      // Verify signature//
+      if (digest === payment.razorpay_signature) {
+        
+          const order = await Order.findById(orderId);
+          if (!order) {
+              return res.status(404).json({ success: false, error: 'Order not found' });
+          }
+
+          order.Status = 'pending'; 
+          order.paymentMethod = 'razorpay';
+          order.paymentStatus = 'completed';
+          order.razorpayPaymentId = payment.razorpay_payment_id;
+          order.razorpayOrderId = payment.razorpay_order_id;
+          order.razorpaySignature = payment.razorpay_signature;
+          
+        //product quantity decrease that time //
+        // const orderItem = order.items[0];
+        // const product = await Product.findById(orderItem.productId);
+        // if (!product) {
+        //   return res.status(404).json({ success: false, error: 'Product not found' });
+        // }
+        // if (product.quantity < orderItem.quantity) {
+        //   return res.status(400).json({ success: false, error: 'Insufficient quantity' });
+        // }
+        // product.quantity -= orderItem.quantity;
+        // await product.save();
+
+          await order.save();
+
+          return res.json({ success: true });
+      } else {
+          return res.json({ success: false, error: 'Invalid signature' });
+      }
+  } catch (error) {
+      console.error('Payment verification error:', error);
+      res.status(500).json({ success: false, error: 'Payment verification failed' });
+  }
+};
+
 module.exports={
 
     getOrderHistory,
     cancelOrder,
     returnOrder,
-    downloadInvoice
+    downloadInvoice,
+    createRazorpayOrderFromHistory,
+    verifyPayment
 }

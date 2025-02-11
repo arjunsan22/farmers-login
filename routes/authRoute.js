@@ -141,6 +141,8 @@ router.get('/orders/download-invoice/:orderId', orderController.downloadInvoice)
 router.post('/orders/cancel/:orderId', orderController.cancelOrder);
 router.post('/orders/return/:orderId', orderController.returnOrder); 
 
+router.get('/create-razorpay-pending-orders/:orderId',orderController.createRazorpayOrderFromHistory)
+router.post('/verify-payment-pending-order', orderController.verifyPayment);
 //change email//
 router.get('/changeEmail',usermiddle.isLogout,profileController.loadchangeEmail)
 router.post('/changeEmail',profileController.changeEmail)//worked
@@ -151,7 +153,6 @@ router.post('/resetEmail',profileController.resetEmail)
 
 
 //password change//
-
 router.get('/changePassword',profileController.loadchangePasswordpage)
 router.post('/verify-email-password', profileController.verfyChangePassword);
 router.post('/changePassword-OTP',profileController.verfyingChangePasswordOTP)
