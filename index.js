@@ -8,7 +8,7 @@ const authRouter=require('./routes/authRoute');
 const adminRouter=require('./routes/adminRoute')
 const passport=require('./config/passport')
 
-const bodyParser = require('body-parser');
+const bodyParser = require('body-parser');//express.json add
 app.use(bodyParser.urlencoded({ extended: true }));  // For form data
 app.use(bodyParser.json());
 

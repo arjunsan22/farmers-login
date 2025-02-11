@@ -16,11 +16,11 @@
         .signup-container {
             max-width: 500px;
             margin: 2rem auto;
-           backface-visibility: 2%;
             padding: 2.5rem;
             border-radius: 20px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(10px);
+            background-color: #ffffff;
+            
             transition: transform 0.3s ease;
         }
 
@@ -44,7 +44,7 @@
 
         .form-label {
             font-weight: 600;
-            color: #caced2;
+            color: #060c11;
             margin-bottom: 0.5rem;
             font-size: 0.9rem;
             letter-spacing: 0.5px;
@@ -183,33 +183,33 @@
         <form action="/signup" method="POST" onsubmit="return validateForm()">
             <div class="mb-3">
                 <label for="first_name" class="form-label">First Name</label>
-                <input type="text" class="form-control" id="first_name" name="firstname" required>
+                <input type="text" class="form-control" id="first_name" name="firstname" >
             </div>
 
             <div class="mb-3">
                 <label for="last_name" class="form-label">Last Name</label>
-                <input type="text" class="form-control" id="last_name" name="lastname" required>
+                <input type="text" class="form-control" id="last_name" name="lastname" >
             </div>
 
             <div class="mb-3">
                 <label for="email" class="form-label">Email</label>
-                <input type="email" class="form-control" id="email" name="email" required>
+                <input type="email" class="form-control" id="email" name="email" >
             </div>
 
             <div class="mb-3">
                 <label for="password" class="form-label">Password</label>
-                <input type="password" class="form-control" id="password" name="password" required>
+                <input type="password" class="form-control" id="password" name="password" >
             </div>
 
             <div class="mb-3">
                 <label for="confirm_password" class="form-label">Confirm Password</label>
-                <input type="password" class="form-control" id="confirm_password" name="confirmpassword" required>
+                <input type="password" class="form-control" id="confirm_password" name="confirmpassword" >
             </div>
     
 
             <div class="mb-3">
                 <label for="phone_no" class="form-label">Phone Number</label>
-                <input type="text" class="form-control" id="phone" name="phone" required>
+                <input type="text" class="form-control" id="phone" name="phone" >
             </div>
 
             <div class="mb-3">
