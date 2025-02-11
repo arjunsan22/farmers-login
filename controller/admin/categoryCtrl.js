@@ -34,11 +34,12 @@ const loadcategoryPage=async (req,res) => {
 const addCategory=async (req,res) => {
   
     const {name,description}=req.body;
-    console.log(req.body)
-    console.log(description)
+    
     try {
-    const existingCategory=await Category.findOne({name})
-    if(existingCategory){
+        const existingCategory = await Category.findOne({ 
+            name: { $regex: new RegExp(`^${name}$`, 'i') } 
+        });
+        if(existingCategory){
         return res.status(400).json({error:"Category Already Exists"})
     }
     const newCategory=new Category({ name,description })    
