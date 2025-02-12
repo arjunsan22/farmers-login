@@ -293,6 +293,49 @@ a{
     animation: bounceIn 0.6s ease-out, pulse 1.9s infinite alternate ease-in-out;
 }
 
+.carousel-inner {
+      height: 776px;
+    }
+    .carousel-item {
+      background-size: cover;
+      background-position: center;
+      position: relative;
+    }
+    .carousel-item::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5); /* Overlay */
+    }
+    .carousel-caption {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      z-index: 1;
+    }
+    .carousel-caption h1 {
+        margin-left: 20%;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      font-size: 3.5rem;
+      color: #fff;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+    }
+    .carousel-caption p {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 300;
+      font-size: 1.25rem;
+      color: #fff;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    }
+    .carousel-indicators li {
+      background-color: #fff;
+    }
        
     </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
@@ -309,55 +352,54 @@ a{
         <source src="/images/abstract-dna.3840x2160.mp4" type="video/mp4">
         Your browser does not support the video tag.
     </video> -->
-    <!-- Carousel Section -->
-    <header class="slider-main">
-        <div id="carouselExampleIndicators" class="carousel slide carousel-fade" data-bs-ride="carousel">
-            <!-- Indicators -->
-            <ol class="carousel-indicators">
-                <li data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active"></li>
-                <li data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1"></li>
-                <li data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2"></li>
-            </ol>
+  <!-- Carousel Section -->
+  <header class="slider-main">
+    <div id="carouselExampleIndicators" class="carousel slide carousel-fade" data-bs-ride="carousel">
+      <!-- Indicators -->
+      <ol class="carousel-indicators">
+        <li data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active"></li>
+        <li data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1"></li>
+        <li data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2"></li>
+      </ol>
 
-            <!-- Carousel Inner -->
-            <div style="height: 776px;" class="carousel-inner">
-                <!-- Slide One -->
-                <div class="carousel-item active" style="background-image: url('/images/banner.webp'); background-size: cover; background-position: center;">
-                    <div class="carousel-caption d-md-block">
-                        <h1 class="display-3 fw-bold text-light">Welcome to Farmers Login</h1>
-                        <p class="lead text-light">A Great E-commerce Platform for Farmers</p>
-                    </div>
-                </div>
-
-                <!-- Slide Two -->
-                <div class="carousel-item" style="background-image: url('/images/bannernew1.jpg'); background-size: cover; background-position: center;">
-                    <div class="carousel-caption d-md-block">
-                        <h1 class="display-4 fw-bold text-light">Fresh Fruits Without Pesticides</h1>
-                        <p class="lead text-light">Delivered Straight to Your Home</p>
-                    </div>
-                </div>
-
-                <!-- Slide Three -->
-                <div class="carousel-item" style="background-image: url('/images/homepagebannertoday.jpg'); background-size: cover; background-position: center;">
-                    <div class="carousel-caption d-md-block">
-                        <h1 class="display-4 fw-bold text-light">Order Anytime, Anywhere</h1>
-                        <p class="lead text-light">Fresh Fruits and Veggies Delivered Within 1 Hour!</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Controls -->
-            <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-bs-slide="prev">
-                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                <span class="sr-only">Previous</span>
-            </a>
-            <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-bs-slide="next">
-                <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                <span class="sr-only">Next</span>
-            </a>
+      <!-- Carousel Inner -->
+      <div class="carousel-inner">
+        <!-- Slide One -->
+        <div class="carousel-item active" style="background-image: url('/images/frontbanner1.jpg');">
+          <div class="carousel-caption d-md-block">
+            <h1>Welcome to Farmers Login</h1>
+            <p>A Great E-commerce Platform for Farmers</p>
+          </div>
         </div>
-    </header>
 
+        <!-- Slide Two -->
+        <div class="carousel-item" style="background-image: url('/images/frontbanner2.jpg');">
+          <div class="carousel-caption d-md-block">
+            <h1>Fresh Fruits Without Pesticides</h1>
+            <p>Delivered Straight to Your Home</p>
+          </div>
+        </div>
+
+        <!-- Slide Three -->
+        <div class="carousel-item" style="background-image: url('/images/frontbanner3.jpg');">
+          <div class="carousel-caption d-md-block">
+            <h1>Order Anytime, Anywhere</h1>
+            <p>Fresh Fruits and Veggies Delivered Within 1 Hour!</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="sr-only">Previous</span>
+      </a>
+      <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="sr-only">Next</span>
+      </a>
+    </div>
+  </header>
    <!-- Products Section -->
 <section class="container my-5 text-center">
     <h2 class="mb-4 fw-bold">Our Products</h2>

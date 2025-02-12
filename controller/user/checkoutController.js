@@ -174,116 +174,6 @@ const updateCheckoutAddress=async (req,res) => {
 }
 
 
-// const Orderplacement = async (req, res) => {
-//   try {
-//     const userId = req.session.user;
-//     if (!userId) {
-//       return res.status(401).send('Unauthorized: User not logged in');
-//     }
-
-//     const { products, quantities, address, paymentMethod, razorpay_payment_id } = req.body;
-//     console.log('Req.body=',req.body)
-
-//     console.log("Received products:", products);
-//     console.log("Received quantities:", quantities);
-
-//     if (!Array.isArray(products) || !Array.isArray(quantities) || products.length !== quantities.length) {
-//       return res.status(400).json({ success: false, message: 'Invalid products or quantities' });
-//     }
-
-//     let totalPrice = 0;
-//     const orderedItems = [];
-
-//     for (let i = 0; i < products.length; i++) {
-//       const productId = products[i];
-//       const quantity = quantities[i];
-
-//       const product = await Product.findById(productId);
-//       if (!product) {
-//         return res.status(404).send(`Product with ID ${productId} not found`);
-//       }
-
-//       if (product.quantity < quantity) {
-//         return res.status(400).send(`Insufficient stock for product: ${product.productname}`);
-//       }
-// //this has a problem//
-//       product.quantity -= quantity;
-//       await product.save();
-
-//       const itemTotalPrice = product.salePrice * quantity;
-//       totalPrice += itemTotalPrice;
-
-//       orderedItems.push({
-//         product: productId,
-//         quantity,
-//         price: product.salePrice,
-//       });
-//     }
-
-//     const discount =  req.session.couponApplied ? req.session.couponApplied.discount : 0;
-//     const finalAmount = totalPrice - discount;
-//     console.log("discount",discount)
-// console.log("finalAmount",finalAmount)
-
-// if (paymentMethod === 'cod' && finalAmount > 1000) {
-//   return res.status(400).json({ 
-//     success: false, 
-//     message: 'Cash on Delivery is not available for orders above ₹1,000. Please choose a different payment method.',
-//     status: 'cod_restricted'
-//   });
-// }
-
-//     if (paymentMethod === 'wallet') {
-//       const wallet = await Wallet.findOne({ userId });
-//       console.log("wallet",wallet.balance)//checking//
-//       if (!wallet || wallet.balance < finalAmount) {
-//         return res.status(400).json({ 
-//           success: false, 
-//           message: 'Insufficient wallet balance',
-//           status: 'insufficient_balance',
-          
-//         });
-//       }
-
-//       wallet.balance -= finalAmount;
-//       wallet.transactions.push({
-//         amount: finalAmount,
-//         type: 'debit',
-//         description: 'Order payment',
-//       });
-//       await wallet.save();
-//     } else if (paymentMethod === 'razorpay') {
-//       const hmac = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET);
-//       hmac.update(`${req.body.razorpay_order_id}|${razorpay_payment_id}`);
-//       const generatedSignature = hmac.digest('hex');
-
-//       if (generatedSignature !== req.body.razorpay_signature) {
-//         return res.status(400).json({ success: false, message: 'Payment verification failed' });
-//       }
-//     }
-
-//     const order = new Order({
-//       userId,
-//       orderedItems,
-//       totalPrice,
-//       discount,
-//       finalAmount,
-//       address,
-//       paymentMethod,
-//       status: 'Confirmed',
-//     });
-
-//     const savedOrder = await order.save();
-//     await Cart.updateOne({ userId }, { $set: { items: [] } });
-
-//     req.session.couponApplied = null;
-//     res.json({ success: true, orderId: savedOrder._id });
-//   } catch (error) {
-//     console.error('Error placing order:', error);
-//     res.status(500).send('Something went wrong while placing the order');
-//   }
-// };
-
 const Orderplacement = async (req, res) => {
   try {
     const userId = req.session.user;
@@ -332,7 +222,6 @@ console.log("order placement req body  : ",req.body)
         }
       });
     }
-
     const discount = req.session.couponApplied ? req.session.couponApplied.discount : 0;
     const finalAmount = totalPrice - discount;
     console.log("discount", discount);

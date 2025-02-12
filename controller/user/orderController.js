@@ -451,7 +451,7 @@ if (cart) {
   cart.items = [];
   await cart.save();
 }
-console.log("cart empty : ",cart)
+
 
 
         // Update order status and payment details
