@@ -2,6 +2,7 @@ const Order=require('../../models/orderModel')
 const User = require("../../models/userModel");
 const Product = require('../../models/productModel');
 const Wallet = require('../../models/walletModel');
+const Cart = require('../../models/cartModel');
 const razorpayInstance = require('../../config/razorpayConfig');
 const PDFDocument = require('pdfkit');
 const fs = require('fs');
@@ -337,12 +338,16 @@ const downloadInvoice = async (req, res) => {
 
 const createRazorpayOrderFromHistory = async (req, res) => {
   try {
-      const orderId = req.params.orderId;
-      const order = await Order.findById(orderId);
+
+    const orderId = req.params.orderId;
+    const order = await Order.findById(orderId);
+
+    //checking quantity
       
       if (!order) {
           return res.status(404).json({ error: 'Order not found' });
       }
+
 
       // Create Razorpay order
       const razorpayOrder = await razorpayInstance.orders.create({
@@ -364,57 +369,123 @@ const createRazorpayOrderFromHistory = async (req, res) => {
 };
 
 
+// const verifyPayment = async (req, res) => {
+//   try {
+//     console.log("verify payment : ",req.body)  
+//     const { payment, order: orderId } = req.body;
+      
+//       // Create signature hash to verify payment//
+      
+//       const secret = process.env.RAZORPAY_KEY_SECRET;
+      
+//       const shasum = crypto.createHmac('sha256', secret);
+//       shasum.update(`${payment.razorpay_order_id}|${payment.razorpay_payment_id}`);
+//       const digest = shasum.digest('hex');
+
+//       // Verify signature//
+//       if (digest === payment.razorpay_signature) {
+        
+//           const order = await Order.findById(orderId);
+//           if (!order) {
+//               return res.status(404).json({ success: false, error: 'Order not found' });
+//           }
+
+//           order.Status = 'pending'; 
+//           order.paymentMethod = 'razorpay';
+//           order.paymentStatus = 'completed';
+//           order.razorpayPaymentId = payment.razorpay_payment_id;
+//           order.razorpayOrderId = payment.razorpay_order_id;
+//           order.razorpaySignature = payment.razorpay_signature;
+          
+    
+
+       
+
+//           return res.json({ success: true });
+//       } else {
+//           return res.json({ success: false, error: 'Invalid signature' });
+//       }
+//   } catch (error) {
+//       console.error('Payment verification error:', error);
+//       res.status(500).json({ success: false, error: 'Payment verification failed' });
+//   }
+// };
 const verifyPayment = async (req, res) => {
   try {
     console.log("verify payment : ",req.body)  
     const { payment, order: orderId } = req.body;
       
-      // Create signature hash to verify payment//
-      
-      const secret = process.env.RAZORPAY_KEY_SECRET;
-      
-      const shasum = crypto.createHmac('sha256', secret);
-      shasum.update(`${payment.razorpay_order_id}|${payment.razorpay_payment_id}`);
-      const digest = shasum.digest('hex');
+    // Create signature hash to verify payment
+    const secret = process.env.RAZORPAY_KEY_SECRET;
+    const shasum = crypto.createHmac('sha256', secret);
+    shasum.update(`${payment.razorpay_order_id}|${payment.razorpay_payment_id}`);
+    const digest = shasum.digest('hex');
 
-      // Verify signature//
-      if (digest === payment.razorpay_signature) {
-        
-          const order = await Order.findById(orderId);
-          if (!order) {
-              return res.status(404).json({ success: false, error: 'Order not found' });
-          }
-
-          order.Status = 'pending'; 
-          order.paymentMethod = 'razorpay';
-          order.paymentStatus = 'completed';
-          order.razorpayPaymentId = payment.razorpay_payment_id;
-          order.razorpayOrderId = payment.razorpay_order_id;
-          order.razorpaySignature = payment.razorpay_signature;
-          
-        //product quantity decrease that time //
-        // const orderItem = order.items[0];
-        // const product = await Product.findById(orderItem.productId);
-        // if (!product) {
-        //   return res.status(404).json({ success: false, error: 'Product not found' });
-        // }
-        // if (product.quantity < orderItem.quantity) {
-        //   return res.status(400).json({ success: false, error: 'Insufficient quantity' });
-        // }
-        // product.quantity -= orderItem.quantity;
-        // await product.save();
-
-          await order.save();
-
-          return res.json({ success: true });
-      } else {
-          return res.json({ success: false, error: 'Invalid signature' });
+    // Verify signature
+    if (digest === payment.razorpay_signature) {
+      const order = await Order.findById(orderId);
+      if (!order) {
+        return res.status(404).json({ success: false, error: 'Order not found' });
       }
-  } catch (error) {
-      console.error('Payment verification error:', error);
-      res.status(500).json({ success: false, error: 'Payment verification failed' });
+
+      // Update product quantities in inventory
+      try {
+        for (const item of order.orderedItems) {
+          const product = await Product.findById(item.product._id);
+          if (!product) {
+            throw new Error(`Product ${item.product._id} not found`);
+          }
+          
+          // Check if enough quantity is available
+          if (product.quantity < item.quantity) {
+            throw new Error(`Insufficient quantity for product ${product.productname}`);
+          }
+          
+          // Decrease the product quantity
+          product.quantity -= item.quantity;
+          await product.save();
+        }
+//update cart to empty//
+const cart = await Cart.findOne({ userId: order.userId });
+if (cart) {
+  cart.items = [];
+  await cart.save();
+}
+console.log("cart empty : ",cart)
+
+
+        // Update order status and payment details
+        order.Status = 'pending';
+        order.paymentMethod = 'razorpay';
+        order.paymentStatus = 'completed';
+        order.razorpayPaymentId = payment.razorpay_payment_id;
+        order.razorpayOrderId = payment.razorpay_order_id;
+        order.razorpaySignature = payment.razorpay_signature;
+        
+        // Save the order
+        await order.save();
+
+        return res.json({ success: true });
+      } catch (error) {
+        // If there's an error updating quantities, log it and return error
+        console.error('Error updating product quantities:', error);
+        return res.status(400).json({ 
+          success: false, 
+          error: error.message || 'Failed to update product quantities'
+        });
+      }
+    } else {
+  
+      return res.json({ success: false, error: 'Invalid signature' });
+    }
+  }
+  
+  catch (error) {
+    console.error('Payment verification error:', error);
+    res.status(500).json({ success: false, error: 'Payment verification failed' });
   }
 };
+
 
 module.exports={
 
