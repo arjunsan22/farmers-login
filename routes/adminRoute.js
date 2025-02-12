@@ -8,6 +8,7 @@ const productContoller=require('../controller/admin/productCtrl')
 const multer=require('multer')
 const path = require('path');
 const orderController=require('../controller/admin/adminOrderController')
+const blogController = require('../controller/admin/blogController');
 //multer setupp//for easy i store admin//
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -17,10 +18,18 @@ const storage = multer.diskStorage({
         cb(null, Date.now() + path.extname(file.originalname));
     }
 });
-
-
 const uploads = multer({ storage: storage });
+// Configure multer for blog images
+const blogStorage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'public/uploads/blog-images');
+    },
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + path.extname(file.originalname));
+    }
+});
 
+const blogUploads = multer({ storage: blogStorage });
 
 //routes -admin
 router.get('/login',adminController.loadLogin)
@@ -86,6 +95,16 @@ router.post('/couponStatus/:couponId', adminController.couponStatus);
 //sales reports//
 
 router.post('/generate-report', adminController.generateSalesReport);
+
+
+
+
+// Blog routes
+router.get('/add-blog', blogController.loadAddBlogPage);
+router.post('/add-blog', blogUploads.fields([{ name: 'picture', maxCount: 1 },{ name: 'pictureGallery', maxCount: 5 }
+]), blogController.addBlog);
+router.get('/blogs', blogController.loadBlogs);
+router.post('/delete-blog/:id', blogController.deleteBlog);
 
 //logout//
 router.get('/logout',adminController.Logout)

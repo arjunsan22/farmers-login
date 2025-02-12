@@ -188,6 +188,10 @@ router.post('/wallet/add', walletController.addFunds);
 router.post('/products/:id/review', reviewController.addReview);
 router.post('/reviews/remove/:id', reviewController.removeReview);
 
+//blog management//
+router.get('/userblog',userController.loadBlogPage)
+router.get('/userblogDetails/:id',userController.loadBlogDetailsPage)
+
 //logout
 router.get('/logout',userController.LoGout)
 

@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>admin blogs</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: #f0f2f5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            opacity: 0;
+            animation: slideDown 0.6s ease forwards;
+        }
+
+        .header h2 {
+            font-size: 2.5rem;
+            color: #1a1a1a;
+            position: relative;
+        }
+
+        .header h2::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 60px;
+            height: 3px;
+            background: #4CAF50;
+            transition: width 0.3s ease;
+        }
+
+        .header h2:hover::after {
+            width: 100%;
+        }
+
+        .add-btn {
+            background: #4CAF50;
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 30px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.2);
+        }
+
+        .add-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.3);
+        }
+
+        .blog-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .blog-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+            opacity: 0;
+            animation: fadeIn 0.6s ease forwards;
+            position: relative;
+        }
+
+        .blog-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .blog-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            transition: transform 0.6s ease;
+        }
+
+        .blog-card:hover .blog-image {
+            transform: scale(1.05);
+        }
+
+        .blog-content {
+            padding: 1.5rem;
+        }
+
+        .blog-title {
+            font-size: 1.25rem;
+            color: #1a1a1a;
+            margin-bottom: 0.75rem;
+        }
+
+        .blog-description {
+            color: #666;
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        .blog-info {
+            color: #555;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .blog-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn {
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            flex: 1;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .btn-edit {
+            background: #FFC107;
+            color: #000;
+        }
+
+        .btn-delete {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .blog-card {
+            animation-delay: calc(0.1s * var(--order));
+        }
+
+        .blog-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(76, 175, 80, 0.9);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            backdrop-filter: blur(5px);
+            opacity: 0;
+            transform: translateX(20px);
+            transition: all 0.3s ease;
+        }
+
+        .blog-card:hover .blog-badge {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Blog Posts</h2>
+            <a href="/admin/add-blog" class="add-btn">
+                <i class="fas fa-plus"></i>
+                Add New Blog
+            </a>
+        </div>
+        
+        <div class="blog-grid">
+            <% blogs.forEach((blog, index) => { %>
+                <div class="blog-card" style="--order: <%= index %>">
+                    <div class="blog-badge">Plant Care</div>
+                    <img src="/uploads/blog-images/<%= blog.picture %>" class="blog-image" alt="<%= blog.name %>">
+                    <div class="blog-content">
+                        <h3 class="blog-title"><%= blog.name %></h3>
+                        <p class="blog-description"><%= blog.description.substring(0, 100) %>...</p>
+                        
+                        <div class="blog-info">
+                            <i class="fas fa-leaf"></i>
+                            <span>Diseases: <%= blog.deseases %></span>
+                        </div>
+                        <div class="blog-info">
+                            <i class="fas fa-medkit"></i>
+                            <span>Remedies: <%= blog.remedies %></span>
+                        </div>
+                        <div class="blog-info">
+                            <i class="fas fa-clock"></i>
+                            <span>Cultivation Time: <%= blog.cultivationTime %></span>
+                        </div>
+                        
+                        <div class="blog-actions">
+                            <a href="/admin/blogs" class="btn btn-edit">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                            <button onclick="deleteBlog('<%= blog._id %>')" class="btn btn-delete">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            <% }) %>
+        </div>
+        <br>
+        <button  style="background-color: rgb(87, 68, 68);border-radius: 5px;" class="btn btn-danger"><a style="color: white;text-decoration: none;" href="/admin"> back to dashboard </a></button>
+    </div>
+
+        <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Poppins:wght@300;600&display=swap" rel="stylesheet">
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+          async function deleteBlog(blogId) {
+            Swal.fire({
+              title: 'Are you sure?',
+              text: "You won't be able to revert this!",
+              icon: 'warning',
+              showCancelButton: true,
+              confirmButtonColor: '#3085d6',
+              cancelButtonColor: '#d33',
+              confirmButtonText: 'Yes, delete it!'
+            }).then(async (result) => {
+              if (result.isConfirmed) {
+                try {
+                  const response = await fetch(`/admin/delete-blog/${blogId}`, {
+                    method: 'POST'
+                  });
+                  const data = await response.json();
+                  if (data.success) {
+                   
+        
+                    // Add event listener for the animation end
+                      Swal.fire({
+                        title: 'Deleted!',
+                        text: 'The blog post has been deleted.',
+                        icon: 'success',
+                        confirmButtonColor: '#3085d6'
+                      }).then(() => {
+                        setTimeout(() => {
+                          location.reload();
+                        }, 300); // Delay reload slightly to ensure SweetAlert message is displayed
+                      });
+                    
+                  }
+                } catch (error) {
+                  console.error('Error:', error);
+                }
+              }
+            });
+          }
+        </script>
+        
+       
+</body>
+</html>

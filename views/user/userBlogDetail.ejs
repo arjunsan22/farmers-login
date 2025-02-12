@@ -1,0 +1,84 @@
+<%- include('../../views/partials/user/header') %>
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <h1 class="mb-4"><%= blog.name %></h1>
+            
+            <% if(blog.picture) { %>
+                <img src="<%= '/uploads/blog-images/' + blog.picture %>" class="img-fluid mb-4" alt="<%= blog.name %>">
+            <% } %>
+
+            <div class="mb-4">
+                <h4>Description</h4>
+                <p><%= blog.description %></p>
+            </div>
+
+            <% if(blog.deseases) { %>
+                <div class="mb-4">
+                    <h4>Common Diseases</h4>
+                    <p><%= blog.deseases %></p>
+                </div>
+            <% } %>
+
+            <% if(blog.remedies) { %>
+                <div class="mb-4">
+                    <h4>Remedies</h4>
+                    <p><%= blog.remedies %></p>
+                </div>
+            <% } %>
+
+            <% if(blog.cultivationTime) { %>
+                <div class="mb-4">
+                    <h4>Cultivation Time</h4>
+                    <p><%= blog.cultivationTime %></p>
+                </div>
+            <% } %>
+
+            <% if(blog.cultivationClimate) { %>
+                <div class="mb-4">
+                    <h4>Cultivation Climate</h4>
+                    <p><%= blog.cultivationClimate %></p>
+                </div>
+            <% } %>
+
+            <% if(blog.cultivationSoil) { %>
+                <div class="mb-4">
+                    <h4>Soil Requirements</h4>
+                    <p><%= blog.cultivationSoil %></p>
+                </div>
+            <% } %>
+
+            <% if(blog.pestisides) { %>
+                <div class="mb-4">
+                    <h4>Pesticides Information</h4>
+                    <p><%= blog.pestisides %></p>
+                </div>
+            <% } %>
+
+            <% if(blog.howToPlant) { %>
+                <div class="mb-4">
+                    <h4>Planting Instructions</h4>
+                    <p><%= blog.howToPlant %></p>
+                </div>
+            <% } %>
+
+            <% if(blog.pictureGallery && blog.pictureGallery.length > 0) { %>
+                <div class="mb-4">
+                    <h4>Picture Gallery</h4>
+                    <div class="row">
+                        <% blog.pictureGallery.forEach(pic => { %>
+                            <div class="col-md-4 mb-3">
+                                <img src="<%= '/uploads/blog-images/' + pic %>" class="img-fluid" alt="Gallery Image">
+                            </div>
+                        <% }) %>
+                    </div>
+                </div>
+            <% } %>
+
+            <a href="/userblog" class="btn btn-primary mb-4">Back to Blogs</a>
+        </div>
+    </div>
+</div>
+
+<%- include('../../views/partials/user/footer') %>

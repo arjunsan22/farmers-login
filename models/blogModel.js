@@ -9,14 +9,42 @@ name:{
 },
 picture:{
     type:String,
-    required:true
+
 },
 description:{
     type:String,
-    required:true
+},
+deseases:{
+    type:String,
+
+},
+remedies:{
+    type:String,
+},
+cultivationTime:{
+    type:String,
 },
 pictureGallery:{
     type:[String]
+},
+cultivationClimate:{
+    type:String,
+    
+},
+cultivationSoil:{
+    type:String,
+    
+},
+categoryName:{
+    type:String,
+    
+},
+pestisides:{
+    type:String,
+    
+},
+howToPlant:{
+    type:String,
 },
 createdAt: {
     type: Date,

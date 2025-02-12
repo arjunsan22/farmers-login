@@ -1,0 +1,23 @@
+<%- include('../../views/partials/user/header') %>
+
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Our Blog Posts</h2>
+    <div class="row">
+        <% blogs.forEach(blog => { %>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <% if(blog.picture) { %>
+                        <img src="/uploads/blog-images/<%= blog.picture %>" class="card-img-top" alt="<%= blog.name %>" style="height: 200px; object-fit: cover;">
+                    <% } %>
+                    <div class="card-body">
+                        <h5 class="card-title"><%= blog.name %></h5>
+                        <p class="card-text"><%= blog.description ? blog.description.substring(0, 100) + '...' : '' %></p>
+                        <a href="/userblogDetails/<%= blog._id %>" class="btn btn-primary">View Details</a>
+                    </div>
+                </div>
+            </div>
+        <% }) %>
+    </div>
+</div>
+
+<%- include('../../views/partials/user/footer') %>

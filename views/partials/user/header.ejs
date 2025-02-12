@@ -85,7 +85,58 @@
   box-shadow: 0 0 5px rgba(9, 10, 10, 0.5);
 }
 
-       
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  background-color: #ffffff;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+  transition: all 0.3s ease-in-out;
+  min-width: 200px;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.dropdown-menu a {
+  color: #333;
+  text-decoration: none;
+  padding: 10px 15px;
+  display: block;
+}
+
+.dropdown-menu a:hover {
+  background-color: #f1f1f1;
+}
+
+.dropdown-menu .dropdown-item {
+  padding: 10px 15px;
+  color: #007bff;
+  text-transform: uppercase;
+}
+
+.btn.dropdown-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+
+
+/* Show the dropdown menu on hover */
+.dropdown:hover .dropdown-menu {
+  display: block;
+}
+
            </style>
            
 
@@ -120,7 +171,7 @@
             <a style="font-family:cursive;color: #ffffff;" class="nav-link active" href="/">Home</a>
           </li>
           <li class="nav-item">
-            <a style="font-family:cursive;color: #ffffff;" class="nav-link" href="/">Blog</a>
+            <a style="font-family:cursive;color: #ffffff;" class="nav-link" href="/userblog">Blog</a>
           </li>
           <li class="nav-item">
             <a style="font-family:cursive;color: #ffffff;" class="nav-link" href="/shop">Shop</a>
@@ -153,35 +204,29 @@
     <i class="fas fa-search"></i>
   </button>
 </form>
-        
   <!-- User Profile Dropdown -->
-<% if (locals.user) { %>
+  <% if (locals.user) { %>
     <div class="dropdown" onmouseover="openDropdown()" onmouseout="closeDropdown()">
-     <button class="btn ">
-        <span style="color: #ffffff;" class="material-symbols-outlined">
-            person
-            </span>
-     </button>
-        
+      <button class="btn dropdown-toggle" style=" color: #ffffff;">
+        <span class="material-symbols-outlined">person</span>
+      </button>
       <ul class="dropdown-menu" id="userDropdownMenu">
-         <a style="background-color: #e7e0e0;" class="nav-link" href="/userProfile" id="userDropdown">
-       <h6 style="text-transform: uppercase;"> WELCOME <%= user.firstname %> <%= user.lastname %></h6>
-       
-      </a>
-        <li ><a class="dropdown-item text-white" href="/userProfile">PROFILE</a></li>
-        <li><a class="dropdown-item text-white" href="/logout">LOGOUT</a></li>
+        <a style="background-color: #e7e0e0;" class="nav-link" href="/userProfile" id="userDropdown">
+          <h6 style="text-transform: uppercase;"> WELCOME <%= user.firstname %> <%= user.lastname %></h6>
+        </a>
+        <li><a class="dropdown-item" href="/userProfile">PROFILE</a></li>
+        <li><a class="dropdown-item" href="/logout">LOGOUT</a></li>
       </ul>
     </div>
   <% } else { %>
     <ul class="navbar-nav">
-      
-      <li style="color: #fcfdfe;" class="nav-item">
-        <a style="color: #fcfdfe;" class="nav-link" href="/login"> <i class="fas fa-user"></i></a>
+      <li class="nav-item">
+        <a class="nav-link" href="/login">
+          <i class="fas fa-user" style="color: #fcfdfe;"></i>
+        </a>
       </li>
     </ul>
   <% } %>
-  
-  
         <!-- Wishlist and Cart Icons -->
         <div class="d-flex">
          <button class="btn"> <a style="color: #f14545;" href="/wishlist" class="nav-link">
@@ -207,6 +252,15 @@
       function closeDropdown() {
         document.getElementById('userDropdownMenu').style.display = 'none';
       }
+      </script>
+      <script>
+        function openDropdown() {
+  document.getElementById('userDropdownMenu').style.display = 'block';
+}
+
+function closeDropdown() {
+  document.getElementById('userDropdownMenu').style.display = 'none';
+}
       </script>
 </body>
 </html>

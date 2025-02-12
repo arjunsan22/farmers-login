@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Add Blog</title>
+    <!-- CSS Dependencies -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --sidebar-width: 250px;
+            --header-height: 60px;
+            --primary-color: #4CAF50;
+            --secondary-color: #2c3e50;
+        }
+
+        body {
+            min-height: 100vh;
+            background: #f8f9fa;
+        }
+
+        /* Main Layout */
+        .admin-wrapper {
+            display: flex;
+            height: 100vh;
+        }
+
+        .content-wrapper {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            margin-left: var(--sidebar-width);
+            transition: margin 0.3s;
+        }
+
+        @media (max-width: 768px) {
+            .content-wrapper {
+                margin-left: 0;
+            }
+        }
+
+        /* Form Styling */
+        .page-title {
+            color: var(--secondary-color);
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        .content-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: var(--secondary-color);
+        }
+
+        .form-control {
+            border-radius: 6px;
+            border: 1px solid #dee2e6;
+            padding: 10px 15px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(76, 175, 80, 0.25);
+        }
+
+        textarea.form-control {
+            min-height: 100px;
+        }
+
+        /* Image Cropping */
+        .preview-container {
+            max-width: 300px;
+            margin: 15px 0;
+            display: none;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        #imagePreview {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .upload-preview {
+            width: 100%;
+            height: 200px;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .upload-preview:hover {
+            border-color: var(--primary-color);
+            background: #f8f9fa;
+        }
+
+        /* Submit Button */
+        .btn-submit {
+            background: var(--primary-color);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 6px;
+            border: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-submit:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.2);
+        }
+
+        /* Cropper Modal */
+        .modal-content {
+            border-radius: 10px;
+            border: none;
+        }
+
+        .modal-header {
+            background: #f8f9fa;
+            border-bottom: 1px solid #eee;
+            border-radius: 10px 10px 0 0;
+        }
+
+        .crop-controls {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .crop-controls button {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: #f8f9fa;
+            transition: all 0.2s ease;
+        }
+
+        .crop-controls button:hover {
+            background: #e9ecef;
+        }
+
+        /* Alerts */
+        .floating-alert {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1050;
+            min-width: 300px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            display: none;
+        }
+
+        /* Animation */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .content-card {
+            animation: slideIn 0.5s ease;
+        }
+    </style>
+</head>
+<body>
+    <%- include("../../views/admin/adminpartials/sidebar") %>
+
+    <!-- Main Content -->
+    <div class="admin-wrapper">
+        <div class="content-wrapper">
+            <!-- Success Alert -->
+            <div class="alert alert-success floating-alert" id="successAlert" role="alert">
+                <i class="fas fa-check-circle me-2"></i>
+                Blog post added successfully!
+            </div>
+
+            <h2 class="page-title">Add New Blog</h2>
+
+            <!-- Form Card -->
+            <div class="content-card">
+                <form id="blogForm" action="/admin/add-blog" method="POST" enctype="multipart/form-data">
+                    <!-- Basic Information -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="name" class="form-label">
+                                    <i class="fas fa-heading me-2"></i>Blog Title
+                                </label>
+                                <input type="text" class="form-control" id="name" name="name" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="categoryName" class="form-label">
+                                    <i class="fas fa-tag me-2"></i>Category
+                                </label>
+                                <input type="text" class="form-control" id="categoryName" name="categoryName">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="mb-4">
+                        <label for="description" class="form-label">
+                            <i class="fas fa-align-left me-2"></i>Description
+                        </label>
+                        <textarea class="form-control" id="description" name="description" rows="4" ></textarea>
+                    </div>
+
+                    <!-- Images Section -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label for="picture" class="form-label">
+                                <i class="fas fa-image me-2"></i>Main Image
+                            </label>
+                            <input type="file" class="form-control" id="picture" name="picture" accept="image/*" hidden>
+                            <div class="upload-preview" onclick="document.getElementById('picture').click()">
+                                <div class="text-center">
+                                    <i class="fas fa-cloud-upload-alt fa-2x mb-2"></i>
+                                    <p class="mb-0">Click to upload main image</p>
+                                </div>
+                            </div>
+                            <div class="preview-container">
+                                <img id="imagePreview" src="" alt="Preview">
+                            </div>
+                        </div>
+                        <div class="container mt-4">
+                            <div class="row">
+                              <div class="col-md-6">
+                                <label for="pictureGallery" class="form-label">
+                                  <i class="fas fa-images me-2"></i>Gallery Images
+                                </label>
+                                <input type="file" class="form-control" id="pictureGallery" name="pictureGallery" accept="image/*" multiple>
+                              </div>
+                            </div>
+                            <div class="preview-container" id="previewContainer"></div>
+                          </div>
+                          
+
+                    <!-- Plant Information -->
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <div class="mb-3"> 
+                                <label for="cultivationSoil" class="form-label">
+                                    <i class="fas fa-seedling me-2"></i>Cultivation Soil
+                                </label>
+                                <input type="text" class="form-control" id="cultivationSoil" name="cultivationSoil">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="cultivationTime" class="form-label">
+                                    <i class="fas fa-clock me-2"></i>Cultivation Time
+                                </label>
+                                <input type="text" class="form-control" id="cultivationTime" name="cultivationTime">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="cultivationClimate" class="form-label">
+                                    <i class="fas fa-cloud-sun me-2"></i>Best Climate
+                                </label>
+                                <input type="text" class="form-control" id="cultivationClimate" name="cultivationClimate">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Health Information -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="deseases" class="form-label">
+                                    <i class="fas fa-virus me-2"></i>Diseases
+                                </label>
+                                <textarea class="form-control" id="deseases" name="deseases" rows="3" ></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="remedies" class="form-label">
+                                    <i class="fas fa-medkit me-2"></i>Remedies
+                                </label>
+                                <textarea class="form-control" id="remedies" name="remedies" rows="3"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Additional Information -->
+                    <div class="mb-4">
+                        <div class="mb-3">
+                            <label for="pestisides" class="form-label">
+                                <i class="fas fa-spray-can me-2"></i>Pesticides
+                            </label>
+                            <input type="text" class="form-control" id="pestisides" name="pestisides">
+                        </div>
+                        <div class="mb-3">
+                            <label for="howToPlant" class="form-label">
+                                <i class="fas fa-book me-2"></i>How to Plant
+                            </label>
+                            <textarea class="form-control" id="howToPlant" name="howToPlant" rows="3"></textarea>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-submit">
+                        <i class="fas fa-plus-circle me-2"></i>Add Blog
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Cropping Modal -->
+    <div class="modal fade" id="imageCropModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Crop Image</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="img-container">
+                        <img id="cropImage" src="" alt="Picture to crop" style="max-width: 100%;">
+                    </div>
+                    <div class="crop-controls">
+                        <button type="button" id="rotateLeft" class="btn btn-light">
+                            <i class="fas fa-undo"></i>
+                        </button>
+                        <button type="button" id="rotateRight" class="btn btn-light">
+                            <i class="fas fa-redo"></i>
+                        </button>
+                        <button type="button" id="flipHorizontal" class="btn btn-light">
+                            <i class="fas fa-arrows-alt-h"></i>
+                        </button>
+                        <button type="button" id="flipVertical" class="btn btn-light">
+                            <i class="fas fa-arrows-alt-v"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="cropButton">Crop & Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+    <script>
+        let cropper;
+const modal = new bootstrap.Modal(document.getElementById('imageCropModal'));
+const cropImage = document.getElementById('cropImage');
+const picture = document.getElementById('picture');
+const previewContainer = document.querySelector('.preview-container');
+const imagePreview = document.getElementById('imagePreview');
+const uploadPreview = document.querySelector('.upload-preview');
+
+// Initialize cropper when image is selected
+picture.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            cropImage.src = event.target.result;
+            modal.show();
+            
+            if (cropper) {
+                cropper.destroy();
+            }
+
+            cropper = new Cropper(cropImage, {
+                aspectRatio: 16 / 9,
+                viewMode: 1,
+                dragMode: 'move',
+                autoCropArea: 0.8,
+                restore: false,
+                guides: true,
+                center: true,
+                highlight: false,
+                cropBoxMovable: true,
+                cropBoxResizable: true,
+                toggleDragModeOnDblclick: false,
+                ready: function() {
+                    // Enable cropping when the image is ready
+                    this.cropper.crop();
+                }
+            });
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+// Handle the crop button click
+document.getElementById('cropButton').addEventListener('click', function() {
+    if (!cropper) return;
+
+    // Get the cropped canvas
+    const canvas = cropper.getCroppedCanvas({
+        width: 800,    // Set maximum width
+        height: 450,   // Maintain 16:9 aspect ratio
+        imageSmoothingEnabled: true,
+        imageSmoothingQuality: 'high'
+    });
+
+    // Convert canvas to blob
+    canvas.toBlob(function(blob) {
+        // Create preview
+        const url = URL.createObjectURL(blob);
+        imagePreview.src = url;
+        
+        // Show preview container and hide upload preview
+        previewContainer.style.display = 'block';
+        uploadPreview.style.display = 'none';
+
+        // Store the blob for later use (e.g., uploading)
+        const croppedImage = new File([blob], 'cropped-image.jpg', {
+            type: 'image/jpeg',
+            lastModified: new Date().getTime()
+        });
+
+        // You can now use croppedImage for uploading or further processing
+        
+        // Close the modal
+        modal.hide();
+    }, 'image/jpeg', 0.9);
+});
+
+// Handle modal close
+document.getElementById('imageCropModal').addEventListener('hidden.bs.modal', function() {
+    if (cropper) {
+        cropper.destroy();
+        cropper = null;
+    }
+});
+
+// Reset button functionality
+document.getElementById('resetButton').addEventListener('click', function() {
+    if (cropper) {
+        cropper.reset();
+    }
+});
+
+// Rotation buttons
+document.getElementById('rotateLeft').addEventListener('click', function() {
+    if (cropper) {
+        cropper.rotate(-90);
+    }
+});
+
+document.getElementById('rotateRight').addEventListener('click', function() {
+    if (cropper) {
+        cropper.rotate(90);
+    }
+});
+
+// Zoom buttons
+document.getElementById('zoomIn').addEventListener('click', function() {
+    if (cropper) {
+        cropper.zoom(0.1);
+    }
+});
+
+document.getElementById('zoomOut').addEventListener('click', function() {
+    if (cropper) {
+        cropper.zoom(-0.1);
+    }
+});
+
+// Handle modal close by clicking outside the modal
+document.getElementById('imageCropModal').addEventListener('click', function(e) {
+    if (e.target.id === 'imageCropModal') {
+        if (cropper) {
+            cropper.destroy();
+            cropper = null;
+        }
+        modal.hide();
+    }
+});
+    </script>

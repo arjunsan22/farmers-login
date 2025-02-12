@@ -5,6 +5,7 @@ const nodemailer=require('nodemailer')
 const bcrypt=require('bcrypt')
 const env=require('dotenv').config()
 const Order=require('../../models/orderModel')
+const Blog = require('../../models/blogModel');
 
 
 const loadhomepage = async (req, res) => {
@@ -626,6 +627,29 @@ const mainSearch = async (req, res) => {
     }
   }
 };
+
+const loadBlogPage=async (req, res) => {  
+  try {
+      const blogs = await Blog.find().sort({ createdAt: -1 });
+      res.render('userBlogs', { blogs });
+  } catch (error) {
+      console.error(error);
+      res.status(500).send('Server Error');
+  }
+}
+
+const loadBlogDetailsPage=async (req, res) => {
+  try {
+      const blog = await Blog.findById(req.params.id);
+      if (!blog) {
+          return res.status(404).send('Blog not found');
+      }
+      res.render('userBlogDetail', { blog });
+  } catch (error) {
+      console.error(error);
+      res.status(500).send('Server Error');
+  }
+}
 module.exports = {
   loadhomepage,
   pagenotfound,
@@ -638,5 +662,7 @@ module.exports = {
   LoGout,
   loadProductDetails,
   loadShopPage,
-  mainSearch
+  mainSearch,
+  loadBlogPage,
+  loadBlogDetailsPage
 };
