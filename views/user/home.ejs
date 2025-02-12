@@ -400,6 +400,24 @@ a{
       </a>
     </div>
   </header>
+  <!-- Referral Success Modal -->
+<div class="modal fade" id="referralModal" tabindex="-1" aria-labelledby="referralModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="referralModalLabel">Congratulations! 🎉</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Your referral code has been applied successfully!</p>
+                <p>₹200 has been added to your wallet.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Continue</button>
+            </div>
+        </div>
+    </div>
+</div>
    <!-- Products Section -->
 <section class="container my-5 text-center">
     <h2 class="mb-4 fw-bold">Our Products</h2>
@@ -720,6 +738,15 @@ a{
         });
     });
     </script>
+   <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Check if referralSuccess is defined and true
+        <% if (typeof referralSuccess !== 'undefined' && referralSuccess) { %>
+            const referralModal = new bootstrap.Modal(document.getElementById('referralModal'));
+            referralModal.show();
+        <% } %>
+    });
+</script>
   
     <!-- Footer -->
     <%- include("../../views/partials/user/footer") %>

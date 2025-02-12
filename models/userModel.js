@@ -67,17 +67,24 @@ var userSchema = new mongoose.Schema({
         type:Date,
         default:Date.now,
     },
-    referalCode:{
-        type:String
+    referralCode:{
+        type:String,
+        unique: true,
+        sparse: true
     },
     redeemed:{
         type:Boolean,
         default: false,
     },
-    redeeemedUsers:[{
+    redeemedUsers:[{
         type:Schema.Types.ObjectId,
         ref:"User"
     }],
+    referredBy:{
+        type:Schema.Types.ObjectId,
+        ref:"User",
+        default: null
+    },
     searchHistory:[{
         category:{
             type:Schema.Types.ObjectId,
