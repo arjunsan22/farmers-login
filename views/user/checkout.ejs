@@ -52,7 +52,281 @@
 .breadcrumb-item a:hover {
     color: #0056b3;
 }
+
+    .form-label {
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 0.75rem;
+        font-size: 1.1rem;
+    }
+
+    .form-select {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%232c3e50' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        background-size: 1em;
+        padding: 1rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        font-size: 1rem;
+        color: #2c3e50;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+
+    .form-select:hover {
+        border-color: #90cdf4;
+        box-shadow: 0 4px 6px rgba(66, 153, 225, 0.08);
+    }
+
+    .form-select:focus {
+        border-color: #4299e1;
+        box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.15);
+        outline: none;
+    }
+
+    .form-select option {
+        padding: 1rem;
+        font-size: 1rem;
+        background-color: white;
+        color: #2c3e50;
+    }
+
+    .form-select option:first-child {
+        color: #718096;
+        font-style: italic;
+    }
+
+    .form-select option:hover {
+        background-color: #ebf8ff;
+    }
+
+    .form-select option:checked {
+        background-color: #4299e1;
+        color: white;
+    }
+
+    .form-select option:disabled {
+        background-color: #f7fafc;
+        color: #e53e3e;
+        font-weight: 500;
+        padding: 1rem;
+        border-left: 4px solid #e53e3e;
+    }
+
+    .text-danger {
+        color: #e53e3e;
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+        padding: 0.5rem;
+        border-radius: 8px;
+        background-color: rgba(229, 62, 62, 0.1);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .text-danger::before {
+        content: "⚠️";
+    }
+
+    .mb-3 {
+        position: relative;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Add payment method icons */
+    .form-select option[value="cod"]::before {
+        content: "💵";
+        margin-right: 8px;
+    }
+
+    .form-select option[value="wallet"]::before {
+        content: "👛";
+        margin-right: 8px;
+    }
+
+    .form-select option[value="razorpay"]::before {
+        content: "💳";
+        margin-right: 8px;
+    }
   </style>
+  <style>
+    /* Coupon Section Styles */
+    .coupon-section {
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+    }
+
+    .coupon-header {
+        background: linear-gradient(135deg, orange 0%, #3182ce 100%);
+        padding: 1.5rem;
+        color: white;
+        position: relative;
+    }
+
+    .coupon-header h4 {
+        margin: 0;
+        font-weight: 600;
+        font-size: 1.5rem;
+    }
+
+    .coupon-input-group {
+        background: white;
+        border-radius: 15px;
+        padding: 0.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        margin: 1rem 0;
+    }
+
+    .coupon-input-group input {
+        border: none;
+        padding: 1rem;
+        font-size: 1rem;
+        background: transparent;
+    }
+
+    .coupon-input-group input:focus {
+        box-shadow: none;
+        outline: none;
+    }
+
+    .coupon-input-group .btn {
+        padding: 0.75rem 1.5rem;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .coupon-list {
+        max-height: 400px;
+        overflow-y: auto;
+        padding: 1rem;
+    }
+
+    .coupon-card {
+        background: white;
+        border-radius: 15px;
+        border: 2px dashed #e2e8f0;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .coupon-card::before {
+        content: '';
+        position: absolute;
+        left: -20px;
+        top: 50%;
+        height: 40px;
+        width: 40px;
+        background: #f8f9fa;
+        border-radius: 50%;
+        transform: translateY(-50%);
+        box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    .coupon-card::after {
+        content: '';
+        position: absolute;
+        right: -20px;
+        top: 50%;
+        height: 40px;
+        width: 40px;
+        background: #f8f9fa;
+        border-radius: 50%;
+        transform: translateY(-50%);
+        box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    .coupon-card:hover {
+        transform: translateY(-5px);
+        border-color: #4299e1;
+        box-shadow: 0 10px 20px rgba(66, 153, 225, 0.1);
+    }
+
+    .coupon-content {
+        padding: 1.5rem;
+    }
+
+    .coupon-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 0.5rem;
+    }
+
+    .coupon-description {
+        color: #718096;
+        font-size: 0.875rem;
+        margin-bottom: 1rem;
+    }
+
+    .coupon-details {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        font-size: 0.875rem;
+    }
+
+    .coupon-detail-item {
+        background: #f7fafc;
+        padding: 0.5rem;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .coupon-detail-item i {
+        color: #4299e1;
+    }
+
+    .copy-coupon {
+        width: 100%;
+        background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+        color: white;
+        border: none;
+        padding: 0.75rem;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .copy-coupon:hover {
+        background: linear-gradient(135deg, #3182ce 0%, #2c5282 100%);
+        transform: translateY(-2px);
+    }
+
+    .copy-coupon:active {
+        transform: translateY(0);
+    }
+
+    /* Custom scrollbar for coupon list */
+    .coupon-list::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .coupon-list::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+
+    .coupon-list::-webkit-scrollbar-thumb {
+        background: #cbd5e0;
+        border-radius: 10px;
+    }
+
+    .coupon-list::-webkit-scrollbar-thumb:hover {
+        background: #a0aec0;
+    }
+</style>
+
 </head>
 <body>
   <div class="container my-5">
@@ -76,49 +350,63 @@
       <% }); %>
     </div>
         <!-- Coupon Section -->
-    <div class="card shadow p-4 mb-4">
-      <h4>Apply Coupon</h4>
-      <!-- Custom Coupon Input -->
-      <div class="mb-4">
-        <!-- <div class="input-group">
-          <input type="text" class="form-control" id="customCouponInput" 
-                 placeholder="Enter coupon code" 
-                 value="<%= session.couponApplied ? session.couponApplied.code : '' %>">
-          <button class="btn btn-primary" id="applyCustomCoupon" 
-                  style="display: <%= session.couponApplied ? 'none' : 'inline-block' %>">Apply</button>
-          <button class="btn btn-danger ms-2" id="removeCustomCoupon" 
-                  style="display: <%= session.couponApplied ? 'inline-block' : 'none' %>">Remove</button>
-      </div> -->
-      <div class="input-group">
-        <input type="text" class="form-control" id="customCouponInput" 
-               placeholder="Enter coupon code" 
-               value="<%= session?.couponApplied?.code || '' %>">
-        <button class="btn btn-primary <%= session?.couponApplied ? 'd-none' : 'd-inline-block' %>" 
-                id="applyCustomCoupon">Apply</button>
-        <button class="btn btn-danger ms-2 <%= session?.couponApplied ? 'd-inline-block' : 'd-none' %>" 
-                id="removeCustomCoupon">Remove</button>
-    </div>
-        <div id="customCouponFeedback" class="mt-2"></div>
-      </div>
-      <h5>Available Coupons</h5>
-      <div class="row">
-        <% availableCoupons.forEach((coupon) => { %>
-          <div class="col-md-6 mb-3">
-            <div class="card coupon-card">
-              <div class="card-body">
-                <h5 class="card-title"><%= coupon.couponCode %></h5>
-                <p class="card-text"><%= coupon.description %></p>
-                <p class="card-text"><strong>Offer:</strong> ₹<%= coupon.offerPrice %> off</p>
-                <p class="card-text"><strong>Minimum Purchase:</strong> ₹<%= coupon.minimumPrice %></p>
-                <p class="card-text"><strong>Valid From:</strong> <%= new Date(coupon.startOn).toLocaleDateString() %> <strong>To:</strong> <%= new Date(coupon.expireOn).toLocaleDateString() %></p>
-                <button class="btn btn-secondary copy-coupon" data-coupon-code="<%= coupon.couponCode %>">Use This Coupon</button>
-              </div>
-            </div>
+        <div class="coupon-section shadow p-0 mb-4">
+          <div class="coupon-header">
+              <h4>Apply Coupon</h4>
           </div>
-        <% }); %>
+          <div class="p-4">
+              <!-- Custom Coupon Input -->
+              <div class="coupon-input-group">
+                  <div class="input-group">
+                      <input type="text" class="form-control" id="customCouponInput" 
+                             placeholder="Enter coupon code" 
+                             value="<%= session?.couponApplied?.code || '' %>">
+                      <button class="btn btn-primary" value="<%= session?.couponApplied ? 'd-none' : 'd-inline-block' %>" 
+                              id="applyCustomCoupon">Apply</button>
+                      <button class="btn btn-danger" value="<%= session?.couponApplied ? 'd-inline-block' : 'd-none' %>"
+                              id="removeCustomCoupon">Remove</button>
+                  </div>
+                  <div id="customCouponFeedback" class="mt-2"></div>
+              </div>
+      
+              <h5 class="mt-4 mb-3">Available Coupons</h5>
+              <div class="coupon-list">
+                  <div class="row">
+                      <% availableCoupons.forEach((coupon) => { %>
+                          <div class="col-md-6 mb-3">
+                              <div class="coupon-card">
+                                  <div class="coupon-content">
+                                      <div class="coupon-title"><%= coupon.couponCode %></div>
+                                      <div class="coupon-description"><%= coupon.description %></div>
+                                      <div class="coupon-details">
+                                          <div class="coupon-detail-item">
+                                              <i class="fas fa-tag"></i>
+                                              <span>₹<%= coupon.offerPrice %> off</span>
+                                          </div>
+                                          <div class="coupon-detail-item">
+                                              <i class="fas fa-shopping-cart"></i>
+                                              <span>Min: ₹<%= coupon.minimumPrice %></span>
+                                          </div>
+                                          <div class="coupon-detail-item">
+                                              <i class="fas fa-calendar-alt"></i>
+                                              <span>From: <%= new Date(coupon.startOn).toLocaleDateString() %></span>
+                                          </div>
+                                          <div class="coupon-detail-item">
+                                              <i class="fas fa-clock"></i>
+                                              <span>To: <%= new Date(coupon.expireOn).toLocaleDateString() %></span>
+                                          </div>
+                                      </div>
+                                      <button class="copy-coupon" data-coupon-code="<%= coupon.couponCode %>" >
+                                          Use This Coupon
+                                      </button>
+                                  </div>
+                              </div>
+                          </div>
+                      <% }); %>
+                  </div>
+              </div>
+          </div>
       </div>
-    </div>
-
 
     <div class="mt-3 pt-3 border-top">
       <h5 class="text-end">
@@ -173,7 +461,8 @@
         <a href="/loadCheckoutUserAddressPage" class="btn btn-primary">Add Another Address</a>
       </div>
       <hr>
-      <div class="mb-3">
+      <!-- payment method -->
+      <!-- <div class="mb-3">
         <label for="paymentMethod" class="form-label">Payment Method</label>
         <select class="form-select" id="paymentMethod" name="paymentMethod" required>
           <option value="">Select Payment Method</option>
@@ -188,7 +477,24 @@
         <small id="codWarning" class="text-danger d-none">
           Cash on Delivery is not available for orders above ₹1,000. Please choose a different payment method.
         </small>
-      </div>
+      </div> -->
+      <div class="mb-3">
+        <label for="paymentMethod" class="form-label">Payment Method</label>
+        <select class="form-select" id="paymentMethod" name="paymentMethod" required>
+            <option value="">Select Payment Method</option>
+            <option value="cod" id="codOption">Cash on Delivery</option>
+            <%if(wallet && wallet.balance>=finalTotal){%>
+                <option value="wallet">Wallet</option>
+            <%}else{%>
+                <strong><option class="text-danger" disabled>Wallet payment not available. Your Wallet Balance is ₹<%= wallet?.balance %> You need to pay ₹<%= finalTotal %> for this order</option></strong>
+            <%}%>
+            <option value="razorpay">Razorpay</option>
+        </select>
+        <small id="codWarning" class="text-danger d-none">
+            Cash on Delivery is not available for orders above ₹1,000. Please choose a different payment method.
+        </small>
+    </div>
+    
       <div class="text-center">
         <button type="submit" class="btn btn-success btn-lg">Place Order</button>
       </div>

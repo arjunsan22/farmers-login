@@ -346,10 +346,18 @@
     const decreaseBtn = document.querySelector(`button[onclick="return updateQuantity('${productId}', 'decrease')"]`);
     const increaseBtn = document.querySelector(`button[onclick="return updateQuantity('${productId}', 'increase')"]`);
     const checkoutButton = document.getElementById('checkoutButton');
-
+const currentQuantity = document.getElementById(`quantity-${productId}`).textContent;   
     decreaseBtn.disabled = true;
     increaseBtn.disabled = true;
-    
+    if (action === 'increase' && currentQuantity >= 5) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Quantity Limit',
+            text: 'You can only add up to 5 kg of this product to your cart.',
+            confirmButtonText: 'OK'
+        });
+        return;
+    }
 
     try {
         const response = await fetch('/updateQuantity', {
@@ -373,7 +381,9 @@
                 decreaseBtn.disabled = true;
                 increaseBtn.disabled = true;
                 checkoutButton.disabled = true;
-            } else {
+            } 
+            
+            else {
                 document.getElementById(`status-${productId}`).textContent = "In Stock";
                 document.getElementById(`status-${productId}`).style.color = "green";       
                 decreaseBtn.disabled = false;

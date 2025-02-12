@@ -150,6 +150,8 @@ const  EditProducts= async (req, res) => {
 
         const product = await Product.findOne({ _id: id }).populate('category');
         const category = await Category.find({});
+          console.log('Product:', product);
+        console.log('Product Category:', product.category);
         res.render('Editproduct', {
             product: product,
             category: category
