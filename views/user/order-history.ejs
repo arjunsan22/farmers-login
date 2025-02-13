@@ -237,8 +237,10 @@
                   </div>
                 </div>
               </div>
-         <% } %>
-          </div>
+         <% }else if(differenceInDays > 7){%>
+          <p style="font-family:cursive;" class="text-danger fs-6 fw-bold">Return order expired because it was more than 7 days since delivery, <span class="text-success fs-5 fw-bold"> now <%=differenceInDays%> th day</span></p>
+<%}%>
+        </div>
           <div class="card-body">
 
             <h6>Shipping Address</h6>

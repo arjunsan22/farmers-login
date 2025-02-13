@@ -242,6 +242,21 @@ console.log("order placement req body  : ",req.body)
         }
       });
     }
+
+     // If any products are out of stock, return error
+     if (outOfStockProducts.length > 0) {
+      const message = outOfStockProducts.map(p => 
+        `${p.name} (Available: ${p.available}, Requested: ${p.requested})`
+      ).join(', ');
+        
+      return res.status(400).json({
+        success: false,
+        message: `Some products are out of stock: ${message}`,
+        status: 'out_of_stock',
+        outOfStockProducts
+      });
+    }
+
     const discount = req.session.couponApplied ? req.session.couponApplied.discount : 0;
     const finalAmount = totalPrice - discount;
     console.log("discount", discount);

@@ -696,13 +696,25 @@ $(document).ready(function () {
   $(document).on('totalAmountUpdated', function() {
     updateCODAvailability();
   });
-
+//checkout////////////////////////////////////////////////////////////////////
   $("#checkoutForm").submit(function (event) {
     event.preventDefault();
     const form = $(this)[0];
     const formData = new FormData(form);
     const paymentMethod = $("#paymentMethod").val();
+// Check if address is selected
+if (!formData.get('address')) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Address Required',
+            text: 'Please select a delivery address',
+            confirmButtonColor: '#d33',
+            confirmButtonText: 'OK'
+        });
+        return;
+    }
 
+    
     console.log("Form Data Contents:");
     formData.forEach((value, key) => {
       console.log(key + ": " + value);
@@ -759,7 +771,9 @@ $(document).ready(function () {
                   console.log("Order processing result:", resultJson);
                   if (resultJson.success) {
                     window.location.href = `/order-success/${resultJson.orderId}`;
-                  } else {
+                  }
+                 
+                  else {
                     Swal.fire({
                       icon: 'error',
                       title: 'Order Failed',
@@ -771,13 +785,16 @@ $(document).ready(function () {
                 },
                 error: function(xhr, status, error) {
                   console.error("Order processing error:", error);
-                  Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'An error occurred while processing your order',
-                    confirmButtonColor: '#d33',
-                    confirmButtonText: 'OK'
-                  });
+  let errorResponse;
+  try {
+    errorResponse = JSON.parse(xhr.responseText);
+  } catch (e) {
+    errorResponse = {
+      status: 'error',
+      message: 'An error occurred while processing your order'
+    };
+  }
+  handleOrderError(errorResponse);
                 }
               });
             },
@@ -841,13 +858,17 @@ $(document).ready(function () {
               },
               error: function(xhr, status, error) {
                 console.error("Order processing error:", error);
-                Swal.fire({
-                  icon: 'error',
-                  title: 'Error',
-                  text: 'An error occurred while processing your order',
-                  confirmButtonColor: '#d33',
-                  confirmButtonText: 'OK'
-                });
+    let errorResponse;
+    try {
+    errorResponse = JSON.parse(xhr.responseText);
+  } catch (e) {
+    errorResponse = {
+      status: 'error',
+      message: 'An error occurred while processing your order'
+    };
+  }
+  handleOrderError(errorResponse);
+               
               }
             });
           });
@@ -855,18 +876,21 @@ $(document).ready(function () {
           rzp1.open();
         },
         error: function(xhr, status, error) {
-          console.error("Error creating Razorpay order:", error);
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'Error creating payment order',
-            confirmButtonColor: '#d33',
-            confirmButtonText: 'OK'
-          });
+          console.error("Order processing error:", error);
+  let errorResponse;
+  try {
+    errorResponse = JSON.parse(xhr.responseText);
+  } catch (e) {
+    errorResponse = {
+      status: 'error',
+      message: 'An error occurred while processing your order'
+    };
+  }
+  handleOrderError(errorResponse);
         }
       });
     } else {
-      // For non-Razorpay payments (COD, wallet)
+      // For non-Razorpay payments (COD, wallet)//////////////////////////////////////
       console.log("Processing non-Razorpay payment:", paymentMethod);
       
       const formDataObj = {};
@@ -897,46 +921,70 @@ $(document).ready(function () {
           if (resultJson.success) {
             window.location.href = `/order-success/${resultJson.orderId}`;
           } else {
-            if (resultJson.status === 'cod_restricted') {
-              Swal.fire({
-                icon: 'error',
-                title: 'COD Not Available',
-                text: resultJson.message,
-                confirmButtonColor: '#d33',
-                confirmButtonText: 'OK'
-              });
-            } else if (paymentMethod === 'wallet' && resultJson.status === 'insufficient_balance') {
-              Swal.fire({
-                icon: 'error',
-                title: 'Insufficient Wallet Balance',
-                text: 'You do not have enough balance in your wallet to complete this purchase.',
-                confirmButtonColor: '#d33',
-                confirmButtonText: 'OK'
-              });
-            } else {
-              Swal.fire({
-                icon: 'error',
-                title: 'Order Failed',
-                text: resultJson.message || 'Order processing failed',
-                confirmButtonColor: '#d33',
-                confirmButtonText: 'OK'
-              });
-            }
+            handleOrderError(resultJson);
+
           }
         },
         error: function(xhr, status, error) {
           console.error("Order processing error:", error);
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'An error occurred while processing your order',
-            confirmButtonColor: '#d33',
-            confirmButtonText: 'OK'
-          });
+  let errorResponse;
+  try {
+    errorResponse = JSON.parse(xhr.responseText);
+  } catch (e) {
+    errorResponse = {
+      status: 'error',
+      message: 'An error occurred while processing your order'
+    };
+  }
+  handleOrderError(errorResponse);
         }
       });
     }
   });
+// Function to handle different error scenarios
+function handleOrderError(response) {
+    let title = 'Order Failed';
+    let text = 'An error occurred while processing your order';
+
+    switch (response?.status) { 
+        case 'address_missing':
+            title = 'Address Required';
+            text = 'Please select a delivery address';
+            break;
+        case 'out_of_stock':
+            title = 'Products Out of Stock';
+            text = response.message || 'Some products in your cart are out of stock';
+            break;
+        case 'cod_restricted':
+            title = 'COD Not Available';
+            text = 'Cash on Delivery is not available for orders above ₹1,000';
+            break;
+        case 'insufficient_balance':
+            title = 'Insufficient Wallet Balance';
+            text = 'You do not have enough balance in your wallet to complete this purchase';
+            break;
+        case 'unauthorized':
+            title = 'Session Expired';
+            text = 'Please login again to continue';
+            setTimeout(() => {
+                window.location.href = '/login';
+            }, 2000);
+            break;
+        case 'invalid_products':
+            title = 'Invalid Products';
+            text = 'Some products in your cart are no longer available';
+            break;
+    }
+    
+    Swal.fire({
+      icon: 'error',
+      title: title,
+      text: text,
+      confirmButtonColor: '#d33',
+      confirmButtonText: 'OK'
+    });
+  }
+
 });
 </script>
 
