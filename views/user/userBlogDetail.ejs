@@ -1,84 +1,301 @@
 <%- include('../../views/partials/user/header') %>
 
-<div class="container mt-5">
-    <div class="row">
-        <div class="col-md-8 offset-md-2">
-            <h1 class="mb-4"><%= blog.name %></h1>
-            
-            <% if(blog.picture) { %>
-                <img src="<%= '/uploads/blog-images/' + blog.picture %>" class="img-fluid mb-4" alt="<%= blog.name %>">
-            <% } %>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
-            <div class="mb-4">
-                <h4>Description</h4>
-                <p><%= blog.description %></p>
+<style>
+    * {
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .blog-detail-container {
+        max-width: 1000px;
+        margin: 40px auto;
+        padding: 20px;
+        background: #fff;
+        border-radius: 20px;
+        box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+        animation: fadeIn 0.8s ease-in;
+    }
+
+    .blog-title {
+        font-size: 2.5rem;
+        color: #1c1e21;
+        margin-bottom: 30px;
+        text-align: center;
+        animation: slideDown 0.8s ease-out;
+    }
+
+    .main-image {
+        width: 100%;
+        max-height: 500px;
+        object-fit: cover;
+        border-radius: 15px;
+        margin-bottom: 30px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        animation: scaleIn 1s ease;
+    }
+
+    .section {
+        background: #f8f9fa;
+        padding: 25px;
+        border-radius: 15px;
+        margin-bottom: 25px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        animation: slideUp 0.5s ease-out;
+    }
+
+    .section:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .section-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #ae1a2e;
+        margin-bottom: 15px;
+    }
+
+    .section-title i {
+        font-size: 1.5rem;
+    }
+
+    .section-content {
+        color: #4a4a4a;
+        line-height: 1.6;
+        font-size: 1.1rem;
+    }
+
+    .gallery-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+    }
+
+    .gallery-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        border-radius: 10px;
+        transition: transform 0.3s ease;
+        cursor: pointer;
+    }
+
+    .gallery-image:hover {
+        transform: scale(1.05);
+    }
+
+    .back-btn {
+        display: inline-block;
+        padding: 12px 25px;
+        background: #ae1a2e;
+        color: white;
+        text-decoration: none;
+        border-radius: 25px;
+        transition: all 0.3s ease;
+        margin-top: 20px;
+    }
+
+    .back-btn:hover {
+        background: #000;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes slideDown {
+        from { 
+            opacity: 0;
+            transform: translateY(-30px);
+        }
+        to { 
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes slideUp {
+        from { 
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to { 
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes scaleIn {
+        from { 
+            opacity: 0;
+            transform: scale(0.9);
+        }
+        to { 
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .blog-detail-container {
+            margin: 20px;
+        }
+        .blog-title {
+            font-size: 2rem;
+        }
+        .gallery-container {
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        }
+    }
+</style>
+
+<div class="blog-detail-container">
+    <h1 class="blog-title"><%= blog.name %></h1>
+    
+    <% if(blog.picture) { %>
+        <img src="<%= '/uploads/blog-images/' + blog.picture %>" class="main-image" alt="<%= blog.name %>">
+    <% } %>
+
+    <div class="section">
+        <div class="section-title">
+            <i class="fas fa-align-left"></i>
+            <h4>Description</h4>
+        </div>
+        <div class="section-content"><%= blog.description %></div>
+    </div>
+
+    <% if(blog.deseases) { %>
+        <div class="section">
+            <div class="section-title">
+                <i class="fas fa-virus"></i>
+                <h4>Common Diseases</h4>
             </div>
+            <div class="section-content"><%= blog.deseases %></div>
+        </div>
+    <% } %>
 
-            <% if(blog.deseases) { %>
-                <div class="mb-4">
-                    <h4>Common Diseases</h4>
-                    <p><%= blog.deseases %></p>
-                </div>
-            <% } %>
+    <% if(blog.remedies) { %>
+        <div class="section">
+            <div class="section-title">
+                <i class="fas fa-medkit"></i>
+                <h4>Remedies</h4>
+            </div>
+            <div class="section-content"><%= blog.remedies %></div>
+        </div>
+    <% } %>
 
-            <% if(blog.remedies) { %>
-                <div class="mb-4">
-                    <h4>Remedies</h4>
-                    <p><%= blog.remedies %></p>
-                </div>
-            <% } %>
+    <% if(blog.cultivationTime) { %>
+        <div class="section">
+            <div class="section-title">
+                <i class="far fa-clock"></i>
+                <h4>Cultivation Time</h4>
+            </div>
+            <div class="section-content"><%= blog.cultivationTime %></div>
+        </div>
+    <% } %>
 
-            <% if(blog.cultivationTime) { %>
-                <div class="mb-4">
-                    <h4>Cultivation Time</h4>
-                    <p><%= blog.cultivationTime %></p>
-                </div>
-            <% } %>
+    <% if(blog.cultivationClimate) { %>
+        <div class="section">
+            <div class="section-title">
+                <i class="fas fa-cloud-sun"></i>
+                <h4>Cultivation Climate</h4>
+            </div>
+            <div class="section-content"><%= blog.cultivationClimate %></div>
+        </div>
+    <% } %>
 
-            <% if(blog.cultivationClimate) { %>
-                <div class="mb-4">
-                    <h4>Cultivation Climate</h4>
-                    <p><%= blog.cultivationClimate %></p>
-                </div>
-            <% } %>
+    <% if(blog.cultivationSoil) { %>
+        <div class="section">
+            <div class="section-title">
+                <i class="fas fa-mountain"></i>
+                <h4>Soil Requirements</h4>
+            </div>
+            <div class="section-content"><%= blog.cultivationSoil %></div>
+        </div>
+    <% } %>
 
-            <% if(blog.cultivationSoil) { %>
-                <div class="mb-4">
-                    <h4>Soil Requirements</h4>
-                    <p><%= blog.cultivationSoil %></p>
-                </div>
-            <% } %>
+    <% if(blog.pestisides) { %>
+        <div class="section">
+            <div class="section-title">
+                <i class="fas fa-spray-can"></i>
+                <h4>Pesticides Information</h4>
+            </div>
+            <div class="section-content"><%= blog.pestisides %></div>
+        </div>
+    <% } %>
 
-            <% if(blog.pestisides) { %>
-                <div class="mb-4">
-                    <h4>Pesticides Information</h4>
-                    <p><%= blog.pestisides %></p>
-                </div>
-            <% } %>
+    <% if(blog.howToPlant) { %>
+        <div class="section">
+            <div class="section-title">
+                <i class="fas fa-seedling"></i>
+                <h4>Planting Instructions</h4>
+            </div>
+            <div class="section-content"><%= blog.howToPlant %></div>
+        </div>
+    <% } %>
 
-            <% if(blog.howToPlant) { %>
-                <div class="mb-4">
-                    <h4>Planting Instructions</h4>
-                    <p><%= blog.howToPlant %></p>
-                </div>
-            <% } %>
+    <% if(blog.pictureGallery && blog.pictureGallery.length > 0) { %>
+        <div class="section">
+            <div class="section-title">
+                <i class="fas fa-images"></i>
+                <h4>Picture Gallery</h4>
+            </div>
+            <div class="gallery-container">
+                <% blog.pictureGallery.forEach(pic => { %>
+                    <img src="<%= '/uploads/blog-images/' + pic %>" class="gallery-image" alt="Gallery Image" onclick="openImageModal(this.src)">
+                <% }) %>
+            </div>
+        </div>
+    <% } %>
 
-            <% if(blog.pictureGallery && blog.pictureGallery.length > 0) { %>
-                <div class="mb-4">
-                    <h4>Picture Gallery</h4>
-                    <div class="row">
-                        <% blog.pictureGallery.forEach(pic => { %>
-                            <div class="col-md-4 mb-3">
-                                <img src="<%= '/uploads/blog-images/' + pic %>" class="img-fluid" alt="Gallery Image">
-                            </div>
-                        <% }) %>
-                    </div>
-                </div>
-            <% } %>
+    <a href="/userblog" class="back-btn">
+        <i class="fas fa-arrow-left"></i> Back to Blogs
+    </a>
+</div>
 
-            <a href="/userblog" class="btn btn-primary mb-4">Back to Blogs</a>
+<!-- Image Modal -->
+<div id="imageModal" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-body">
+                <img id="modalImage" src="" class="img-fluid">
+            </div>
         </div>
     </div>
 </div>
+
+<script>
+function openImageModal(src) {
+    const modal = new bootstrap.Modal(document.getElementById('imageModal'));
+    document.getElementById('modalImage').src = src;
+    modal.show();
+}
+
+// Add animation when scrolling
+document.addEventListener('DOMContentLoaded', function() {
+    const sections = document.querySelectorAll('.section');
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, { threshold: 0.1 });
+
+    sections.forEach(section => {
+        section.style.opacity = '0';
+        section.style.transform = 'translateY(20px)';
+        observer.observe(section);
+    });
+});
+</script>
 
 <%- include('../../views/partials/user/footer') %>

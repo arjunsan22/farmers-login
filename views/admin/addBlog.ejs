@@ -188,6 +188,50 @@
             animation: slideIn 0.5s ease;
         }
     </style>
+    <style>
+        /* Add these new styles */
+        .gallery-preview-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+    
+        .gallery-item {
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            aspect-ratio: 16/9;
+        }
+    
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    
+        .gallery-item .remove-image {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #dc3545;
+            border: none;
+            padding: 0;
+        }
+    
+        .gallery-item .remove-image:hover {
+            background: #fff;
+            color: #bb2d3b;
+        }
+    </style>
 </head>
 <body>
     <%- include("../../views/admin/adminpartials/sidebar") %>
@@ -204,6 +248,7 @@
             <h2 class="page-title">Add New Blog</h2>
 
             <!-- Form Card -->
+          
             <div class="content-card">
                 <form id="blogForm" action="/admin/add-blog" method="POST" enctype="multipart/form-data">
                     <!-- Basic Information -->
@@ -231,39 +276,45 @@
                         <label for="description" class="form-label">
                             <i class="fas fa-align-left me-2"></i>Description
                         </label>
-                        <textarea class="form-control" id="description" name="description" rows="4" ></textarea>
+                        <textarea class="form-control" id="description" name="description" rows="4" required></textarea>
                     </div>
 
                     <!-- Images Section -->
                     <div class="row mb-4">
+                        <!-- Main Image Upload -->
                         <div class="col-md-6">
                             <label for="picture" class="form-label">
                                 <i class="fas fa-image me-2"></i>Main Image
                             </label>
-                            <input type="file" class="form-control" id="picture" name="picture" accept="image/*" hidden>
-                            <div class="upload-preview" onclick="document.getElementById('picture').click()">
+                            <input type="file" class="form-control" id="picture" name="picture" accept="image/*" hidden required>
+                            <div class="upload-preview" id="mainImagePreview" onclick="document.getElementById('picture').click()">
                                 <div class="text-center">
                                     <i class="fas fa-cloud-upload-alt fa-2x mb-2"></i>
                                     <p class="mb-0">Click to upload main image</p>
                                 </div>
                             </div>
-                            <div class="preview-container">
+                            <div class="preview-container" id="mainPreviewContainer">
                                 <img id="imagePreview" src="" alt="Preview">
                             </div>
                         </div>
-                        <div class="container mt-4">
-                            <div class="row">
-                              <div class="col-md-6">
-                                <label for="pictureGallery" class="form-label">
-                                  <i class="fas fa-images me-2"></i>Gallery Images
-                                </label>
-                                <input type="file" class="form-control" id="pictureGallery" name="pictureGallery" accept="image/*" multiple>
-                              </div>
-                            </div>
-                            <div class="preview-container" id="previewContainer"></div>
-                          </div>
-                          
 
+                        <!-- Gallery Images Upload -->
+                        <div class="col-md-6">
+                            <label for="pictureGallery" class="form-label">
+                                <i class="fas fa-images me-2"></i>Gallery Images (Select up to 2)
+                            </label>
+                            <input type="file" class="form-control" id="pictureGallery" name="pictureGallery" accept="image/*" multiple hidden>
+                            <div class="upload-preview" id="galleryUploadPreview" onclick="document.getElementById('pictureGallery').click()">
+                                <div class="text-center">
+                                    <i class="fas fa-cloud-upload-alt fa-2x mb-2"></i>
+                                    <p class="mb-0">Click to upload gallery images (max 2)</p>
+                                </div>
+                            </div>
+                            <div id="galleryPreviewContainer" class="gallery-preview-container">
+                                <!-- Gallery previews will be added here dynamically -->
+                            </div>
+                        </div>
+                    </div>
                     <!-- Plant Information -->
                     <div class="row mb-4">
                         <div class="col-md-4">
@@ -337,66 +388,99 @@
     </div>
 
     <!-- Image Cropping Modal -->
-    <div class="modal fade" id="imageCropModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Crop Image</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<div class="modal fade" id="imageCropModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Crop Image</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="img-container">
+                    <img id="cropImage" src="" alt="Picture to crop">
                 </div>
-                <div class="modal-body">
-                    <div class="img-container">
-                        <img id="cropImage" src="" alt="Picture to crop" style="max-width: 100%;">
-                    </div>
-                    <div class="crop-controls">
-                        <button type="button" id="rotateLeft" class="btn btn-light">
-                            <i class="fas fa-undo"></i>
-                        </button>
-                        <button type="button" id="rotateRight" class="btn btn-light">
-                            <i class="fas fa-redo"></i>
-                        </button>
-                        <button type="button" id="flipHorizontal" class="btn btn-light">
-                            <i class="fas fa-arrows-alt-h"></i>
-                        </button>
-                        <button type="button" id="flipVertical" class="btn btn-light">
-                            <i class="fas fa-arrows-alt-v"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" id="cropButton">Crop & Save</button>
+                <div class="crop-controls mt-3">
+                    <button type="button" class="btn btn-secondary" id="rotateLeft">
+                        <i class="fas fa-undo"></i> Rotate Left
+                    </button>
+                    <button type="button" class="btn btn-secondary" id="rotateRight">
+                        <i class="fas fa-redo"></i> Rotate Right
+                    </button>
+                    <button type="button" class="btn btn-secondary" id="resetButton">
+                        <i class="fas fa-sync"></i> Reset
+                    </button>
+                    <button type="button" class="btn btn-primary" id="cropButton">
+                        <i class="fas fa-crop"></i> Crop
+                    </button>
                 </div>
             </div>
         </div>
     </div>
+</div>
+   <!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+<script>
+    // Global variables
+    let mainCropper = null;
+    let currentCropper = null;
+    let isMainImage = true;
+    const modal = new bootstrap.Modal(document.getElementById('imageCropModal'));
+    const cropImage = document.getElementById('cropImage');
+    const picture = document.getElementById('picture');
+    const pictureGallery = document.getElementById('pictureGallery');
+    const mainPreviewContainer = document.getElementById('mainPreviewContainer');
+    const galleryPreviewContainer = document.getElementById('galleryPreviewContainer');
+    const imagePreview = document.getElementById('imagePreview');
+    const mainImagePreview = document.getElementById('mainImagePreview');
+    const galleryUploadPreview = document.getElementById('galleryUploadPreview');
+    const successAlert = document.getElementById('successAlert');
+    const MAX_GALLERY_IMAGES = 2;
+    let galleryImages = [];
 
-    <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
-    <script>
-        let cropper;
-const modal = new bootstrap.Modal(document.getElementById('imageCropModal'));
-const cropImage = document.getElementById('cropImage');
-const picture = document.getElementById('picture');
-const previewContainer = document.querySelector('.preview-container');
-const imagePreview = document.getElementById('imagePreview');
-const uploadPreview = document.querySelector('.upload-preview');
+    // Initialize cropper for main image
+    picture.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            if (!file.type.startsWith('image/')) {
+                alert('Please upload an image file');
+                return;
+            }
+            isMainImage = true;
+            initCropper(file);
+        }
+    });
 
-// Initialize cropper when image is selected
-picture.addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    if (file) {
+    // Initialize cropper for gallery images
+    pictureGallery.addEventListener('change', function(e) {
+        const files = Array.from(e.target.files);
+        if (files.length) {
+            if (files.length + galleryImages.length > MAX_GALLERY_IMAGES) {
+                alert(`You can only upload up to ${MAX_GALLERY_IMAGES} gallery images`);
+                return;
+            }
+            
+            files.forEach(file => {
+                if (!file.type.startsWith('image/')) {
+                    alert('Please upload image files only');
+                    return;
+                }
+            });
+
+            isMainImage = false;
+            initCropper(files[0]); // Start with the first file
+        }
+    });
+
+    function initCropper(file) {
         const reader = new FileReader();
         reader.onload = function(event) {
             cropImage.src = event.target.result;
             modal.show();
-            
-            if (cropper) {
-                cropper.destroy();
+            if (currentCropper) {
+                currentCropper.destroy();
             }
-
-            cropper = new Cropper(cropImage, {
+            currentCropper = new Cropper(cropImage, {
                 aspectRatio: 16 / 9,
                 viewMode: 1,
                 dragMode: 'move',
@@ -408,100 +492,120 @@ picture.addEventListener('change', function(e) {
                 cropBoxMovable: true,
                 cropBoxResizable: true,
                 toggleDragModeOnDblclick: false,
-                ready: function() {
-                    // Enable cropping when the image is ready
-                    this.cropper.crop();
-                }
             });
         };
         reader.readAsDataURL(file);
     }
-});
 
-// Handle the crop button click
-document.getElementById('cropButton').addEventListener('click', function() {
-    if (!cropper) return;
+    // Handle the crop button click
+    document.getElementById('cropButton').addEventListener('click', function() {
+        if (!currentCropper) return;
 
-    // Get the cropped canvas
-    const canvas = cropper.getCroppedCanvas({
-        width: 800,    // Set maximum width
-        height: 450,   // Maintain 16:9 aspect ratio
-        imageSmoothingEnabled: true,
-        imageSmoothingQuality: 'high'
+        const croppedCanvas = currentCropper.getCroppedCanvas();
+        if (croppedCanvas) {
+            croppedCanvas.toBlob(function(blob) {
+                const url = URL.createObjectURL(blob);
+                
+                if (isMainImage) {
+                    // Handle main image
+                    imagePreview.src = url;
+                    mainPreviewContainer.style.display = 'block';
+                    mainImagePreview.style.display = 'none';
+                    
+                    // Update main image input
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(new File([blob], 'main-image.jpg', { type: 'image/jpeg' }));
+                    picture.files = dataTransfer.files;
+                } else {
+                    // Handle gallery image
+                    if (galleryImages.length < MAX_GALLERY_IMAGES) {
+                        const galleryItem = createGalleryPreview(url);
+                        galleryPreviewContainer.appendChild(galleryItem);
+                        
+                        // Store the blob in galleryImages array
+                        galleryImages.push(new File([blob], `gallery-${galleryImages.length + 1}.jpg`, { type: 'image/jpeg' }));
+                        updateGalleryInput();
+                        
+                        if (galleryImages.length >= MAX_GALLERY_IMAGES) {
+                            galleryUploadPreview.style.display = 'none';
+                        }
+                    }
+                }
+                
+                modal.hide();
+            }, 'image/jpeg', 0.9);
+        }
     });
 
-    // Convert canvas to blob
-    canvas.toBlob(function(blob) {
-        // Create preview
-        const url = URL.createObjectURL(blob);
-        imagePreview.src = url;
-        
-        // Show preview container and hide upload preview
-        previewContainer.style.display = 'block';
-        uploadPreview.style.display = 'none';
+    function createGalleryPreview(url) {
+        const galleryItem = document.createElement('div');
+        galleryItem.className = 'gallery-item';
+        galleryItem.innerHTML = `
+            <img src="${url}" alt="Gallery preview">
+            <button type="button" class="remove-image">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
 
-        // Store the blob for later use (e.g., uploading)
-        const croppedImage = new File([blob], 'cropped-image.jpg', {
-            type: 'image/jpeg',
-            lastModified: new Date().getTime()
+        galleryItem.querySelector('.remove-image').addEventListener('click', function() {
+            const index = Array.from(galleryPreviewContainer.children).indexOf(galleryItem);
+            galleryImages.splice(index, 1);
+            galleryItem.remove();
+            updateGalleryInput();
+            galleryUploadPreview.style.display = 'block';
         });
 
-        // You can now use croppedImage for uploading or further processing
-        
-        // Close the modal
-        modal.hide();
-    }, 'image/jpeg', 0.9);
-});
-
-// Handle modal close
-document.getElementById('imageCropModal').addEventListener('hidden.bs.modal', function() {
-    if (cropper) {
-        cropper.destroy();
-        cropper = null;
+        return galleryItem;
     }
-});
 
-// Reset button functionality
-document.getElementById('resetButton').addEventListener('click', function() {
-    if (cropper) {
-        cropper.reset();
+    function updateGalleryInput() {
+        const dataTransfer = new DataTransfer();
+        galleryImages.forEach(file => dataTransfer.items.add(file));
+        pictureGallery.files = dataTransfer.files;
     }
-});
 
-// Rotation buttons
-document.getElementById('rotateLeft').addEventListener('click', function() {
-    if (cropper) {
-        cropper.rotate(-90);
-    }
-});
-
-document.getElementById('rotateRight').addEventListener('click', function() {
-    if (cropper) {
-        cropper.rotate(90);
-    }
-});
-
-// Zoom buttons
-document.getElementById('zoomIn').addEventListener('click', function() {
-    if (cropper) {
-        cropper.zoom(0.1);
-    }
-});
-
-document.getElementById('zoomOut').addEventListener('click', function() {
-    if (cropper) {
-        cropper.zoom(-0.1);
-    }
-});
-
-// Handle modal close by clicking outside the modal
-document.getElementById('imageCropModal').addEventListener('click', function(e) {
-    if (e.target.id === 'imageCropModal') {
-        if (cropper) {
-            cropper.destroy();
-            cropper = null;
+    // Handle modal close
+    document.getElementById('imageCropModal').addEventListener('hidden.bs.modal', function() {
+        if (currentCropper) {
+            currentCropper.destroy();
+            currentCropper = null;
         }
-        modal.hide();
+    });
+
+    // Rotation controls
+    document.getElementById('rotateLeft').addEventListener('click', function() {
+        if (currentCropper) currentCropper.rotate(-90);
+    });
+
+    document.getElementById('rotateRight').addEventListener('click', function() {
+        if (currentCropper) currentCropper.rotate(90);
+    });
+
+    document.getElementById('resetButton').addEventListener('click', function() {
+        if (currentCropper) currentCropper.reset();
+    });
+
+    // Form submission
+    document.getElementById('blogForm').addEventListener('submit', function(e) {
+        if (!picture.files.length) {
+            e.preventDefault();
+            alert('Please upload a main image');
+            return;
+        }
+
+        // Update gallery input files before submission
+        if (galleryImages.length > 0) {
+            const dataTransfer = new DataTransfer();
+            galleryImages.forEach(file => dataTransfer.items.add(file));
+            pictureGallery.files = dataTransfer.files;
+        }
+    });
+
+    function updateGalleryInput() {
+        const dataTransfer = new DataTransfer();
+        galleryImages.forEach(file => dataTransfer.items.add(file));
+        pictureGallery.files = dataTransfer.files;
     }
-});
-    </script>
+</script>
+</body>
+</html>

@@ -437,12 +437,22 @@ const loadProductDetails = async (req, res) => {
     // Check if user is logged in
     const userId = req.session.user;
     let userData = null;
+    let hasPurchased = false;
 
     if (userId) {
       userData = await User.findOne({ _id: userId });
-      res.locals.user = userData; // Set user data in locals
+      res.locals.user = userData; 
+       // Check if user has purchased this product//
+     const orders = await Order.find({
+      userId: userId,
+      'orderedItems.product': productId,
+      status: 'delivered' 
+    });
+    
+    hasPurchased = orders.length > 0;
     }
-
+  console.log("detail page product purchased:", hasPurchased);
+  
     const product = await Product.findById(productId).populate('category','categoryOffer').populate('reviews.userId', 'firstname lastname');
     const relatedProducts = await Product.find({
       productname: { $regex: product.productname.split(' ')[0], $options: 'i' },
@@ -451,7 +461,7 @@ const loadProductDetails = async (req, res) => {
    
 const categoryOffer=product?.category?.categoryOffer || 0;
     if (product && !product.isblocked) {
-      res.render('productDetails', { product, relatedProducts, user: userData,categoryOffer });
+      res.render('productDetails', { product, relatedProducts, user: userData,categoryOffer,hasPurchased });
     } else {
       res.status(404).send('Product not found');
     }

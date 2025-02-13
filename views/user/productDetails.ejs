@@ -452,26 +452,42 @@
 
 <!-- add reviews -->
 <div class="review-container">
-  <h2 class="text-danger">Add Review</h2>
-  <form id="reviewForm" action="/products/<%= product._id %>/review" method="POST">
-      <label class="text-danger">Give Rating:</label>
-      <div class="star-rating">
-          <input type="radio" id="star5" name="rating" value="5" required />
-          <label for="star5">★</label>
-          <input type="radio" id="star4" name="rating" value="4" required />
-          <label for="star4">★</label>
-          <input type="radio" id="star3" name="rating" value="3" required />
-          <label for="star3">★</label>
-          <input type="radio" id="star2" name="rating" value="2" required />
-          <label for="star2">★</label>
-          <input type="radio" id="star1" name="rating" value="1" required />
-          <label for="star1">★</label>
-      </div>
+  <h2 class="text-danger">Reviews</h2>
+  
+  <% if (user) { %>
+      <% if (hasPurchased) { %>
+          <form id="reviewForm" action="/products/<%= product._id %>/review" method="POST">
+              <label class="text-danger">Give Rating:</label>
+              <div class="star-rating">
+                  <input type="radio" id="star5" name="rating" value="5" required />
+                  <label for="star5">★</label>
+                  <input type="radio" id="star4" name="rating" value="4" required />
+                  <label for="star4">★</label>
+                  <input type="radio" id="star3" name="rating" value="3" required />
+                  <label for="star3">★</label>
+                  <input type="radio" id="star2" name="rating" value="2" required />
+                  <label for="star2">★</label>
+                  <input type="radio" id="star1" name="rating" value="1" required />
+                  <label for="star1">★</label>
+              </div>
 
-      <label for="comment">Comment:</label>
-      <textarea name="comment" required></textarea>
-      <button type="submit" class="btn btn-primary">Submit Review</button>
-  </form>
+              <label for="comment">Comment:</label>
+              <textarea name="comment" required></textarea>
+              <button type="submit" class="btn btn-primary">Submit Review</button>
+          </form>
+      <% } else { %>
+          <div class="alert alert-info">
+              <i class="fas fa-info-circle"></i>
+              Only customers who have purchased and received this product can write a review.
+              Purchase this product to share your experience!
+          </div>
+      <% } %>
+  <% } else { %>
+      <div class="alert alert-warning">
+          <i class="fas fa-user-circle"></i> 
+          <a style="text-decoration: none; color: black;" href="/login"> login</a> to write a review.
+      </div>
+  <% } %>
 </div>
               <br>
               <!-- showing reviews -->

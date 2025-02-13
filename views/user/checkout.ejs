@@ -461,23 +461,6 @@
         <a href="/loadCheckoutUserAddressPage" class="btn btn-primary">Add Another Address</a>
       </div>
       <hr>
-      <!-- payment method -->
-      <!-- <div class="mb-3">
-        <label for="paymentMethod" class="form-label">Payment Method</label>
-        <select class="form-select" id="paymentMethod" name="paymentMethod" required>
-          <option value="">Select Payment Method</option>
-          <option value="cod" id="codOption">Cash on Delivery</option>
-        <%if(wallet && wallet.balance>=finalTotal){%>
-          <option value="wallet">Wallet</option>
-        <%}else{%>
-        <strong> <option class="text-danger" disabled> Wallet payment not available. Your Wallet Balance is ₹<%= wallet?.balance %> You need to pay ₹<%= finalTotal %> for this order</option></strong> 
-          <%}%>
-          <option value="razorpay">Razorpay</option>
-        </select>
-        <small id="codWarning" class="text-danger d-none">
-          Cash on Delivery is not available for orders above ₹1,000. Please choose a different payment method.
-        </small>
-      </div> -->
       <div class="mb-3">
         <label for="paymentMethod" class="form-label">Payment Method</label>
         <select class="form-select" id="paymentMethod" name="paymentMethod" required>

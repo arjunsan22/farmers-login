@@ -183,15 +183,26 @@ const Orderplacement = async (req, res) => {
 console.log("order placement req body  : ",req.body)
     const { products, quantities, address, paymentMethod, razorpay_payment_id } = req.body;
   
+    if(!address){
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Please select a delivery address',
+        status: 'address_missing'
+      });
+    }   
 
     if (!Array.isArray(products) || !Array.isArray(quantities) || products.length !== quantities.length) {
-      return res.status(400).json({ success: false, message: 'Invalid products or quantities' });
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Invalid products or quantities',
+        status: 'invalid_products_or_quantities'
+      });
     }
 
     let totalPrice = 0;
     const orderedItems = [];
     const productUpdates = [];
-
+    const outOfStockProducts = [];
     // First, verify all products and calculate total
     for (let i = 0; i < products.length; i++) {
       const productId = products[i];
@@ -199,11 +210,20 @@ console.log("order placement req body  : ",req.body)
 
       const product = await Product.findById(productId);
       if (!product) {
-        return res.status(404).send(`Product with ID ${productId} not found`);
+        return res.status(404).json({
+          success: false,
+          message: `Product not found: ${productId}`,
+          status: 'product_not_found'
+        });
       }
 
       if (product.quantity < quantity) {
-        return res.status(400).send(`Insufficient stock for product: ${product.productname}`);
+        outOfStockProducts.push({
+          name: product.productname,
+          available: product.quantity,
+          requested: quantity
+        });
+        continue;
       }
 
       const itemTotalPrice = product.salePrice * quantity;
