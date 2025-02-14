@@ -431,7 +431,6 @@ const LoGout = async (req, res) => {
 
 const loadProductDetails = async (req, res) => {
   try {
-    console.log("detail page:", req.session.user);
     const productId = req.params.id;
 
     // Check if user is logged in
@@ -439,19 +438,15 @@ const loadProductDetails = async (req, res) => {
     let userData = null;
     let hasPurchased = false;
 
+
     if (userId) {
       userData = await User.findOne({ _id: userId });
       res.locals.user = userData; 
-       // Check if user has purchased this product//
-     const orders = await Order.find({
-      userId: userId,
-      'orderedItems.product': productId,
-      status: 'delivered' 
-    });
-    
-    hasPurchased = orders.length > 0;
-    }
-  console.log("detail page product purchased:", hasPurchased);
+      
+     // Check if the user has purchased the product
+     const userOrders = await Order.find({ userId: userId, 'orderedItems.product': productId });
+     hasPurchased = userOrders.length > 0;
+   }
   
     const product = await Product.findById(productId).populate('category','categoryOffer').populate('reviews.userId', 'firstname lastname');
     const relatedProducts = await Product.find({

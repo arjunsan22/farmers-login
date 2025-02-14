@@ -15,92 +15,13 @@
     color: #0056b3;
 }
 </style>
-<%- include("../../views/partials/user/header") %>
-<body class="bg-light">
-<div class="container my-5 animate__animated animate__fadeIn">
-  <nav aria-label="breadcrumb">
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="/userProfile">Profile</a></li>
-        <li class="breadcrumb-item active" aria-current="page">wallet</li>
-    </ol>
-</nav>
-  <h2 class="text-center mb-4 fw-bold text-success">𝖬𝖸 𝖶𝖠𝖫𝖫𝖤𝖳</h2>
-  <% if (typeof errorMessage !== 'undefined') { %>
-    <div class="alert alert-danger animate__animated animate__shakeX"><%= errorMessage %></div>
-  <% } %>
-  <% if (wallet) { %>
-    <div class="card mb-4 balance-card">
-      <div class="card-body text-center p-4">
-        <h4 class="card-title text-white mb-3">Current Balance</h4>
-        <h1 class="display-4 fw-bold text-success balance-text">₹<%= wallet.balance.toFixed(2) %></h1>
-      </div>
-    </div>
-
-    <div class="card mb-4 transactions-card">
-      <div class="card-body">
-        <h4 class="card-title text-primary mb-4">Transaction History</h4>
-        <div class="transaction-list">
-          <% wallet.transactions.forEach(transaction => { %>
-            <div class="transaction-item animate__animated animate__fadeInRight">
-              <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
-                <div class="transaction-details">
-                  <span class="badge bg-<%= transaction.type === 'credit' ? 'success' : 'danger' %> mb-2">
-                    <%= transaction.type === 'credit' ? '+ Credit' : '- Debit' %>
-                  </span>
-                  <h5 class="mb-1">₹<%= transaction.amount.toFixed(2) %></h5>
-                  <p class="text-muted mb-1"><%= transaction.description %></p>
-                  <small class="text-muted"><i class="fas fa-clock me-1"></i><%= new Date(transaction.date).toLocaleString() %></small>
-                </div>
-                <div class="transaction-amount">
-                  <h5 class="text-<%= transaction.type === 'credit' ? 'success' : 'danger' %> fw-bold">
-                    <%= transaction.type === 'credit' ? '+' : '-' %>₹<%= transaction.amount.toFixed(2) %>
-                  </h5>
-                </div>
-              </div>
-            </div>
-          <% }); %>
-        </div>
-      </div>
-    </div>
-
-    <div class="card mb-4 add-funds-card">
-      <div class="card-body p-4">
-        <h4 class="card-title text-primary mb-4">Add Funds</h4>
-        <form action="/wallet/add" method="POST" class="add-funds-form">
-          <div class="mb-4">
-            <label for="amount" class="form-label">Amount</label>
-            <div class="input-group">
-              <span class="input-group-text">₹</span>
-              <input type="number" class="form-control form-control-lg" id="amount" name="amount" required min="0" placeholder="Enter amount">
-            </div>
-          </div>
-          <div class="mb-4">
-            <label for="description" class="form-label">Description</label>
-            <input type="text" class="form-control form-control-lg" id="description" name="description" required placeholder="Enter transaction description">
-          </div>
-          <button type="submit" class="btn btn-primary btn-lg w-100 submit-btn">
-            <i class="fas fa-plus-circle me-2"></i>Add Funds
-          </button>
-        </form>
-      </div>
-    </div>
-  <% } %>
-  <!-- Pagination Controls -->
-  <nav aria-label="Page navigation">
-    <ul class="pagination justify-content-center mt-4">
-        <% for (let i = 1; i <= totalPages; i++) { %>
-            <li class="page-item <%= currentPage === i ? 'active' : '' %>">
-                <a class="page-link" href="?page=<%= i %>"><%= i %></a>
-            </li>
-        <% } %>
-    </ul>
-</nav>
-</div>
-
-<%- include("../../views/partials/user/footer") %>
 
 <!-- Add CSS for styling and animations -->
 <style>
+  *{
+    font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+
+  }
   :root {
     --primary-color: #4e73df;
     --success-color: #1cc88a;
@@ -109,7 +30,6 @@
 
   body {
     background-color: #f8f9fc;
-    font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
   }
 
   .card {
@@ -209,93 +129,226 @@
     animation-duration: 0.8s;
   }
 </style>
-<!-- Add SweetAlert2 library -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<%- include("../../views/partials/user/header") %>
+<body class="bg-light">
+<div class="container my-5 animate__animated animate__fadeIn">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/userProfile">Profile</a></li>
+        <li class="breadcrumb-item active" aria-current="page">wallet</li>
+    </ol>
+</nav>
+  <h2 class="text-center mb-4 fw-bold text-success">𝖬𝖸 𝖶𝖠𝖫𝖫𝖤𝖳</h2>
+  <% if (typeof errorMessage !== 'undefined') { %>
+    <div class="alert alert-danger animate__animated animate__shakeX"><%= errorMessage %></div>
+  <% } %>
+  <% if (wallet) { %>
+    <div class="card mb-4 balance-card">
+      <div class="card-body text-center p-4">
+        <h4 class="card-title text-white mb-3">Current Balance</h4>
+        <h1 class="display-4 fw-bold text-success balance-text">₹<%= wallet.balance.toFixed(2) %></h1>
+      </div>
+    </div>
 
-<!-- Add JavaScript for interactions -->
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    // Add loading state to form submission
-    const form = document.querySelector('.add-funds-form');
-    const submitBtn = form.querySelector('.submit-btn');
-    
-    form.addEventListener('submit', async function(e) {
-      e.preventDefault();
-      submitBtn.classList.add('loading');
-      
-      try {
-        const formData = new FormData(form);
-        const response = await fetch('/wallet/add', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-          body: new URLSearchParams(formData)
-        });
+    <div class="card mb-4 transactions-card">
+      <div class="card-body">
+        <h4 class="card-title text-primary mb-4">Transaction History</h4>
+        <div class="transaction-list">
+          <% wallet.transactions.forEach(transaction => { %>
+            <div class="transaction-item animate__animated animate__fadeInRight">
+              <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
+                <div class="transaction-details">
+                  <span class="badge bg-<%= transaction.type === 'credit' ? 'success' : 'danger' %> mb-2">
+                    <%= transaction.type === 'credit' ? '+ Credit' : '- Debit' %>
+                  </span>
+                  <h5 class="mb-1">₹<%= transaction.amount.toFixed(2) %></h5>
+                  <p class="text-muted mb-1"><%= transaction.description %></p>
+                  <small class="text-muted"><i class="fas fa-clock me-1"></i><%= new Date(transaction.date).toLocaleString() %></small>
+                </div>
+                <div class="transaction-amount">
+                  <h5 class="text-<%= transaction.type === 'credit' ? 'success' : 'danger' %> fw-bold">
+                    <%= transaction.type === 'credit' ? '+' : '-' %>₹<%= transaction.amount.toFixed(2) %>
+                  </h5>
+                </div>
+              </div>
+            </div>
+          <% }); %>
+        </div>
+      </div>
+    </div>
+    <!-- add funds -->
+    <div class="card mb-4 add-funds-card">
+      <div class="card-body p-4">
+        <h4 class="card-title text-primary mb-4">Add Funds</h4>
+        <form id="addFundsForm" class="add-funds-form">
+          <div class="mb-4">
+            <label for="amount" class="form-label">Amount</label>
+            <div class="input-group">
+              <span class="input-group-text">₹</span>
+              <input type="number" class="form-control form-control-lg" id="amount" name="amount" required min="0" placeholder="Enter amount">
+            </div>
+          </div>
+          <div class="mb-4">
+            <label for="description" class="form-label">Description</label>
+            <input type="text" class="form-control form-control-lg" id="description" name="description" required placeholder="Enter transaction description">
+          </div>
+          <button type="submit" class="btn btn-primary btn-lg w-100 submit-btn">
+            <i class="fas fa-plus-circle me-2"></i>Add Funds
+          </button>
+        </form>
+      </div>
+    </div>
+  <% } %>
+  <!-- Pagination Controls -->
+  <nav aria-label="Page navigation">
+    <ul class="pagination justify-content-center mt-4">
+        <% for (let i = 1; i <= totalPages; i++) { %>
+            <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+            </li>
+        <% } %>
+    </ul>
+</nav>
+</div>
 
-        if (response.ok) {
-          // Show success toast
-          Swal.fire({
-            toast: true,
-            position: 'top',
-            icon: 'success',
-            title: 'Money added successfully!',
-            text: `₹${formData.get('amount')} has been added to your wallet`,
-            showConfirmButton: false,
-            timer: 2000,
-            timerProgressBar: true,
-            customClass: {
-              popup: 'animated fadeInDown'
-            }
+<%- include("../../views/partials/user/footer") %>
+
+  <!-- Add SweetAlert2 library -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+  <!-- Add JavaScript for interactions -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // Add loading state to form submission
+      const form = document.querySelector('.add-funds-form');
+      const submitBtn = form.querySelector('.submit-btn');
+  
+      form.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        submitBtn.classList.add('loading');
+  
+        try {
+          const formData = new FormData(form);
+          const amount = formData.get('amount');
+          const description = formData.get('description');
+  
+          // Create Razorpay order
+          const orderResponse = await fetch('/create-razorpay-wallet-order', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ amount }),
           });
-          
-          // Reload page after successful addition
-          setTimeout(() => {
-            window.location.reload();
-          }, 3000);
-        }else if (response.status === 400) {
+  
+          const order = await orderResponse.json();
+  
+          if (!order.id) {
+            throw new Error('Failed to create Razorpay order');
+          }
+  
+          const options = {
+            key: '<%= process.env.RAZORPAY_KEY_ID %>', // Replace with your Razorpay key_id
+            amount: order.amount,
+            currency: order.currency,
+            name: 'Farmers Login',
+            description: 'Add Funds to Wallet',
+            order_id: order.id,
+            handler: async function (response) {
+              try {
+                const paymentData = {
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_signature: response.razorpay_signature,
+                  amount,
+                  description,
+                };
+  
+                const verifyResponse = await fetch('/verify-razorpay-wallet-payment', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify(paymentData),
+                });
+  
+                const verifyResult = await verifyResponse.json();
+  
+                if (verifyResult.success) {
+                  Swal.fire({
+                    toast: true,
+                    position: 'top',
+                    icon: 'success',
+                    title: 'Money added successfully!',
+                    text: `₹${amount} has been added to your wallet`,
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true,
+                    customClass: {
+                      popup: 'animated fadeInDown',
+                    },
+                  });
+  
+                  // Reload page after successful addition
+                  setTimeout(() => {
+                    window.location.reload();
+                  }, 3000);
+                } else {
+                  throw new Error('Failed to verify payment');
+                }
+              } catch (error) {
+                Swal.fire({
+                  toast: true,
+                  position: 'top',
+                  icon: 'error',
+                  title: 'Failed to add money',
+                  text: 'Please try again',
+                  showConfirmButton: false,
+                  timer: 3000,
+                  timerProgressBar: true,
+                });
+              }
+            },
+            prefill: {
+              name: 'Your Name',
+              email: 'your.email@example.com',
+              contact: '9999999999',
+            },
+            theme: {
+              color: '#3399cc',
+            },
+          };
+  
+          const rzp1 = new Razorpay(options);
+          rzp1.open();
+        } catch (error) {
           Swal.fire({
             toast: true,
             position: 'top',
             icon: 'error',
-            title: '20000 rupees only added at a time',
+            title: 'Failed to add money',
             text: 'Please try again',
             showConfirmButton: false,
             timer: 3000,
-            timerProgressBar: true
+            timerProgressBar: true,
           });
-
-        } 
-        else {
-          throw new Error('Failed to add money');
-        }
-      } catch (error) {
-        Swal.fire({
-          toast: true,
-          position: 'top',
-          icon: 'error',
-          title: 'Failed to add money',
-          text: 'Please try again',
-          showConfirmButton: false,
-          timer: 3000,
-          timerProgressBar: true
-        });
-      } finally {
-        submitBtn.classList.remove('loading');
-      }
-    });
-
-    // Animate transaction items on scroll
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('animate__fadeInRight');
+        } finally {
+          submitBtn.classList.remove('loading');
         }
       });
+  
+      // Animate transaction items on scroll
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('animate__fadeInRight');
+          }
+        });
+      });
+  
+      document.querySelectorAll('.transaction-item').forEach((item) => {
+        observer.observe(item);
+      });
     });
-
-    document.querySelectorAll('.transaction-item').forEach((item) => {
-      observer.observe(item);
-    });
-  });
-</script>
+  </script>

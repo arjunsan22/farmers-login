@@ -181,8 +181,8 @@ router.post('/removeCoupon', couponController.removeCoupon);
 //wallet management//
 
 router.get('/wallet', walletController.getWallet);
-router.post('/wallet/add', walletController.addFunds);
-
+router.post('/create-razorpay-wallet-order', walletController.createRazorpayOrder);
+router.post('/verify-razorpay-wallet-payment', walletController.verifyRazorpayPayment);
 
 //review management//
 router.post('/products/:id/review', reviewController.addReview);

@@ -72,6 +72,7 @@ console.log(result)
     const unlistedCategory=async (req,res) => {
         try {
             let id =req.query.id;
+            
          let result=   await Category.updateOne({_id:id},{$set:{isListed:false}});
          console.log(result)  
          res.redirect('/admin/category')
