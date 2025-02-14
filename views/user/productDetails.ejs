@@ -13,332 +13,268 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/zooming/2.1.1/zooming.min.js"></script>
   
   <style>
-    /* Custom styles for product details page */
+    /* Base Styles */
     body {
       background-color: #f8f9fa;
     }
-
+  
     h1 {
       font-size: 2.5rem;
       font-weight: bold;
     }
-
+  
+    /* Card Styles */
     .card {
       border-radius: 12px;
+      border: 1px solid #ddd;
+      transition: transform 0.3s, box-shadow 0.3s;
     }
-
+  
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+    }
+  
     .card-body {
       padding: 2rem;
     }
-
-    button {
-      font-size: 1.1rem;
+  
+    /* Product Gallery */
+    .product-gallery {
+      position: relative;
+      margin-bottom: 2rem;
     }
-
+  
+    .carousel-inner img {
+      max-height: 800px;
+      object-fit: contain;
+    }
+  
+    .product-thumbnails {
+      overflow-x: auto;
+      white-space: nowrap;
+      scrollbar-width: none;
+    }
+  
+    .product-thumbnails::-webkit-scrollbar {
+      display: none;
+    }
+  
+    .thumbnail-item {
+      cursor: pointer;
+      width: 80px;
+      height: 80px;
+      overflow: hidden;
+    }
+  
+    .thumbnail-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: opacity 0.2s;
+    }
+  
+    .thumbnail-item:hover img {
+      opacity: 0.8;
+    }
+  
+    /* Product Details */
+    .product-title {
+      color: #333;
+      font-size: 2rem;
+    }
+  
+    .price-display {
+      display: flex;
+      align-items: baseline;
+      gap: 1rem;
+    }
+  
+    .original-price {
+      font-size: 1.2rem;
+      color: #999;
+    }
+  
+    .current-price {
+      color: #28a745;
+    }
+  
+    /* Image Zoom Effect */
     .zoom-image {
       transition: transform 0.3s ease;
       cursor: pointer;
     }
-
+  
     .zoom-image:hover {
-      transform: scale(1.1); /* Slight zoom effect on hover */
+      transform: scale(1.1);
     }
-
-    .breadcrumb {
-      background-color: #f8f9fa;
-      font-size: 1rem;
-      border-radius: 0.25rem;
-    }
-
-    .breadcrumb-item a {
-      color: #007bff;
-      text-decoration: none;
-    }
-
-    .breadcrumb-item.active {
-      color: #6c757d;
-    }
-
+  
     .zoomWindow {
       border: 1px solid #000;
       background: white;
       z-index: 1000;
     }
-
-    .stars {
-      font-size: 30px;
-      color: gold;
-    }
-
-    /* Related Products Section */
-    .related-products .card {
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      transition: transform 0.3s, box-shadow 0.3s;
-    }
-
-    .related-products .card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
-    }
-
-    .related-products .card-img-top {
-      border-top-left-radius: 8px;
-      border-top-right-radius: 8px;
-      height: 200px;
-      object-fit: cover;
-    }
-
-    .related-products .card-body {
-      padding: 1rem;
-    }
-
-    .related-products .card-title {
-      font-size: 1.2rem;
-      font-weight: bold;
-    }
-
-    .related-products .card-text {
+  
+    /* Breadcrumb Styles */
+    .breadcrumb {
+      background-color: #f8f9fa;
       font-size: 1rem;
-      color: #555;
+      border-radius: 0.25rem;
     }
-
-    .related-products .btn-cart {
-      background-color: #007bff;
-      color: #fff;
-      border: none;
-      transition: background-color 0.3s ease-in-out;
+  
+    .breadcrumb-item a {
+      color: #007bff;
+      text-decoration: none;
     }
-
-    .related-products .btn-cart:hover {
-      background-color: #0056b3;
+  
+    .breadcrumb-item.active {
+      color: #6c757d;
     }
-
-    .related-products .btn-outline-danger {
-      border-color: #dc3545;
-      color: #dc3545;
-      transition: background-color 0.3s ease-in-out;
-    }
-
-    .related-products .btn-outline-danger:hover {
-      background-color: #dc3545;
-      color: #fff;
-    }
-    @keyframes slideIn {
-  from {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-
-@keyframes slideOut {
-  from {
-    transform: translateX(0);
-    opacity: 1;
-  }
-  to {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-}
-
-.toast.showing {
-  animation: slideIn 0.5s forwards;
-}
-
-.toast.hide {
-  animation: slideOut 0.5s forwards;
-}
-
-
-.toast-container {
-            z-index: 1055;
-        }
-        .toast {
-            opacity: 0;
-            transform: translateY(-100%);
-            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
-        }
-        .toast.show {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        .toast-header {
-            background-color: #343a40;
-            color: #fff;
-        }
-        .toast-body {
-            background-color: #9f211d;
-            color: #fff;
-        }
-        .wishlist-button.active {
-            color: red;
-        }
-        .review-container {
-    max-width: 600px;
-    margin: 20px auto;
-    padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    background-color: #f9f9f9;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-}
-
-.review-container:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-}
-
-.review-container label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: bold;
-}
-
-.review-container select,
-.review-container textarea,
-.review-container button {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 16px;
-}
-
-.review-container button {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.review-container button:hover {
-    background-color: #0056b3;
-}
-.review-container {
-    max-width: 600px;
-    margin: 20px auto;
-    padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    background-color: #f9f9f9;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-}
-
-.review-container:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-}
-
-.review-container h2 {
-    font-size: 24px;
-    margin-bottom: 15px;
-    color: #333;
-    text-align: center;
-}
-
-.review-container ul {
-    list-style-type: none;
-    padding: 0;
-}
-
-.review-container li {
-    border-bottom: 1px solid #ddd;
-    padding: 10px 0;
-    transition: background-color 0.3s ease;
-}
-
-.review-container li:hover {
-    background-color: #f1f1f1;
-}
-
-.stars {
-    color: #ccc; /* Light gray for unfilled stars */
-}
-
-.stars .filled {
-    color: #ffcc00; /* Gold color for filled stars */
-}
-
-.stars span {
-    font-size: 20px; /* Adjust size as needed */
-    margin-right: 2px; /* Space between stars */
-    transition: transform 0.2s;
-}
-.stars span:hover {
-    transform: scale(1.2); /* Scale up on hover */
-}
-
-.review-container p {
-    margin: 5px 0;
-    font-size: 16px;
-}
-
-.review-container small {
-    display: block;
-    color: #666;
-    font-size: 14px;
-    margin-top: 5px;
-}
-/* now */
+  
+    /* Star Rating System */
     .star-rating {
-        display: flex;
-        flex-direction: row-reverse;
-        justify-content: start;
-        gap: 5px;
+      display: flex;
+      flex-direction: row-reverse;
+      justify-content: start;
+      gap: 5px;
     }
-
+  
     .star-rating input {
-        display: none;
+      display: none;
     }
-
+  
     .star-rating label {
-        font-size: 25px;
-        color: gray;
-        cursor: pointer;
+      font-size: 25px;
+      color: gray;
+      cursor: pointer;
     }
-
-    .star-rating input:checked ~ label {
-        color: gold;
-    }
-
+  
+    .star-rating input:checked ~ label,
     .star-rating label:hover,
     .star-rating label:hover ~ label {
-        color: gold;
+      color: gold;
     }
+  
+    .stars {
+      font-size: 30px;
+      color: #ccc;
+    }
+  
+    .stars .filled,
+    .stars .star.filled {
+      color: gold;
+    }
+  
+    /* Review Container */
+    .review-container {
+      max-width: 600px;
+      margin: 20px auto;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      background-color: #f9f9f9;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+  
+    .review-container:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    }
+  
+    .review-container h2 {
+      font-size: 24px;
+      margin-bottom: 15px;
+      color: #333;
+      text-align: center;
+    }
+  
+    .review-container ul {
+      list-style-type: none;
+      padding: 0;
+    }
+  
+    .review-container li {
+      border-bottom: 1px solid #ddd;
+      padding: 10px 0;
+      transition: background-color 0.3s ease;
+    }
+  
+    .review-container li:hover {
+      background-color: #f1f1f1;
+    }
+  
+    /* Toast Notifications */
+    .toast-container {
+      z-index: 1055;
+    }
+  
+    .toast {
+      opacity: 0;
+      transform: translateY(-100%);
+      transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+    }
+  
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  
+    .toast-header {
+      background-color: #343a40;
+      color: #fff;
+    }
+  
+    .toast-body {
+      background-color: #9f211d;
+      color: #fff;
+    }
+  
+    /* Offer Badge */
     .offer-badge {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  background: red;
-  color: white;
-  padding: 8px 12px;
-  font-size: 14px;
-  font-weight: bold;
-  border-radius: 5px;
-  animation: fadeIn 1s ease-in-out, bounce 2s infinite;
-}
-
-/* Animation Effects */
-@keyframes fadeIn {
-  from { opacity: 0; transform: scale(0.8); }
-  to { opacity: 1; transform: scale(1); }
-}
-
-@keyframes bounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-5px); }
-}
-
+      background: red;
+      width: 120px;
+      color: white;
+      padding: 8px 12px;
+      font-size: 14px;
+      font-weight: bold;
+      border-radius: 5px;
+      animation: fadeIn 1s ease-in-out, bounce 2s infinite;
+    }
+  
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.8); }
+      to { opacity: 1; transform: scale(1); }
+    }
+  
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+  
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+  
+    @keyframes slideOut {
+      from { transform: translateX(0); opacity: 1; }
+      to { transform: translateX(100%); opacity: 0; }
+    }
+  
+    /* Responsive Styles */
+    @media (max-width: 768px) {
+      .product-title {
+        font-size: 1.5rem;
+      }
+      
+      .carousel-inner img {
+        max-height: 800px;
+      }
+    }
   </style>
+  
 </head>
 
 <body>
@@ -352,180 +288,206 @@
   </nav>
 
   <!-- STARTING -->
+<!-- Product Container -->
+<div class="container-fluid px-4 py-5">
+  <div class="row">
+    <!-- Product Image Section -->
+    <div class="col-lg-7 pe-lg-5">
+      <div class="product-gallery">
+        <div id="productImagesCarousel" class="carousel slide" data-bs-ride="carousel">
+          <div class="carousel-inner rounded-4 shadow-sm">
+            <% product.productImage.forEach((image, index) => { %>
+              <div class="carousel-item <%= index === 0 ? 'active' : '' %>">
+                <img id="zoom-image-<%= index %>" 
+                     src="/uploads/product-images/<%= image %>" 
+                     data-zoom-image="/uploads/product-images/<%= image %>" 
+                     class="d-block w-100 zoom-image" 
+                     alt="<%= product.productname %> Image <%= index + 1 %>">
+              </div>
+            <% }) %>
+          </div>
+          
+          <!-- Thumbnail Navigation -->
+          <div class="product-thumbnails mt-3 d-flex justify-content-center">
+            <% product.productImage.forEach((image, index) => { %>
+              <div class="thumbnail-item mx-2" onclick="$('#productImagesCarousel').carousel(<%= index %>)">
+                <img src="/uploads/product-images/<%= image %>" 
+                     class="img-thumbnail" 
+                     alt="Thumbnail <%= index + 1 %>">
+              </div>
+            <% }) %>
+          </div>
+        </div>
+      </div>
+    </div>
 
-  <div class="container my-5">
-    <div class="card shadow-lg border-0">
-      <div class="row g-0">
-        <!-- Product Image -->
-        <div class="col-md-6">
-          <!-- Carousel -->
-          <div id="productImagesCarousel" class="carousel slide" data-bs-ride="carousel">
-            <div class="carousel-inner">
-              <% product.productImage.forEach((image, index) => { %>
-                <div class="carousel-item <%= index === 0 ? 'active' : '' %>">
-                  <img id="zoom-image-<%= index %>" src="/uploads/product-images/<%= image %>" data-zoom-image="/uploads/product-images/<%= image %>" class="d-block w-100 zoom-image" alt="<%= product.productname %> Image <%= index + 1 %>">
-                </div>
-              <% }) %>
-            </div>
-
-            <!-- Controls -->
-            <button class="carousel-control-prev" type="button" data-bs-target="#productImagesCarousel" data-bs-slide="prev">
-              <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-              <span class="visually-hidden">Previous</span>
-            </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#productImagesCarousel" data-bs-slide="next">
-              <span class="carousel-control-next-icon" aria-hidden="true"></span>
-              <span class="visually-hidden">Next</span>
+    <!-- Product Details Section -->
+    <div class="col-lg-5">
+      <div class="product-details ps-lg-4">
+        <% if (categoryOffer > 0) { %>
+  
+          <div class="offer-badge animate-offer">
+            <span><%= categoryOffer%>% HOT OFF</span>
+          </div>
+        <% } %>
+        <div class="d-flex justify-content-between align-items-start mb-3">
+          <h2 class="product-title fw-bold mb-0"><%= product.productname %></h2>
+          <div id="wishlistButton">
+            <button class="btn btn-outline-danger rounded-circle add-to-wishlist" data-product-id="<%= product._id%>">
+              <i class="fas fa-heart"></i>
             </button>
           </div>
         </div>
 
-        <!-- Product Details -->
-        <div class="col-md-6">
-          <div class="card-body">
-            <h4 class="card-title text-dark mb-4"><%= product.productname %></h4>
-
-<% if (categoryOffer > 0) { %>
-  <div class="offer-badge animate-offer">
-    <span><%= categoryOffer %>%HOT OFF</span>
-  </div>
-<% } %>
-            <h5 class="text-muted"><del style="color: #dc3545;"> Price: ₹<%= product.mainPrice %></del></h5>
-            <h5 class="text-success">Price: ₹<span id="salePrice"><%= product.salePrice %></span></h5>
-            <p class="mt-4"><strong>Description:</strong> <%= product.description %></p>
-            <p><strong>Category:</strong> <%= product.category.name %></p>
-            <p class="mt-4"><strong>More:</strong> <%= product.tag %></p>
-            <p><strong>Quantity Available:</strong> <%= product.quantity %> kg</p>
-            <div id="outOfStockMessage" class="text-danger" style="display: none;">Out of Stock</div>
-                <!-- <p><strong>Quantity Available:</strong> <span id="availableQuantity"><%= product.quantity %></span> kg</p> -->
-
-            <div class="offer-banner bg-warning text-center text-white p-3 rounded mt-4">
-              🎉 Limited Time Offer! Get <strong>100 OFF</strong> on purchase above 500. Enter your coupon code with this: <span class="text-danger">AS2</span> at checkout! 🎁
+        <!-- Price Section -->
+        <div class="pricing-section mb-4">
+          <div class="price-display">
+            <span class="original-price text-decoration-line-through text-muted">₹<%= product.mainPrice %></span>
+            <span class="current-price fs-2 fw-bold text-success">₹<%= product.salePrice %></span>
+          </div>
+        </div>
+        <div class="product-info mb-4">
+          <div class="specs">
+            <div class="spec-item d-flex border-bottom py-2">
+              <span class="spec-label fw-bold w-25">Description:</span>
+              <span class="spec-value"><%= product.description %></span>
             </div>
-
-            <!-- Quantity and Action Buttons -->
-            <div class="mt-4">
-              <div class="input-group mb-3" style="align-items: center;">
-                <button 
-                  class="btn btn-outline-secondary" 
-                  type="button" 
-                  id="decreaseQuantity" 
-                  style="background-color: lightblue; border-color: blue; color: darkblue; width: 40px; height: 40px;">
-                  -
-                </button>
-                <input 
-                  type="text" 
-                  class="form-control text-center" 
-                  id="quantity" 
-                  value="1" 
-                  readonly 
-                  style="text-align: center; font-size: 16px; width: 10px; margin: 0 10px;">
-                  <span style="font-size: 16px; font-weight:600;">KG</span>
-                <button 
-                  class="btn btn-outline-secondary" 
-                  type="button" 
-                  id="increaseQuantity" 
-                  style="background-color: lightblue; border-color: blue; color: darkblue; width: 40px; height: 40px;">
-                  +
-                </button>
-              </div>
-              <br>
-              <!-- <button class="btn btn-dark btn-lg mt-3" id="buyNowButton">
-                Buy Now
-              </button> -->
-              <script>
-                
-              </script>
-              <br>
-              <br>
-              
-              <button class="btn btn-cart btn-warning" id="addToCartButton" onclick="addToCart('<%=product._id%>')">
-                <i class="fas fa-shopping-cart"></i> addToCart
-              </button>
-
-              <div id="wishlistButton" class="position-absolute top-0 end-0 p-2">
-                <button class="btn btn-outline-danger btn-sm add-to-wishlist" data-product-id="<%= product._id%>">
-                    <i class="fas fa-heart"></i>
-                </button>
-            
-              </div>
-
-<!-- add reviews -->
-<div class="review-container">
-  <h2 class="text-danger">Reviews</h2>
-  
-  <% if (user) { %>
-    <% if (hasPurchased) { %>
-      <form id="reviewForm" action="/products/<%= product._id %>/review" method="POST">
-        <label class="text-danger">Give Rating:</label>
-        <div class="star-rating">
-          <input type="radio" id="star5" name="rating" value="5" required />
-          <label for="star5">★</label>
-          <input type="radio" id="star4" name="rating" value="4" required />
-          <label for="star4">★</label>
-          <input type="radio" id="star3" name="rating" value="3" required />
-          <label for="star3">★</label>
-          <input type="radio" id="star2" name="rating" value="2" required />
-          <label for="star2">★</label>
-          <input type="radio" id="star1" name="rating" value="1" required />
-          <label for="star1">★</label>
+            <div class="spec-item d-flex border-bottom py-2">
+              <span class="spec-label fw-bold w-25">Category:</span>
+              <span class="spec-value"><%= product.category.name %></span>
+            </div>
+            <div class="spec-item d-flex border-bottom py-2">
+              <span class="spec-label fw-bold w-25">Tags:</span>
+              <span class="spec-value"><%= product.tag %></span>
+            </div>
+            <div class="spec-item d-flex border-bottom py-2">
+              <span class="spec-label fw-bold w-25">Stock:</span>
+              <%if(product.quantity >= 5){%>
+              <span class="spec-value text-success"><%= product.quantity %> kg</span>
+              <%}else if(product.quantity<5 && product.quantity >0){%>
+              <span class="spec-value text-warning">few only! <%=product.quantity %> kg left , buy now!</span>
+              <%}else if(product.quantity==0){%>
+                <span class="spec-value text-danger">Out of stock</span>   
+              <%}%>             
+            </div>
+          </div>
         </div>
 
-        <label for="comment">Comment:</label>
-        <textarea name="comment" required></textarea>
-        <button type="submit" class="btn btn-primary">Submit Review</button>
-      </form>
+        <!-- Quantity Selector -->
+        <div class="quantity-selector mb-4">
+          <label class="form-label fw-bold">Quantity (KG)</label>
+          <div class="input-group quantity-input">
+            <button class="btn btn-outline-primary" type="button" id="decreaseQuantity">-</button>
+            <input type="text" class="form-control text-center" id="quantity" value="1" readonly>
+            <button class="btn btn-outline-primary" type="button" id="increaseQuantity">+</button>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+          <button class="btn btn-primary btn-lg w-100 mb-2" id="addToCartButton" onclick="addToCart('<%=product._id%>')">
+            <i class="fas fa-shopping-cart me-2"></i>Add to Cart
+          </button>
+        </div>
+
+        <!-- Promotional Banner -->
+        <div class="promo-banner bg-warning bg-opacity-10 p-3 rounded-3 mt-4">
+          <div class="d-flex align-items-center">
+            <i class="fas fa-gift text-warning fs-4 me-3"></i>
+            <div>
+              <h6 class="mb-1">Special Offer!</h6>
+              <p class="mb-0 small">Get ₹100 OFF on orders above ₹500. Use code: <span class="fw-bold text-danger">AS2</span></p>
+            </div>
+          </div>
+        </div>
+  <!-- Reviews Section -->
+  <div class="reviews-section mt-5">
+    <h3 class="section-title mb-4">Customer Reviews</h3>
+    
+    <!-- Review Form -->
+    <% if (user) { %>
+      <% if (hasPurchased) { %>
+        <div class="review-form-container bg-light p-4 rounded-3 mb-4">
+          <form id="reviewForm" action="/products/<%= product._id %>/review" method="POST">
+            <div class="mb-3">
+              <label class="form-label">Rating</label>
+              <div class="star-rating d-flex gap-2">
+                <% for(let i=5; i>=1; i--) { %>
+                  <input type="radio" id="star<%= i %>" name="rating" value="<%= i %>" required />
+                  <label for="star<%= i %>" class="star-label">★</label>
+                <% } %>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="comment" class="form-label">Your Review</label>
+              <textarea class="form-control" name="comment" rows="3" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit Review</button>
+          </form>
+        </div>
+      <% } else { %>
+        <div class="alert alert-warning">
+          <i class="fas fa-info-circle me-2"></i>
+          You need to purchase this product to write a review.
+        </div>
+      <% } %>
     <% } else { %>
-      <div class="alert alert-warning">
-        <i class="fas fa-user-circle"></i> 
-        You need to purchase this product to write a review.
+      <div class="alert alert-info">
+        <i class="fas fa-user-circle me-2"></i>
+        Please <a href="/login" class="alert-link">login</a> to write a review.
       </div>
     <% } %>
-  <% } else { %>
-    <div class="alert alert-warning">
-      <i class="fas fa-user-circle"></i> 
-      <a style="text-decoration: none; color: black;" href="/login"> login</a> to write a review.
-    </div>
-  <% } %>
-</div>              <br>
-              <!-- showing reviews -->
-              <div class="review-container">
-                <h2 class="text-danger">Reviews</h2>
-                <% if (product.reviews.length > 0) { %>
-                    <ul>
-                        <% product.reviews.forEach(review => { %>
-                            <li class="text-success">
-                                <strong><%= review.userId.firstname %> <%= review.userId.lastname %>:</strong>
-                                <div class="stars">
-                                    <% for (let i = 1; i <= 5; i++) { %>
-                                        <span class="<%= i <= review.rating ? 'filled' : '' %>">★</span>
-                                    <% } %>
-                                </div>
-                                <p><%= review.comment %></p>
-                                <small>Reviewed on: <%= review.createdOn.toLocaleDateString() %></small>
-                                <% if (user && user._id.equals(review.userId._id)) { %>
-                                    <button style="background-color: #9f211d;" class="btn btn-danger" onclick="removeReview('<%= review._id %>')">Remove</button>
-                                <% } %>
-                            </li>
-                        <% }); %>
-                    </ul>
-                <% } else { %>
-                    <p>No reviews yet.</p>
-                <% } %>
-            </div>
-              
-              <br>
-              <div>
-                <a href="/" class="btn btn-dark btn-lg">
-                  <i class="bi bi-arrow-left"></i> Back to Home
-                </a>
+
+    <!-- Reviews List -->
+    <div class="reviews-list">
+      <% if (product.reviews.length > 0) { %>
+        <div class="row g-4">
+          <% product.reviews.forEach(review => { %>
+            <div class="col-md-6">
+              <div class="review-card bg-light p-3 rounded-3">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <div>
+                    <h6 class="mb-1"><%= review.userId.firstname %> <%= review.userId.lastname %></h6>
+                    <div class="stars">
+                      <% for (let i = 1; i <= 5; i++) { %>
+                        <span class="star <%= i <= review.rating ? 'filled' : '' %>">★</span>
+                      <% } %>
+                    </div>
+                  </div>
+                  <% if (user && user._id.equals(review.userId._id)) { %>
+                    <button class="btn btn-sm btn-outline-danger" onclick="removeReview('<%= review._id %>')">
+                      <i class="fas fa-trash-alt"></i>
+                    </button>
+                  <% } %>
+                </div>
+                <p class="review-text mb-2"><%= review.comment %></p>
+                <small class="text-muted">
+                  <i class="far fa-calendar-alt me-1"></i>
+                  <%= review.createdOn.toLocaleDateString() %>
+                </small>
               </div>
             </div>
-          </div>
+          <% }); %>
         </div>
-      </div>
+      <% } else { %>
+        <div class="text-center text-muted py-5">
+          <i class="far fa-comment-alt fs-1 mb-3"></i>
+          <p>No reviews yet. Be the first to review this product!</p>
+        </div>
+      <% } %>
     </div>
   </div>
+
+  <!-- Back to Home -->
+  <div class="text-center mt-5">
+    <a href="/" class="btn btn-outline-dark">
+      <i class="bi bi-arrow-left me-2"></i>Back to Home
+    </a>
+  </div>
+</div>
+</div>
+</div>
+</div>
 
   <!-- Toast Notification -->
   <div class="toast-container position-fixed top-0 end-0 p-3">

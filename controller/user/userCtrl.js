@@ -7,13 +7,20 @@ const env=require('dotenv').config()
 const Order=require('../../models/orderModel')
 const Blog = require('../../models/blogModel');
 const Wallet = require('../../models/walletModel');
-
+const Coupon=require('../../models/couponModel')
 
 const loadhomepage = async (req, res) => {
   try {
     console.log("Session User:", req.session.user); // the session user id//
     const userId = req.session.user;
 
+    // Fetch active coupons
+    const currentDate = new Date();
+    const activeCoupons = await Coupon.find({
+      isActive: true,
+      expireOn: { $gt: currentDate },
+      startOn: { $lte: currentDate }
+    }).sort({ offerPrice: -1 }); // Sort by highest discount first
     
  const categories=await Category.find({isListed:true})
 
@@ -53,15 +60,15 @@ productData.sort((a,b)=>new Date(b.createdOn)-new Date(a.createdOn));
      if (userData) {
         res.locals.user = userData; // Set user data in locals
        
-        return res.render('home', { user: userData , products:productsWithRatings, categories: categories,referralSuccess:referralSuccess });
+        return res.render('home', { user: userData , products:productsWithRatings, categories: categories,referralSuccess:referralSuccess, coupons: activeCoupons });
       
       
       } else {
         console.log("User data not found that ID:", userId);
-        return res.render('home', { user: null ,products:productsWithRatings, categories: categories});
+        return res.render('home', { user: null ,products:productsWithRatings, categories: categories,coupons: activeCoupons});
       }
     } else {
-      return res.render('home', { user: null ,products:productsWithRatings, categories: categories});
+      return res.render('home', { user: null ,products:productsWithRatings, categories: categories,coupons: activeCoupons});
     }
     
     
@@ -248,89 +255,90 @@ const generateReferralCode = async () => {
 };
 
 const handleReferral = async (newUser, referralCode) => {
-  if (!referralCode) return false;
+  try {
+      if (!referralCode) {
+          console.log("No referral code provided");
+          return false;
+      }
 
-  const referrer = await User.findOne({ referralCode });
-  if (!referrer) return false;
+      // Convert to uppercase and trim to ensure consistent matching
+      const normalizedCode = referralCode.trim().toUpperCase();
+      
+      const referrer = await User.findOne({ referralCode: normalizedCode });
+      console.log("Searching for referral code:", normalizedCode);
+      console.log("Referrer found:", referrer);
 
-  if (referrer && !referrer.redeemedUsers.includes(newUser._id)) {
-      // Handle referrer's //
+      if (!referrer) {
+          console.log("No user found with this referral code");
+          return false;
+      }
+
+      // Prevent self-referral
+      if (referrer._id.toString() === newUser._id.toString()) {
+          console.log("Self-referral attempted");
+          return false;
+      }
+
+      if (referrer.redeemedUsers.includes(newUser._id)) {
+          console.log("User already redeemed this referral");
+          return false;
+      }
+
+      // Create or find referrer's wallet
       let referrerWallet = await Wallet.findOne({ userId: referrer._id });
       if (!referrerWallet) {
+          console.log("Creating new wallet for referrer");
           referrerWallet = new Wallet({ userId: referrer._id });
       }
-      
-      // Add transaction and update balance for referrer//
+
+      // Add transaction for referrer
       referrerWallet.transactions.push({
           amount: 200,
           type: 'credit',
           description: `Referral bonus for inviting ${newUser.firstname} ${newUser.lastname}`
       });
       referrerWallet.balance += 200;
-      await referrerWallet.save();
+      
+      const savedReferrerWallet = await referrerWallet.save();
+      console.log("Referrer wallet updated:", savedReferrerWallet);
 
-      // Update referrer's user document//
-      referrer.wallet += 200;
+      // Update referrer document
+      referrer.wallet = (referrer.wallet || 0) + 200;
       referrer.redeemedUsers.push(newUser._id);
       await referrer.save();
+      console.log("Referrer document updated");
 
-      // Handle new user's wallet//
+      // Create or find new user's wallet
       let newUserWallet = await Wallet.findOne({ userId: newUser._id });
       if (!newUserWallet) {
+          console.log("Creating new wallet for new user");
           newUserWallet = new Wallet({ userId: newUser._id });
       }
 
-      // Add transaction and update balance for new user//
+      // Add transaction for new user
       newUserWallet.transactions.push({
           amount: 200,
           type: 'credit',
           description: 'Welcome bonus for using referral code'
       });
       newUserWallet.balance += 200;
-      await newUserWallet.save();
+      
+      const savedNewUserWallet = await newUserWallet.save();
+      console.log("New user wallet updated:", savedNewUserWallet);
 
-      // Update new user's document//
-      newUser.wallet += 200;
+      // Update new user document
+      newUser.wallet = (newUser.wallet || 0) + 200;
       newUser.referredBy = referrer._id;
       await newUser.save();
+      console.log("New user document updated");
 
       return true;
+
+  } catch (error) {
+      console.error("Error in handleReferral:", error);
+      return false;
   }
-  return false;
 };
-
-// const resendOTP=async (req,res) => {
-
-//   try {
-//     const {email}=req.session.userData;
-//     if(!email){
-//       return res.status(400).json({ success:false,message:"Email not found in session" })
-
-
-//     }
-//     const otp=generateOtp();
-//     req.session.userOtp=otp;
-
-//     const emailSent=await sendVerificationEmail(email,otp)
-    
-//     if(emailSent){
-//       console.log("Resent OTP: ",otp)
-//       res.status(200).json({success:true,message:"OTP Resend Successfylly"})
-
-//     }
-//     else{
-//           res.status(500).json({success:false,message:"OTP Resend failed, Try again"})
-
-//     }
-
-//   } catch (error) {
-    
-//     console.log("Error resending Otp",error)
-//     res.status(500).json({success:false,message:"Internal Server Error,Try Again"})
-
-//   }
-// }
-
 
 const resendOTP = async (req, res) => {
   try {
@@ -448,11 +456,11 @@ const loadProductDetails = async (req, res) => {
      hasPurchased = userOrders.length > 0;
    }
   
-    const product = await Product.findById(productId).populate('category','categoryOffer').populate('reviews.userId', 'firstname lastname');
+    const product = await Product.findById(productId).populate('category','categoryOffer name').populate('reviews.userId', 'firstname lastname');
     const relatedProducts = await Product.find({
       productname: { $regex: product.productname.split(' ')[0], $options: 'i' },
       _id: { $ne: productId },
-    }).populate('category','categoryOffer').populate('reviews');
+    }).populate('category','categoryOffer name').populate('reviews');
    
 const categoryOffer=product?.category?.categoryOffer || 0;
     if (product && !product.isblocked) {

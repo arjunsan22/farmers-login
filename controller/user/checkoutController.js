@@ -299,6 +299,7 @@ console.log("order placement req body  : ",req.body)
         }
       );
     }  else if (paymentMethod === 'razorpay') {
+      
       console.log('Razorpay payment verification started');
       console.log('Order ID:', req.body.razorpay_order_id);
       console.log('Payment ID:', razorpay_payment_id);
