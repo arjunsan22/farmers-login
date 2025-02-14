@@ -173,6 +173,60 @@ const updateCheckoutAddress=async (req,res) => {
       }
 }
 
+const checkStock = async (req, res) => {
+  try {
+    const { products, quantities } = req.body;
+
+    if (!Array.isArray(products) || !Array.isArray(quantities) || products.length !== quantities.length) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid products or quantities',
+        status: 'invalid_products_or_quantities'
+      });
+    }
+
+    const outOfStockProducts = [];
+    for (let i = 0; i < products.length; i++) {
+      const productId = products[i];
+      const quantity = quantities[i];
+
+      const product = await Product.findById(productId);
+      if (!product) {
+        return res.status(404).json({
+          success: false,
+          message: `Product not found: ${productId}`,
+          status: 'product_not_found'
+        });
+      }
+
+      if (product.quantity < quantity) {
+        outOfStockProducts.push({
+          name: product.productname,
+          available: product.quantity,
+          requested: quantity
+        });
+      }
+    }
+
+    if (outOfStockProducts.length > 0) {
+      const message = outOfStockProducts.map(p =>
+        `${p.name} (Available: ${p.available}, Requested: ${p.requested})`
+      ).join(', ');
+
+      return res.status(400).json({
+        success: false,
+        message: `Some products are out of stock: ${message}`,
+        status: 'out_of_stock',
+        outOfStockProducts
+      });
+    }
+
+    res.json({ success: true, message: 'All products are in stock' });
+  } catch (error) {
+    console.error('Error checking stock:', error);
+    res.status(500).json({ success: false, message: 'Something went wrong while checking stock' });
+  }
+};
 
 const Orderplacement = async (req, res) => {
   try {
@@ -471,4 +525,5 @@ module.exports={
     orderSuccess,
     createRazorpayOrder,
     verifyRazorpayPayment,
+    checkStock
 }

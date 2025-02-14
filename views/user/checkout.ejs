@@ -696,34 +696,78 @@ $(document).ready(function () {
   $(document).on('totalAmountUpdated', function() {
     updateCODAvailability();
   });
-//checkout////////////////////////////////////////////////////////////////////
-  $("#checkoutForm").submit(function (event) {
+
+  $("#checkoutForm").submit(async function (event) {
     event.preventDefault();
     const form = $(this)[0];
     const formData = new FormData(form);
     const paymentMethod = $("#paymentMethod").val();
-// Check if address is selected
-if (!formData.get('address')) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Address Required',
-            text: 'Please select a delivery address',
-            confirmButtonColor: '#d33',
-            confirmButtonText: 'OK'
-        });
-        return;
+
+    // Check if address is selected
+    if (!formData.get('address')) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Address Required',
+        text: 'Please select a delivery address',
+        confirmButtonColor: '#d33',
+        confirmButtonText: 'OK'
+      });
+      return;
     }
 
-    
     console.log("Form Data Contents:");
     formData.forEach((value, key) => {
       console.log(key + ": " + value);
     });
 
+    // Perform out-of-stock check before initiating Razorpay payment
+    const products = [];
+    const quantities = [];
+    formData.forEach((value, key) => {
+      if (key === 'products[]') {
+        products.push(value);
+      } else if (key === 'quantities[]') {
+        quantities.push(value);
+      }
+    });
+
+    try {
+      const stockCheckResponse = await fetch('/check-stock', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ products, quantities }),
+      });
+
+      const stockCheckResult = await stockCheckResponse.json();
+
+      if (!stockCheckResult.success) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Out of Stock',
+          text: stockCheckResult.message,
+          confirmButtonColor: '#d33',
+          confirmButtonText: 'OK'
+        });
+        return;
+      }
+    } catch (error) {
+      console.error('Error checking stock:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'An error occurred while checking stock',
+        confirmButtonColor: '#d33',
+        confirmButtonText: 'OK'
+      });
+      return;
+    }
+
     if (paymentMethod === "razorpay") {
-      const amount = parseFloat($("#finalTotal").text().replace("₹", "")) 
+      const amount = parseFloat($("#finalTotal").text().replace("₹", ""));
       console.log("Amount being processed:", amount);
-      
+
       $.ajax({
         url: "/create-razorpay-order",
         type: "POST",
@@ -771,9 +815,7 @@ if (!formData.get('address')) {
                   console.log("Order processing result:", resultJson);
                   if (resultJson.success) {
                     window.location.href = `/order-success/${resultJson.orderId}`;
-                  }
-                 
-                  else {
+                  } else {
                     Swal.fire({
                       icon: 'error',
                       title: 'Order Failed',
@@ -785,16 +827,16 @@ if (!formData.get('address')) {
                 },
                 error: function(xhr, status, error) {
                   console.error("Order processing error:", error);
-  let errorResponse;
-  try {
-    errorResponse = JSON.parse(xhr.responseText);
-  } catch (e) {
-    errorResponse = {
-      status: 'error',
-      message: 'An error occurred while processing your order'
-    };
-  }
-  handleOrderError(errorResponse);
+                  let errorResponse;
+                  try {
+                    errorResponse = JSON.parse(xhr.responseText);
+                  } catch (e) {
+                    errorResponse = {
+                      status: 'error',
+                      message: 'An error occurred while processing your order'
+                    };
+                  }
+                  handleOrderError(errorResponse);
                 }
               });
             },
@@ -814,10 +856,10 @@ if (!formData.get('address')) {
           };
 
           const rzp1 = new Razorpay(options);
-          
+
           rzp1.on('payment.failed', function (response) {
             console.error("Payment failed details:", response);
-            
+
             const formDataObj = {};
             formData.forEach((value, key) => {
               if (key.endsWith('[]')) {
@@ -830,13 +872,13 @@ if (!formData.get('address')) {
                 formDataObj[key] = value;
               }
             });
-            
+
             // Add payment failure details
             formDataObj.paymentMethod = 'razorpay';
             formDataObj.payment_status = 'failed';
             formDataObj.payment_error = response.error.description;
             formDataObj.razorpay_order_id = response.error.metadata.order_id;
-            
+
             $.ajax({
               url: "/process-order",
               type: "POST",
@@ -858,41 +900,40 @@ if (!formData.get('address')) {
               },
               error: function(xhr, status, error) {
                 console.error("Order processing error:", error);
-    let errorResponse;
-    try {
-    errorResponse = JSON.parse(xhr.responseText);
-  } catch (e) {
-    errorResponse = {
-      status: 'error',
-      message: 'An error occurred while processing your order'
-    };
-  }
-  handleOrderError(errorResponse);
-               
+                let errorResponse;
+                try {
+                  errorResponse = JSON.parse(xhr.responseText);
+                } catch (e) {
+                  errorResponse = {
+                    status: 'error',
+                    message: 'An error occurred while processing your order'
+                  };
+                }
+                handleOrderError(errorResponse);
               }
             });
           });
-          
+
           rzp1.open();
         },
         error: function(xhr, status, error) {
           console.error("Order processing error:", error);
-  let errorResponse;
-  try {
-    errorResponse = JSON.parse(xhr.responseText);
-  } catch (e) {
-    errorResponse = {
-      status: 'error',
-      message: 'An error occurred while processing your order'
-    };
-  }
-  handleOrderError(errorResponse);
+          let errorResponse;
+          try {
+            errorResponse = JSON.parse(xhr.responseText);
+          } catch (e) {
+            errorResponse = {
+              status: 'error',
+              message: 'An error occurred while processing your order'
+            };
+          }
+          handleOrderError(errorResponse);
         }
       });
     } else {
-      // For non-Razorpay payments (COD, wallet)//////////////////////////////////////
+      // For non-Razorpay payments (COD, wallet)
       console.log("Processing non-Razorpay payment:", paymentMethod);
-      
+
       const formDataObj = {};
       formData.forEach((value, key) => {
         if (key.endsWith('[]')) {
@@ -907,7 +948,7 @@ if (!formData.get('address')) {
       });
 
       console.log("Submitting order with data:", formDataObj);
-      
+
       $.ajax({
         url: "/process-order",
         type: "POST",
@@ -922,60 +963,60 @@ if (!formData.get('address')) {
             window.location.href = `/order-success/${resultJson.orderId}`;
           } else {
             handleOrderError(resultJson);
-
           }
         },
         error: function(xhr, status, error) {
           console.error("Order processing error:", error);
-  let errorResponse;
-  try {
-    errorResponse = JSON.parse(xhr.responseText);
-  } catch (e) {
-    errorResponse = {
-      status: 'error',
-      message: 'An error occurred while processing your order'
-    };
-  }
-  handleOrderError(errorResponse);
+          let errorResponse;
+          try {
+            errorResponse = JSON.parse(xhr.responseText);
+          } catch (e) {
+            errorResponse = {
+              status: 'error',
+              message: 'An error occurred while processing your order'
+            };
+          }
+          handleOrderError(errorResponse);
         }
       });
     }
   });
-// Function to handle different error scenarios
-function handleOrderError(response) {
+
+  // Function to handle different error scenarios
+  function handleOrderError(response) {
     let title = 'Order Failed';
     let text = 'An error occurred while processing your order';
 
-    switch (response?.status) { 
-        case 'address_missing':
-            title = 'Address Required';
-            text = 'Please select a delivery address';
-            break;
-        case 'out_of_stock':
-            title = 'Products Out of Stock';
-            text = response.message || 'Some products in your cart are out of stock';
-            break;
-        case 'cod_restricted':
-            title = 'COD Not Available';
-            text = 'Cash on Delivery is not available for orders above ₹1,000';
-            break;
-        case 'insufficient_balance':
-            title = 'Insufficient Wallet Balance';
-            text = 'You do not have enough balance in your wallet to complete this purchase';
-            break;
-        case 'unauthorized':
-            title = 'Session Expired';
-            text = 'Please login again to continue';
-            setTimeout(() => {
-                window.location.href = '/login';
-            }, 2000);
-            break;
-        case 'invalid_products':
-            title = 'Invalid Products';
-            text = 'Some products in your cart are no longer available';
-            break;
+    switch (response?.status) {
+      case 'address_missing':
+        title = 'Address Required';
+        text = 'Please select a delivery address';
+        break;
+      case 'out_of_stock':
+        title = 'Products Out of Stock';
+        text = response.message || 'Some products in your cart are out of stock';
+        break;
+      case 'cod_restricted':
+        title = 'COD Not Available';
+        text = 'Cash on Delivery is not available for orders above ₹1,000';
+        break;
+      case 'insufficient_balance':
+        title = 'Insufficient Wallet Balance';
+        text = 'You do not have enough balance in your wallet to complete this purchase';
+        break;
+      case 'unauthorized':
+        title = 'Session Expired';
+        text = 'Please login again to continue';
+        setTimeout(() => {
+          window.location.href = '/login';
+        }, 2000);
+        break;
+      case 'invalid_products':
+        title = 'Invalid Products';
+        text = 'Some products in your cart are no longer available';
+        break;
     }
-    
+
     Swal.fire({
       icon: 'error',
       title: title,
@@ -984,10 +1025,8 @@ function handleOrderError(response) {
       confirmButtonText: 'OK'
     });
   }
-
 });
 </script>
-
 
 </body>
 </html>

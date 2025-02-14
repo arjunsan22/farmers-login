@@ -120,6 +120,7 @@ router.post('/updateCheckoutAddress/:addressId',checkoutController.updateCheckou
 
 //place order//
 router.post('/process-order', checkoutController.Orderplacement)
+router.post('/check-stock', checkoutController.checkStock);
 router.get('/order-success/:orderId',checkoutController.orderSuccess)
 
 
