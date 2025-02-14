@@ -192,6 +192,8 @@ router.post('/reviews/remove/:id', reviewController.removeReview);
 router.get('/userblog',userController.loadBlogPage)
 router.get('/userblogDetails/:id',userController.loadBlogDetailsPage)
 
+//contacts//
+router.get('/contacts',userController.contacts)
 //logout
 router.get('/logout',userController.LoGout)
 

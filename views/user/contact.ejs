@@ -1,0 +1,122 @@
+<%- include("../../views/partials/user/header") %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - Farmers Login</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    <style>
+        .contact-section {
+            background: linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)),
+                        url('/api/placeholder/1920/1080') center/cover;
+            padding: 80px 0;
+        }
+        .contact-info {
+            transition: transform 0.3s ease;
+        }
+        .contact-info:hover {
+            transform: translateY(-5px);
+        }
+        .terms {
+            height: 200px;
+            overflow-y: auto;
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="contact-section">
+    <div class="container animate__animated animate__fadeIn">
+        <h1 class="text-center mb-5 animate__animated animate__slideInDown">Contact Us</h1>
+        
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card shadow-lg mb-5 animate__animated animate__slideInLeft">
+                    <div class="card-body">
+                        <div class="contact-info p-4">
+                            <h3 class="text-success mb-4">Farmers Login</h3>
+                            <p><strong>Owner:</strong> Arjun Anil</p>
+                            <p><strong>Location:</strong> Kottayam, Kerala, India</p>
+                            <p><strong>Phone:</strong> <a href="tel:8590924586">+91 8590924586</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card shadow-lg animate__animated animate__slideInRight">
+                    <div class="card-body">
+                        <form class="p-4">
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Full Name</label>
+                                <input type="text" class="form-control" id="name" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email Address</label>
+                                <input type="email" class="form-control" id="email" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="message" class="form-label">Message</label>
+                                <textarea class="form-control" id="message" rows="4" required></textarea>
+                            </div>
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="terms" required>
+                                <label class="form-check-label" for="terms">I agree to the Terms and Conditions</label>
+                            </div>
+                            <button type="submit" class="btn btn-success w-100">Send Message</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-5">
+            <div class="col-12">
+                <div class="card shadow-lg animate__animated animate__fadeIn">
+                    <div class="card-body">
+                        <h4 class="mb-3">Terms and Conditions</h4>
+                        <div class="terms">
+                            <p>1. Service Usage</p>
+                            <ul>
+                                <li>Users must be 18 years or older to use our farming services.</li>
+                                <li>All information provided must be accurate and up-to-date.</li>
+                                <li>Users are responsible for maintaining the confidentiality of their account.</li>
+                            </ul>
+
+                            <p>2. Privacy and Data Protection</p>
+                            <ul>
+                                <li>We collect and process personal data in accordance with our Privacy Policy.</li>
+                                <li>User information will be used only for service-related communications.</li>
+                                <li>We implement security measures to protect user data.</li>
+                            </ul>
+
+                            <p>3. Agricultural Services</p>
+                            <ul>
+                                <li>Advisory services are provided for informational purposes only.</li>
+                                <li>Users should verify all farming recommendations with local agricultural experts.</li>
+                                <li>Weather-related information is based on available data and may not be 100% accurate.</li>
+                            </ul>
+
+                            <p>4. Liability</p>
+                            <ul>
+                                <li>We are not liable for crop failures or agricultural losses.</li>
+                                <li>Users should follow local agricultural guidelines and regulations.</li>
+                                <li>The platform serves as an information resource and not as professional advice.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+<%- include("../../views/partials/user/footer") %>

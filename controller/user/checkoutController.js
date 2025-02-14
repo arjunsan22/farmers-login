@@ -225,6 +225,7 @@ console.log("order placement req body  : ",req.body)
         });
         continue;
       }
+      
 
       const itemTotalPrice = product.salePrice * quantity;
       totalPrice += itemTotalPrice;

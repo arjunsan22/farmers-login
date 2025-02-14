@@ -738,7 +738,19 @@ const loadBlogDetailsPage=async (req, res) => {
       console.error(error);
       res.status(500).send('Server Error');
   }
+
 }
+
+
+const contacts=async (req, res) => {
+  try {
+    res.render('contact');
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Server Error');
+  }
+}
+
 module.exports = {
   loadhomepage,
   pagenotfound,
@@ -753,5 +765,6 @@ module.exports = {
   loadShopPage,
   mainSearch,
   loadBlogPage,
-  loadBlogDetailsPage
+  loadBlogDetailsPage,
+  contacts
 };
