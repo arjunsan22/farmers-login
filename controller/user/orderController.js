@@ -27,7 +27,9 @@ const getOrderHistory = async (req, res) => {
       .sort({ createdOn: -1 })
       .skip(skip)
       .limit(limit)
-
+      console.log("Image paths:", orders.map(order => 
+        order.orderedItems.map(item => item.product.productImage)
+      ));
       // console.log("orders details :",orders)
   
       res.render('order-history', { orders ,user:userData,currentPage: page, totalPages ,razorpayKeyId:process.env.RAZORPAY_KEY_ID  });
@@ -369,47 +371,6 @@ const createRazorpayOrderFromHistory = async (req, res) => {
 };
 
 
-// const verifyPayment = async (req, res) => {
-//   try {
-//     console.log("verify payment : ",req.body)  
-//     const { payment, order: orderId } = req.body;
-      
-//       // Create signature hash to verify payment//
-      
-//       const secret = process.env.RAZORPAY_KEY_SECRET;
-      
-//       const shasum = crypto.createHmac('sha256', secret);
-//       shasum.update(`${payment.razorpay_order_id}|${payment.razorpay_payment_id}`);
-//       const digest = shasum.digest('hex');
-
-//       // Verify signature//
-//       if (digest === payment.razorpay_signature) {
-        
-//           const order = await Order.findById(orderId);
-//           if (!order) {
-//               return res.status(404).json({ success: false, error: 'Order not found' });
-//           }
-
-//           order.Status = 'pending'; 
-//           order.paymentMethod = 'razorpay';
-//           order.paymentStatus = 'completed';
-//           order.razorpayPaymentId = payment.razorpay_payment_id;
-//           order.razorpayOrderId = payment.razorpay_order_id;
-//           order.razorpaySignature = payment.razorpay_signature;
-          
-    
-
-       
-
-//           return res.json({ success: true });
-//       } else {
-//           return res.json({ success: false, error: 'Invalid signature' });
-//       }
-//   } catch (error) {
-//       console.error('Payment verification error:', error);
-//       res.status(500).json({ success: false, error: 'Payment verification failed' });
-//   }
-// };
 const verifyPayment = async (req, res) => {
   try {
     console.log("verify payment : ",req.body)  

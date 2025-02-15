@@ -261,6 +261,7 @@
             <table class="table">
               <thead>
                 <tr>
+                  <th>Image</th>
                   <th>Product Name</th>
                   <th>Quantity</th>
                   <th>Price</th>
@@ -268,7 +269,17 @@
               </thead>
               <tbody>
                 <% order.orderedItems.forEach(item => { %>
-                  <tr>
+                  <tr>          
+                    <td>
+                      <a style="text-decoration: none;" href="/productDetails/<%= item.product._id %>">
+                      <% if (item.product && item.product.productImage && item.product.productImage.length > 0) { %>
+                      
+                        <img src="/uploads/product-images/<%= item.product.productImage[0] %>" alt="Product Image" style="width: 50px;">
+                      <% } else { %>
+                        <img src="/images/default-product.jpg" alt="No Image" style="width: 50px;">
+                      <% } %>
+                      </a>
+                    </td>
                     <td><%= item.product.productname %></td>
                     <td><%= item.quantity %></td>
                     <td>₹<%= item.price %></td>
