@@ -784,7 +784,7 @@ const generateSalesReport = async (req, res) => {
                 // User Details Section
                 doc.fontSize(16)
                     .font('Helvetica-Bold')
-                    .text('User Details', { underline: true });
+                    .text('User Details', {  underline: true });
                 doc.moveDown();
 
                 // User Details Table Configuration
@@ -865,7 +865,7 @@ const generateSalesReport = async (req, res) => {
                     let xPos = userTableConfig.startX;
                     
                     // Order ID
-                    doc.text(order.orderId, xPos + 10, rowY + (userTableConfig.rowHeight - userTableConfig.fontSize) / 2);
+                    doc.text(order.orderId.slice(-5), xPos + 10, rowY + (userTableConfig.rowHeight - userTableConfig.fontSize) / 2);
                     xPos += userTableConfig.columns[0].width;
 
                     // Customer
@@ -901,10 +901,7 @@ const generateSalesReport = async (req, res) => {
                     );
                 });
 
-                // Footer
-                doc.fontSize(8)
-                    .font('Helvetica')
-                    .text('End of Report', { align: 'center' });
+               
 
                 doc.end();
 

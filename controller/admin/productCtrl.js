@@ -250,8 +250,8 @@ const addProductOffer = async (req, res) => {
         const findCategory = await Category.findOne({ _id: findProduct.category });
 
         // Checking if the category offer is greater than the product offer //
-        if (findCategory.categoryOffer > percentage) {
-            return res.json({ status: false, message: "This product's category already has a category offer" });
+        if (findCategory.categoryOffer) {
+            return res.json({ status: false, message: "This product's category already has a category offer! At a time only one offer is allowed " });
         }
 
         findProduct.salePrice = findProduct.salePrice - Math.floor(findProduct.mainPrice * (percentage / 100));

@@ -47,7 +47,7 @@ router.get('/blockCustomer',adminController.blockUser)
 router.get('/unblockCustomer',adminController.unblockUser)
 
 //category management//
-router.get('/category',middle.isLogin,categoryContoller.loadcategoryPage)
+router.get('/category',categoryContoller.loadcategoryPage)
 router.post('/addCategory',categoryContoller.addCategory)
 router.get('/listCategory',categoryContoller.listedCategory)
 

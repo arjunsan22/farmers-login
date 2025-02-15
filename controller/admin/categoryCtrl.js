@@ -155,7 +155,7 @@ const addOffer = async (req, res) => {
         const hasProductOffer = products.some(product => product.productOffer > percentage);
 
         if (hasProductOffer) {
-            return res.json({ status: false, message: "Product within this category already have product offers" });
+            return res.json({ status: false, message: "Product within this category already have product offers otherwise only takes higher percentage" });
         }
 console.log(hasProductOffer)
        let r= await Category.updateOne({ _id: categoryId }, { $set: { categoryOffer: percentage } });

@@ -8,9 +8,11 @@ const authRouter=require('./routes/authRoute');
 const adminRouter=require('./routes/adminRoute')
 const passport=require('./config/passport')
 
-const bodyParser = require('body-parser');//express.json add
-app.use(bodyParser.urlencoded({ extended: true }));  // For form data
-app.use(bodyParser.json());
+// const bodyParser = require('body-parser');//express.json add
+// app.use(bodyParser.urlencoded({ extended: true }));  // For form data
+// app.use(bodyParser.json());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));  // For form data//
 
 const PORT=process.env.PORT || 2000;
 
@@ -60,8 +62,29 @@ app.use((req, res, next) => {
 app.use('/',authRouter) //for user//
 app.use('/admin',adminRouter)
 
+//this unmached routes for all//
+app.use((req, res, next) => {
+  // Check if the URL starts with /admin  
+  if (req.originalUrl.startsWith('/admin')) {
+    res.status(404).render('error'); // Admin error page//
+  } else {
+    res.status(404).render('pagenotfound'); // User error page//
+  }
+});
 
-//logoutroute
+// Global Error Handler i added this for server errors in admin and user//
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  if (req.originalUrl.startsWith('/admin')) {
+    res.status(500).render('error', {
+      message: 'Something went wrong! Please try again later.'
+    });
+  } else {
+    res.status(500).render('pagenotfound', {
+      message: 'Something went wrong! Please try again later.'
+    });
+  }
+});
 
 
 

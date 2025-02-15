@@ -18,79 +18,146 @@
             margin: 2rem auto;
             padding: 2.5rem;
             border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            background-color: #ffffff;
-            
-            transition: transform 0.3s ease;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            animation: slideIn 0.6s ease-out;
+            transform-origin: center;
         }
 
-        .signup-container:hover {
-            transform: translateY(-5px);
+        @keyframes slideIn {
+            0% {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .form-control {
             border: 2px solid #e1e1e1;
             border-radius: 12px;
             padding: 0.8rem 1rem;
-            transition: all 0.3s ease;
-            background: #f8f9fa;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(248, 249, 250, 0.9);
+            animation: fadeInUp 0.5s ease-out forwards;
+            opacity: 0;
         }
 
         .form-control:focus {
             border-color: #036635;
-            box-shadow: 0 0 0 0.2rem rgba(3, 102, 53, 0.15);
+            box-shadow: 0 0 0 0.25rem rgba(3, 102, 53, 0.2);
             background: #ffffff;
-        }
-
-        .form-label {
-            font-weight: 600;
-            color: #060c11;
-            margin-bottom: 0.5rem;
-            font-size: 0.9rem;
-            letter-spacing: 0.5px;
+            transform: translateY(-2px);
         }
 
         .btn-primary {
             background: #036635;
             border: none;
             border-radius: 12px;
-            padding: 12px 20px;
+            padding: 12px 30px;
             font-weight: 600;
             letter-spacing: 0.5px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(3, 102, 53, 0.2);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary:before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s ease, height 0.6s ease;
+        }
+
+        .btn-primary:hover:before {
+            width: 300px;
+            height: 300px;
         }
 
         .btn-primary:hover {
             background: #024825;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(3, 102, 53, 0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(3, 102, 53, 0.3);
         }
 
-        .signup-box {
-            border-top: 2px solid #f1f1f1;
-            margin-top: 2rem;
-            padding-top: 1.5rem;
+        .form-label {
+            transform: translateY(0);
+            transition: all 0.3s ease;
+            opacity: 0;
+            animation: fadeIn 0.5s ease-out forwards;
+            animation-delay: 0.2s;
         }
 
-        .social-btns {
-            margin: 1rem 0;
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         .social-btns img {
-            transition: transform 0.3s ease;
-            border-radius: 8px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
         }
 
         .social-btns img:hover {
-            transform: scale(1.05);
+            transform: scale(1.05) translateY(-3px);
+            filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.2));
         }
 
         .error-message {
             color: #dc3545;
             font-size: 0.85rem;
             margin-top: 0.25rem;
-            animation: fadeIn 0.3s ease;
+            animation: shakeError 0.6s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        @keyframes shakeError {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+
+        .loading {
+            position: relative;
+            pointer-events: none;
+        }
+
+        .loading:after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            top: 50%;
+            left: 50%;
+            margin: -10px 0 0 -10px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 0.8s ease infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
         @keyframes fadeIn {
