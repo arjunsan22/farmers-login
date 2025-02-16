@@ -881,7 +881,7 @@ const generateSalesReport = async (req, res) => {
                         order.userId ? order.userId.email : 'N/A',
                         xPos + 10,
                         rowY + (userTableConfig.rowHeight - userTableConfig.fontSize) / 2
-                    );
+                     );
                     xPos += userTableConfig.columns[2].width;
 
                     // Status

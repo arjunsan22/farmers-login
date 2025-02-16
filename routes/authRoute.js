@@ -141,7 +141,7 @@ router.get('/orders/download-invoice/:orderId', orderController.downloadInvoice)
 
 router.post('/orders/cancel/:orderId', orderController.cancelOrder);
 router.post('/orders/return/:orderId', orderController.returnOrder); 
-
+router.get('/check-stock-availability/:orderId', orderController.checkStockAvailability);
 router.get('/create-razorpay-pending-orders/:orderId',orderController.createRazorpayOrderFromHistory)
 router.post('/verify-payment-pending-order', orderController.verifyPayment);
 //change email//

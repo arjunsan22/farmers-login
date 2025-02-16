@@ -447,6 +447,28 @@ if (cart) {
   }
 };
 
+const checkStockAvailability = async (req, res) => {
+  try {
+    const orderId = req.params.orderId;
+    const order = await Order.findById(orderId).populate('orderedItems.product');
+
+    if (!order) {
+      return res.status(404).json({ success: false, message: 'Order not found' });
+    }
+
+    for (const item of order.orderedItems) {
+      const product = await Product.findById(item.product._id);
+      if (!product || product.quantity < item.quantity) {
+        return res.status(400).json({ success: false, message: `Insufficient stock!  ${product.quantity} kg stock only for product ${product.productname} ,You requested ${item.quantity} kg ` });
+      }
+    }
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error checking stock availability:', error);
+    res.status(500).json({ success: false, message: 'Error checking stock availability' });
+  }
+};
 
 module.exports={
 
@@ -455,5 +477,6 @@ module.exports={
     returnOrder,
     downloadInvoice,
     createRazorpayOrderFromHistory,
-    verifyPayment
+    verifyPayment,
+    checkStockAvailability
 }

@@ -46,6 +46,10 @@
       background-color: #20c997;
       color: white;
     }
+    .status-payment_pending {
+      background-color: #700138; /* Pink */
+      color: #ffffff; /* Dark Blue */
+}
   </style>
 <body>
 
@@ -380,45 +384,104 @@
     <!-- razorpay integration from order history -->
     <script>
       function continuePayment(orderId) {
-          fetch(`/create-razorpay-pending-orders/${orderId}`)
-              .then(response => response.json())
-              .then(data => {
-                  const options = {
-                      key: '<%= razorpayKeyId %>', 
-                      amount: data.amount,
-                      currency: data.currency,
-                      name: 'Farmers Login',
-                      description: 'Order Payment',
-                      order_id: data.orderId,
-                      handler: function (response) {
-                          // Handle successful payment
-                          verifyPayment({
-                              razorpay_payment_id: response.razorpay_payment_id,
-                              razorpay_order_id: response.razorpay_order_id,
-                              razorpay_signature: response.razorpay_signature
-                          }, orderId);
-                      },
-                      prefill: {
-                          name: '<%= user && (user.firstName || user.lastname) ? (user.lastName || user.lastname) + " " + (user.firstName || user.firstname) : "Customer" %>',
-                          email: '<%= user && user.email ? user.email : "" %>',
-                          contact: '<%= user && (user.mobile || user.phone) ? user.mobile || user.phone : "" %>'
-                      },
+    fetch(`/check-stock-availability/${orderId}`)
+      .then(response => response.json())
+      .then(data => {
+        if (!data.success) {
+          Swal.fire({
+            title: 'Stock Unavailable',
+            text: data.message,
+            icon: 'error',
+            confirmButtonText: 'OK'
+          });
+          return;
+        }
 
-                      theme: {
-                          color: '#3399cc'
-                      }
-                  };
-                  const rzp = new Razorpay(options);
-                  rzp.on('payment.failed', function (response) {
-                      alert('Payment failed. Please try again.');
-                  });
-                  rzp.open();
-              })
-              .catch(error => {
-                  console.error('Error:', error);
-                  alert('Something went wrong! Please try again.');
-              });
-      }
+        fetch(`/create-razorpay-pending-orders/${orderId}`)
+          .then(response => response.json())
+          .then(data => {
+            const options = {
+              key: '<%= razorpayKeyId %>', 
+              amount: data.amount,
+              currency: data.currency,
+              name: 'Farmers Login',
+              description: 'Order Payment',
+              order_id: data.orderId,
+              handler: function (response) {
+                // Handle successful payment
+                verifyPayment({
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_signature: response.razorpay_signature
+                }, orderId);
+              },
+              prefill: {
+                name: '<%= user && (user.firstName || user.lastname) ? (user.lastName || user.lastname) + " " + (user.firstName || user.firstname) : "Customer" %>',
+                email: '<%= user && user.email ? user.email : "" %>',
+                contact: '<%= user && (user.mobile || user.phone) ? user.mobile || user.phone : "" %>'
+              },
+              theme: {
+                color: '#3399cc'
+              }
+            };
+            const rzp = new Razorpay(options);
+            rzp.on('payment.failed', function (response) {
+              alert('Payment failed. Please try again.');
+            });
+            rzp.open();
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            alert('Something went wrong! Please try again.');
+          });
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Something went wrong! Please try again.');
+      });
+  }
+
+      // function continuePayment(orderId) {
+
+      //     fetch(`/create-razorpay-pending-orders/${orderId}`)
+      //         .then(response => response.json())
+      //         .then(data => {
+      //             const options = {
+      //                 key: '<%= razorpayKeyId %>', 
+      //                 amount: data.amount,
+      //                 currency: data.currency,
+      //                 name: 'Farmers Login',
+      //                 description: 'Order Payment',
+      //                 order_id: data.orderId,
+      //                 handler: function (response) {
+      //                     // Handle successful payment
+      //                     verifyPayment({
+      //                         razorpay_payment_id: response.razorpay_payment_id,
+      //                         razorpay_order_id: response.razorpay_order_id,
+      //                         razorpay_signature: response.razorpay_signature
+      //                     }, orderId);
+      //                 },
+      //                 prefill: {
+      //                     name: '<%= user && (user.firstName || user.lastname) ? (user.lastName || user.lastname) + " " + (user.firstName || user.firstname) : "Customer" %>',
+      //                     email: '<%= user && user.email ? user.email : "" %>',
+      //                     contact: '<%= user && (user.mobile || user.phone) ? user.mobile || user.phone : "" %>'
+      //                 },
+
+      //                 theme: {
+      //                     color: '#3399cc'
+      //                 }
+      //             };
+      //             const rzp = new Razorpay(options);
+      //             rzp.on('payment.failed', function (response) {
+      //                 alert('Payment failed. Please try again.');
+      //             });
+      //             rzp.open();
+      //         })
+      //         .catch(error => {
+      //             console.error('Error:', error);
+      //             alert('Something went wrong! Please try again.');
+      //         });
+      // }
       
       function verifyPayment(payment, orderId) {
           fetch('/verify-payment-pending-order', {
