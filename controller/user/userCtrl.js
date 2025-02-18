@@ -157,11 +157,21 @@ const Signup = async (req, res) => {
      
       }
 
+      const existingEmail = await User.findOne({ email: email });
+    if (existingEmail) {
+        return res.render("signup", { message: "Email already exists" });
+    }
+
+    const existingPhone = await User.findOne({ phone: phone });
+    if (existingPhone) {
+        return res.render("signup", { message: "Phone number already exists" });
+    }
+
       
       const otp=generateOtp();
- 
     const emailSent=await sendVerificationEmail(email,otp); 
 
+    
     if(!emailSent){
      return res.json("email-error")
     }
