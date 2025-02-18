@@ -777,7 +777,7 @@ $(document).ready(function () {
           console.log("Razorpay order created:", order);
 
           const options = {
-            key: "<%= razorpayKeyId %>",
+            key: "<%= process.env.RAZORPAY_KEY_ID %>",
             amount: order.amount,
             currency: order.currency,
             name: "Farmers Login",
