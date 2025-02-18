@@ -57,8 +57,9 @@ router.get('/login',userController.loadloginpage)
 router.post('/login',userController.verifyLogin)
 
 router.get('/productDetails/:id', userController.loadProductDetails); //in here i change /:id
+//quantity check done in cart//
 
-
+router.get('/check-cart-quantity/:productId',cartController.checkCartQuantity)
 
 //user profile forgot password and otp verification done !//
 

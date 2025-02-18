@@ -169,9 +169,35 @@ const removeFromCart = async (req, res) => {
     }
 };
 
+const checkCartQuantity = async (req, res) => {
+    try {
+        const productId = req.params.productId;
+        const userId = req.session.user;
+        if (!userId) {
+            return res.status(401).json({ error: 'User not logged in' });
+        }
+
+        // Find the user's cart and check the quantity of the specific product
+        const cart = await Cart.findOne({ userId });
+        
+        if (!cart) {
+            return res.json({ quantity: 0 });
+        }
+
+        // Find the specific product in the cart items
+        const cartItem = cart.items.find(item => item.productId.toString() === productId);
+        
+        return res.json({ quantity: cartItem ? cartItem.quantity : 0 });
+
+    } catch (error) {
+        console.error('Error checking cart quantity:', error);
+        return res.status(500).json({ error: 'Server error' });
+    }
+};
 module.exports = {
     addToCart,
     getCart,
     updateQuantity,
-    removeFromCart
+    removeFromCart,
+    checkCartQuantity
 }

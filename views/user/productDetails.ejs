@@ -623,39 +623,55 @@
             showusernotloginToast();
             return;
         }
+        
+        // First check existing cart quantity
+        fetch(`/check-cart-quantity/${productId}`)
+            .then(response => response.json())
+            .then(data => {
+                const existingQuantity = data.quantity || 0;
+                const totalQuantity = existingQuantity + quantity;
 
-        fetch('/add-to-cart', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                userId: userId,
-                productId: productId,
-                quantity: quantity
-            })
-        })
-        .then(response => {
-            return response.json().then(data => {
-                if (!response.ok) {
-                    throw new Error(data.message || 'Network response was not ok');
+                if (totalQuantity > 5) {
+                    showToast(`You already have ${existingQuantity}kg of this product in cart. Cannot exceed 5 kg total.`, false);
+                    return;
                 }
-                return data;
-            });
-        })
-        .then(data => {
-            if (data.success) {
-                showToast('Product added to cart successfully!', true);
-            } else {
-                showToast('Failed to add product to cart: ' + data.message, false);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showToast('Problem: ' + error.message, false);
-        });
-    }
 
+                // Proceed with adding to cart if quantity check passes
+                return fetch('/add-to-cart', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        userId: userId,
+                        productId: productId,
+                        quantity: quantity
+                    })
+                });
+            })
+            .then(response => {
+                if (!response) return; // If we returned early due to quantity check
+                return response.json().then(data => {
+                    if (!response.ok) {
+                        throw new Error(data.message || 'Network response was not ok');
+                    }
+                    return data;
+                });
+            })
+            .then(data => {
+                if (!data) return; // If we returned early due to quantity check
+                if (data.success) {
+                    showToast('Product added to cart successfully!', true);
+                } else {
+                    showToast('Failed to add product to cart: ' + data.message, false);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Problem: ' + error.message, false);
+            });
+    }
+    //zoom  ./////functionality../////
     document.addEventListener('DOMContentLoaded', function() {
       const zooming = new Zooming({
         bgColor: 'white',
