@@ -47,6 +47,12 @@ app.set('views', [
 
 // Serve static files from the "public" directory
 app.use(express.static("public"));
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  next();
+});
 
 app.use((req, res, next) => {
   res.locals.user = req.user || null;
