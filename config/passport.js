@@ -9,7 +9,7 @@ passport.use(new GoogleStrategy({
 
    clientID: process.env.GOOGLE_CLIENT_ID,
    clientSecret:process.env.GOOGLE_CLIENT_SECRET,
-   callbackURL:`${process.env.BASE_URL}/auth/google/callback`,
+   callbackURL: 'https://farmerslogin.site/auth/google/callback',
    prompt: 'select_account', 
 },
 async (accessToken,refreshToken,profile,done,req,res) => {
