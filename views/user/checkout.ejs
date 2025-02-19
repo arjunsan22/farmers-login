@@ -325,6 +325,17 @@
     .coupon-list::-webkit-scrollbar-thumb:hover {
         background: #a0aec0;
     }
+    .copy-btn {
+    padding: 0;
+    color: #6c757d;
+    transition: color 0.2s;
+}
+.copy-btn:hover {
+    color: #0d6efd;
+}
+.copy-btn.copied {
+    color: #198754;
+}
 </style>
 
 </head>
@@ -376,8 +387,15 @@
                           <div class="col-md-6 mb-3">
                               <div class="coupon-card">
                                   <div class="coupon-content">
-                                      <div class="coupon-title"><%= coupon.couponCode %></div>
-                                      <div class="coupon-description"><%= coupon.description %></div>
+                                    <div class="coupon-title d-flex align-items-center justify-content-between">
+                                      <span><%= coupon.couponCode %></span>
+                                      <button class="btn btn-sm btn-link copy-btn" 
+                                              data-coupon="<%= coupon.couponCode %>"
+                                              title="Copy coupon code">
+                                          <i class="fas fa-copy"></i>
+                                      </button>
+                                  </div>
+                                    <div class="coupon-description"><%= coupon.description %></div>
                                       <div class="coupon-details">
                                           <div class="coupon-detail-item">
                                               <i class="fas fa-tag"></i>
@@ -592,6 +610,7 @@
                     timer: 3000,
                     timerProgressBar: true
                 });
+                document.getElementById('customCouponInput').value = '';
             }
         } catch (error) {
             console.error('Error applying coupon:', error);
@@ -1024,6 +1043,27 @@ $(document).ready(function () {
     });
   }
 });
+</script>
+<script>
+  document.querySelectorAll('.copy-btn').forEach(button => {
+      button.addEventListener('click', function() {
+          const couponCode = this.dataset.coupon;
+          navigator.clipboard.writeText(couponCode).then(() => {
+              // Visual feedback
+              this.innerHTML = '<i class="fas fa-check"></i>';
+              this.classList.add('copied');
+             
+              // Reset the icon after 2 seconds
+              document.getElementById('customCouponInput').value = couponCode;
+              setTimeout(() => {
+                  this.innerHTML = '<i class="fas fa-copy"></i>';
+                  this.classList.remove('copied');
+              }, 2000);
+          }).catch(err => {
+              console.error('Failed to copy:', err);
+          });
+      });
+  });
 </script>
 
 </body>

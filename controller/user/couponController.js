@@ -65,7 +65,7 @@ const applyCoupon = async (req, res) => {
         };
 
        // updating the usage count of the user by 1 and check user only applyed coupon one time//
-       if (userUsage && userUsage.usageCount === 1) {
+       if (userUsage) {
         userUsage.usageCount += 1;
     } else {
         coupon.userUsage.push({ userId, usageCount: 1 });
