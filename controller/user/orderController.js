@@ -72,6 +72,7 @@ const getOrderHistory = async (req, res) => {
                 amount: order.finalAmount,
                 type: 'credit',
                 description: 'Order cancellation refund',
+                date: new Date(),
               });
               await wallet.save();
             }
@@ -83,6 +84,7 @@ const getOrderHistory = async (req, res) => {
                 amount: order.finalAmount,
                 type: 'credit',
                 description: ' Order cancellation refund',
+                date: new Date(),
               });
               await wallet.save();
             }
@@ -132,6 +134,7 @@ console.log("returnReason :",returnReason)
         amount: order.finalAmount,
         type: 'credit',
         description: 'Order return refund',
+        date: new Date(),
       });
       await wallet.save();
     }
@@ -144,6 +147,7 @@ console.log("returnReason :",returnReason)
         amount: order.finalAmount,
         type: 'credit',
         description: ' Order return refund',
+        date: new Date(),
       });
       await wallet.save();
     }
