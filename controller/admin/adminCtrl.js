@@ -324,6 +324,7 @@ const errorPage=async (req,res) => {
 
 const  Logout=async (req,res) => {
     try {
+      
         req.session.destroy((err)=>{
             if(err){
             console.log("error faced in logout-destory session")

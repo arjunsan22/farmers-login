@@ -10,8 +10,16 @@ const getWishlist = async (req, res) => {
        return res.render('login',{message:"Login Required For Access Wishlist"})
       }
       const userData=await User.findById(userId)
-
-      const wishlist = await Wishlist.findOne({ userId }).populate('products.productId');
+//admin blocked products not shown in wishlist
+const wishlist = await Wishlist.findOne({ userId }).populate({
+  path: 'products.productId',
+  match: { isblocked: false } // Match the exact field name from the schema
+,populate: { path: 'category',match: { isListed: true}}
+});
+if (wishlist) {
+  // Filter out products where productId is null (blocked products)
+  wishlist.products = wishlist.products.filter(item => item.productId != null);
+}
       res.render('wishlist', { wishlist,user:userData });
     } catch (error) {
       console.error('Error fetching wishlist:', error);

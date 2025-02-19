@@ -83,13 +83,19 @@ const getCart = async (req, res) => {
         }
         const cart = await Cart.findOne({ userId }).populate('items.productId').populate({
             path: 'items.productId',
-            populate: { path: 'category' }
+            match: { isblocked: false },
+            populate: { path: 'category',
+                match: { isListed: true }
+             }
         });;
 
         if (!cart) {
             return res.status(200).render('userCart', { cartItems: [], cartTotal: 0 });
         }
-
+        cart.items = cart.items.filter(item => 
+            item.productId != null && item.productId.category != null
+        );
+        
         const cartItems = cart.items.map(item => ({
             productname: item.productId.productname,
             salePrice: item.productId.salePrice,

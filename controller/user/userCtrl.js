@@ -502,8 +502,11 @@ const categoryOffer=product?.category?.categoryOffer || 0;
       };
   
       // Apply category filter if selected
-      if (category) {
-        const categoryData = await Category.findOne({ name: category });
+    if (category) {
+        const categoryData = await Category.findOne({ 
+          name: category,
+          isListed: true // Only get listed categories
+        });
         if (categoryData) {
           filter.category = categoryData._id;
         }
@@ -533,12 +536,21 @@ const categoryOffer=product?.category?.categoryOffer || 0;
         productsWithOrders.map(item => [item._id.toString(), item.orderCount])
       );
   
-      // Get products with populate
+      // Get products with populate and ensure category is listed
       let productData = await Product.find(filter)
+        .populate({
+          path: 'category',
+          match: { isListed: true }, // Only populate listed categories
+          select: 'categoryOffer name isListed'
+        })
         .populate('reviews')
         .skip(skip)
-        .limit(limit)
-        .populate('category','categoryOffer');
+        .limit(limit);
+
+
+      // Filter out products with unlisted categories
+      productData = productData.filter(product => product.category !== null);
+
 
       // Calculate average ratings and add order counts
       const productsWithRatings = productData.map(product => {
@@ -587,8 +599,11 @@ const categoryOffer=product?.category?.categoryOffer || 0;
             return recencyScore + priceScore;
           });
       }
-      const totalProducts = await Product.countDocuments(filter);
-      const totalPages = Math.ceil(totalProducts / limit);
+      const totalProducts = await Product.countDocuments({
+        ...filter,
+        category: { $in: await Category.find({ isListed: true }).distinct('_id') }
+      });
+       const totalPages = Math.ceil(totalProducts / limit);
       const categories = await Category.find({ isListed: true });
   
       res.render('ShopPage', {
