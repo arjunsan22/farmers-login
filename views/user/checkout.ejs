@@ -528,6 +528,9 @@
                     Coupon "${sessionData.code}" applied successfully!
                 </div>
             `;
+        }else{
+            document.getElementById('applyCustomCoupon').style.display = 'inline-block';
+            document.getElementById('removeCustomCoupon').style.display = 'none';
         }
     });
 
