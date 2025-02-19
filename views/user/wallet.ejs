@@ -352,3 +352,13 @@
       });
     });
   </script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const transactionDates = document.querySelectorAll('.transaction-date');
+    transactionDates.forEach(element => {
+      const utcDate = element.getAttribute('data-date');
+      const localDate = new Date(utcDate).toLocaleString();
+      element.textContent = localDate;
+    });
+  });
+</script>
