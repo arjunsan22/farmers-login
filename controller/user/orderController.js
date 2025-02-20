@@ -18,21 +18,28 @@ const getOrderHistory = async (req, res) => {
    const page = parseInt(req.query.page) || 1; 
    const limit = 4; 
    const skip = (page - 1) * limit; 
-   const totalOrders = await Order.countDocuments({ userId }); 
-   const totalPages  = Math.ceil(totalOrders / limit); 
 
-     
-      const orders = await Order.find({ userId }).populate('orderedItems.product')
+      const orders = await Order.find({ userId }).populate({
+        path: 'orderedItems.product',
+        match: { isblocked: false } 
+      })
       .populate('address')
       .sort({ createdOn: -1 })
       .skip(skip)
       .limit(limit)
-      console.log("Image paths:", orders.map(order => 
-        order.orderedItems.map(item => item.product.productImage)
-      ));
+      // Filter out any null products (blocked ones) from orderedItems
+      const filteredOrders = orders.map(order => ({
+        ...order.toObject(),
+        orderedItems: order.orderedItems.filter(item => item.product !== null)
+    }));
+        // Recalculate total orders count excluding orders with only blocked products
+        const totalOrders = filteredOrders.filter(order => order.orderedItems.length > 0).length;
+        const totalPages = Math.ceil(totalOrders / limit);
+
       // console.log("orders details :",orders)
   
-      res.render('order-history', { orders ,user:userData,currentPage: page, totalPages ,razorpayKeyId:process.env.RAZORPAY_KEY_ID  });
+      
+      res.render('order-history', { orders : filteredOrders,user:userData,currentPage: page, totalPages ,razorpayKeyId:process.env.RAZORPAY_KEY_ID  });
 
     } catch (error) {
       console.error('Error fetching order history:', error);
@@ -465,6 +472,11 @@ const checkStockAvailability = async (req, res) => {
       if (!product || product.quantity < item.quantity) {
         return res.status(400).json({ success: false, message: `Insufficient stock!  ${product.quantity} kg stock only for product ${product.productname} ,You requested ${item.quantity} kg ` });
       }
+    }
+    // Check if any product in the order is blocked
+    const hasBlockedProducts = order.orderedItems.some(item => !item.product || item.product.isblocked);
+    if (hasBlockedProducts) {
+      return res.status(400).json({ success: false, message: 'Some products are unavailable' });
     }
 
     res.json({ success: true });
