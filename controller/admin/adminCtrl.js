@@ -322,24 +322,36 @@ const errorPage=async (req,res) => {
     }
 }
 
-const  Logout=async (req,res) => {
-    try {
+// const  Logout=async (req,res) => {
+//     try {
       
-        req.session.destroy((err)=>{
-            if(err){
-            console.log("error faced in logout-destory session")
-        return res.redirect('/error')    
-        }
+//         req.session.destroy((err)=>{
+//             if(err){
+//             console.log("error faced in logout-destory session")
+//         return res.redirect('/error')    
+//         }
 
-                    res.redirect('/admin/login')
+//                     res.redirect('/admin/login')
         
         
-        })
+//         })
+//     } catch (error) {
+//     console.log("error during logout")
+//     res.redirect('/error')
+//     }
+// }
+
+const Logout = async (req, res) => {
+    try {
+        req.session.admin = null;
+        
+        console.log("Admin logged out successfully");
+        res.redirect('/admin/login');
     } catch (error) {
-    console.log("error during logout")
-    res.redirect('/error')
+        console.log("Error during admin logout:", error);
+        res.redirect('/error');
     }
-}
+};
 
 const blockUser=async(req,res)=>{
     try {

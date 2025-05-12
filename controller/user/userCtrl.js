@@ -432,13 +432,9 @@ res.redirect('/')
 //logout//
 const LoGout = async (req, res) => {
   try {
-    req.session.destroy((error) => {
-      if (error) {
-        console.error('Error destroying session:', error);
-        return res.redirect('/pagenotfound'); 
-      }
+    req.session.user=null
     return  res.redirect('/login'); 
-    });
+    
   } catch (error) {
     console.error('Error in LoGout:', error.message);
     res.status(500).send('Internal Server Error'); 
