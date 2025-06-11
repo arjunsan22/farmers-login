@@ -276,14 +276,18 @@
                                         <div class="col-md-5 col-sm-9">
                                             <h5 class="product-name"><%= item.productname %></h5>
                                             <p class="product-price">₹<%= item.salePrice.toLocaleString() %></p>
+                                            <p>₹<%= item.salePrice.toLocaleString() %> rupees per <%=item.unit %></p>
                                             <p id="status-<%= item.product._id %>" class="text-danger" style="font-weight: bold;"></p>
                                         </div>
                                         <div class="col-md-4 col-sm-6">
                                             <div class="quantity-controls">
                                                 <button class="quantity-btn" onclick="return updateQuantity('<%= item.product._id %>', 'decrease')">-</button>
-                                                <span class="quantity-value">
+                                                <!-- <span class="quantity-value">
                                                     <span id="quantity-<%= item.product._id %>"><%= item.quantity %></span> KG
-                                                </span>
+                                                </span> -->
+                                                <span class="quantity-value">
+<span id="quantity-<%= item.product._id %>"><%= Number(item.quantity).toFixed(2) %></span>                </span>
+
                                                 <button class="quantity-btn" onclick="return updateQuantity('<%= item.product._id %>', 'increase')">+</button>
                                             </div>
                                         </div>
@@ -353,7 +357,7 @@ const currentQuantity = document.getElementById(`quantity-${productId}`).textCon
         Swal.fire({
             icon: 'warning',
             title: 'Quantity Limit',
-            text: 'You can only add up to 5 kg of this product to your cart.',
+            text: 'Quantity Exeeds for this product',
             confirmButtonText: 'OK'
         });
         return;

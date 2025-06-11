@@ -343,8 +343,8 @@
       <% products.forEach((product, index) => { %>
           <div class="product-item <%= index !== products.length - 1 ? 'border-bottom mb-3 pb-3' : '' %>">
               <p><strong>Product:</strong> <%= product.productname %></p>
-              <p><strong>Quantity:</strong> <%= product.quantity %> kg</p>
-              <p><strong>Price per kg:</strong> ₹<%= product.salePrice.toFixed(2) %></p>
+              <p><strong>Quantity:</strong> <%= product.quantity %> <%=product.unit %></p>
+              <p><strong>Price per  <%=product.unit %>:</strong> ₹<%= product.salePrice.toFixed(2) %></p>
               <p><strong>Total:</strong> ₹<%= product.totalPrice.toFixed(2) %></p>
           </div>
       <% }); %>
@@ -446,7 +446,7 @@
                   <strong>House No:</strong> <%= address.Houseno %>
                 </p>
                 <div class="form-check">
-                  <input class="form-check-input" type="radio" name="address" value="<%= address._id %>" id="address<%= index %>" required>
+                  <input class="form-check-input" type="radio" name="address" value="<%= address._id %>" id="address<%= index %>" >
                   <label class="form-check-label" for="address<%= index %>">
                     Select this address
                   </label>

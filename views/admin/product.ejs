@@ -146,6 +146,7 @@
                             <th>Category</th>
                             <th>Price</th>
                             <th>Sale Price</th>
+                            <th>Unit & UnitStep</th>
                             <th>Offer</th>
                             <th>Offer Action</th>
                             <th>Quantity</th>
@@ -162,7 +163,7 @@
 
                                 <td data-label="Price"><%= data[i].mainPrice %></td>
                                 <td data-label="Sale Price"><%= data[i].salePrice %></td>
-
+                                <td><%= data[i].unit %> | <%= data[i].unitStep %></td>
                                 <td data-label="Offer">
                                     <%if(locals.data[i].productOffer){%>
                                         <%=data[i].productOffer%>

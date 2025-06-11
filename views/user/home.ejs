@@ -560,10 +560,8 @@ a{
         <!-- Card 1 -->
         <div class="col">
             <div class="card h-100 shadow-lg border-0">
-                <img src="/images/fru.jpg" class="card-img-top" alt="Fruits">
+                <img src="/images/ban1.png" class="card-img-top" alt="Fruits">
                 <div class="card-body">
-                    <h5 class="card-title fw-bold">Fruits</h5>
-                    <p class="card-text">Explore our wide variety of fresh and organic fruits sourced from local farms.</p>
                     <a href="/shop" class="btn btn-primary">Shop Now</a>
                 </div>
             </div>
@@ -631,7 +629,7 @@ a{
 <section>
 
 <section class="container my-5 text-center">
-    <h2 class="mb-4 fw-bold text-danger">FRESH VEGETABLES & FRUITS</h2>
+    <h2 class="mb-4 fw-bold text-danger">STRAIGHT FROM THE VILLAGE</h2>
     <br>
     <!-- Product Listing Grid -->
    
@@ -662,13 +660,24 @@ a{
                     <h5 class="card-title fw-bold"><%=products[i].productname%></h5>
                     <!-- prise -->
                     <p class="card-text text-muted">₹ <%=products[i].mainPrice%></p>
-                    <%if(products[i].quantity >= 5){%>
-                    <p class="card-text text-success   fw-bold"> <%=products[i].quantity%>kg left</p>
-                    <%}else if(products[i].quantity<5 && products[i].quantity>0){%>
-                    <p class="card-text text-warning fw-bold"> <%=products[i].quantity%>kg left</p>
-                    <%}else if(products[i].quantity==0){%>
-                    <p class="card-text text-danger fw-bold">out of stock</p>
-                    <%}%>
+                  <% if (products[i].quantity >= 5) { %>
+  <p class="card-text text-success fw-bold">
+    <%= products[i].quantity %> 
+    <% if (products[i].unit) { %>
+      <%= products[i].unit %>
+    <% } %> left
+  </p>
+<% } else if (products[i].quantity < 5 && products[i].quantity > 0) { %>
+  <p class="card-text text-warning fw-bold">
+    <%= products[i].quantity %> 
+    <% if (products[i].unit) { %>
+      <%= products[i].unit %>
+    <% } %> left - Hurry!
+  </p>
+<% } else if (products[i].quantity == 0) { %>
+  <p class="card-text text-danger fw-bold">Out of stock</p>
+<% } %>
+
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="star-rating">
                             <% for (let j = 1; j <= 5; j++) { %>
@@ -739,13 +748,25 @@ a{
                     <h5 class="card-title fw-bold"><%=products[i].productname%></h5>
                     <!-- prise -->
                     <p class="card-text text-muted">₹ <%=products[i].salePrice%></p>
-                    <%if(products[i].quantity >= 5){%>
-                        <p class="card-text text-success   fw-bold"> <%=products[i].quantity%>kg left</p>
-                        <%}else if(products[i].quantity<5 && products[i].quantity>0){%>
-                        <p class="card-text text-warning fw-bold"> <%=products[i].quantity%>kg left</p>
-                        <%}else if(products[i].quantity==0){%>
-                        <p class="card-text text-danger fw-bold">out of stock</p>
-                        <%}%>
+
+
+                        <% if (products[i].quantity >= 5) { %>
+  <p class="card-text text-success fw-bold">
+    <%= products[i].quantity %> 
+    <% if (products[i].unit) { %>
+      <%= products[i].unit %>
+    <% } %> left
+  </p>
+<% } else if (products[i].quantity < 5 && products[i].quantity > 0) { %>
+  <p class="card-text text-warning fw-bold">
+    <%= products[i].quantity %> 
+    <% if (products[i].unit) { %>
+      <%= products[i].unit %>
+    <% } %> left - Hurry!
+  </p>
+<% } else if (products[i].quantity == 0) { %>
+  <p class="card-text text-danger fw-bold">Out of stock</p>
+<% } %>
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="star-rating">
                             <% for (let j = 1; j <= 5; j++) { %>
@@ -816,13 +837,24 @@ a{
                     <h5 class="card-title fw-bold"><%=products[i].productname%></h5>
                     <!-- prise -->
                     <p class="card-text text-muted">₹ <%=products[i].mainPrice%></p>
-                    <%if(products[i].quantity >= 5){%>
-                        <p class="card-text text-success   fw-bold"> <%=products[i].quantity%>kg left</p>
-                        <%}else if(products[i].quantity<5 && products[i].quantity>0){%>
-                        <p class="card-text text-warning fw-bold"> <%=products[i].quantity%>kg left</p>
-                        <%}else if(products[i].quantity==0){%>
-                        <p class="card-text text-danger fw-bold">out of stock</p>
-                        <%}%>
+                    
+                        <% if (products[i].quantity >= 5) { %>
+  <p class="card-text text-success fw-bold">
+    <%= products[i].quantity %> 
+    <% if (products[i].unit) { %>
+      <%= products[i].unit %>
+    <% } %> left
+  </p>
+<% } else if (products[i].quantity < 5 && products[i].quantity > 0) { %>
+  <p class="card-text text-warning fw-bold">
+    <%= products[i].quantity %> 
+    <% if (products[i].unit) { %>
+      <%= products[i].unit %>
+    <% } %> left - Hurry!
+  </p>
+<% } else if (products[i].quantity == 0) { %>
+  <p class="card-text text-danger fw-bold">Out of stock</p>
+<% } %>
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="star-rating">
                             <% for (let j = 1; j <= 5; j++) { %>
@@ -873,6 +905,26 @@ a{
         </div>
     </div>
 </div>
+    <!-- Add to notification Script -->
+
+<!-- notification Coupon Function -->
+ <% if (coupons && coupons.length > 0) { %>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      showOfferToast('🎁 Use coupon <%= coupons[0].couponCode %> for ₹<%= coupons[0].offerPrice %> OFF!');
+    });
+  </script>
+
+  <!-- code copy -->
+   <script>
+function copyCoupon(code) {
+  navigator.clipboard.writeText(code);
+  showOfferToast('Coupon code copied: ' + code);
+}
+</script>
+<% } %>
+<!-- end -->
+
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>

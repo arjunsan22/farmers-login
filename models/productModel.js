@@ -45,7 +45,18 @@ var productSchema = new mongoose.Schema({
         type:[String],
         // required:true
     },
-    
+      unit: {
+        type: String,
+        enum: ["kg", "g", "litre", "ml", "piece"],
+        
+    },
+
+     // ✅ New field: quantity step size
+    unitStep: {
+        type: Number,
+        default: 1
+    },
+
     isblocked:{
         type:Boolean,
         default:false

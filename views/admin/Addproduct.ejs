@@ -165,7 +165,25 @@
                                 <input placeholder="kg" name="quantity" type="text" class="form-control">
                                 <div id="quantity-error" class="error-message"></div>
                             </div>
-
+                            <!-- new code starts -->
+<div class="col-lg-4 mb-4">
+    <label class="form-label">Unit</label>
+    <select class="form-select" name="unit" required>
+        <option value="kg">Kilogram (kg)</option>
+        <option value="g">Gram (g)</option>
+        <option value="litre">Litre (litre)</option>
+        <option value="ml">Millilitre (ml)</option>
+        <option value="piece">Piece</option>
+    </select>
+    <div id="unit-error" class="error-message"></div>
+</div>
+<div class="col-lg-4 mb-4">
+    <label class="form-label">Quantity Step Size</label>
+    <input type="number" class="form-control" name="unitStep"  value="1" >
+    <small class="text-muted">E.g., 1 for piece, 100 for grams, 500 for ml, .</small>
+    <div id="unitStep-error" class="error-message"></div>
+</div>
+<!-- new code endd -->
                             <div class="mb-4">
                                 <label class="form-label">Tags</label>
                                 <textarea placeholder="Type here" id="tagid" name="tag" class="form-control" rows="4"></textarea>
@@ -395,7 +413,9 @@ addedImagesContainer.appendChild(thumbnail);
 
               const salePrice = document.getElementsByName('salePrice')[0].value;
               const tag = document.getElementsByName('tag')[0].value;
-              
+              const unit = document.getElementsByName('unit')[0].value;
+const unitStep = document.getElementsByName('unitStep')[0].value;
+
 
               const category = document.getElementsByName('category')[0].value;
               const images = document.getElementById('input1')
@@ -419,7 +439,11 @@ addedImagesContainer.appendChild(thumbnail);
 //    }
   
   
-           
+           if (!unit) {
+    displayErrorMessage('unit-error', 'Please select a unit.');
+    isValid = false;
+}
+
   
   
               if ( parseInt(quantity) < 0) {
@@ -454,13 +478,13 @@ addedImagesContainer.appendChild(thumbnail);
 //    }
   
   //tags//            
-if (tag.trim() === "") {
-      displayErrorMessage('tag-error', 'Please enter product Tags');//vegetable green cabbage //white cabbage
-      isValid = false;
-   } else if (!/^[a-zA-Z\s]+$/.test(tag.trim())) {
-      displayErrorMessage('tag-error', 'Product Tags should contain only alphabetic characters.');
-      isValid = false;
-   }
+// if (tag.trim() === "") {
+//       displayErrorMessage('tag-error', 'Please enter product Tags');//vegetable green cabbage //white cabbage
+//       isValid = false;
+//    } else if (!/^[a-zA-Z\s]+$/.test(tag.trim())) {
+//       displayErrorMessage('tag-error', 'Product Tags should contain only alphabetic characters.');
+//       isValid = false;
+//    }
 
 
 

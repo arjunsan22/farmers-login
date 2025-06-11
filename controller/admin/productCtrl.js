@@ -57,6 +57,8 @@ if(!productExists){
         offer:products.offer,
         mainPrice:products.regularPrice,
         salePrice:products.salePrice,
+        unit:products.unit,
+        unitStep:products.unitStep, 
 
         
         
@@ -201,7 +203,9 @@ const updateProduct = async (req, res) => {
             mainPrice: data.regularPrice,
             salePrice:data.salePrice,
             quantity: data.quantity,
-            tag: data.tag
+            tag: data.tag,
+            unit: data.unit,
+            unitStep: data.unitStep,
         };
 
         if (images.length > 0) {

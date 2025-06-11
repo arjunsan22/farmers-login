@@ -162,6 +162,16 @@
                                 <input placeholder="kg" name="quantity" type="text" class="form-control" value="<%=product.quantity%>">
                                 <div id="quantity-error" class="error-message"></div>
                             </div>
+                            <div class="col-lg-4 mb-4">
+                        <label class="form-label">Unit</label>
+                        <input placeholder="e.g. kg, piece, litre" name="unit" type="text" class="form-control" value="<%= product.unit %>">
+                        <div id="unit-error" class="error-message"></div>
+                    </div>
+                    <div class="col-lg-4 mb-4">
+                        <label class="form-label">Unit Step</label>
+                        <input placeholder="e.g. 0.5, 1" name="unitStep" type="number" step="any" class="form-control" value="<%= product.unitStep %>">
+                        <div id="unitStep-error" class="error-message"></div>
+                    </div>
 
                             <div class="mb-4">
                                 <label class="form-label">Tags</label>
@@ -451,7 +461,8 @@ addedImagesContainer.appendChild(thumbnail);
               const category = document.getElementsByName('category')[0].value;
               const images = document.getElementById('input1')
               const quantity=document.getElementsByName('quantity')
-
+          const unit = document.getElementsByName('unit')[0].value;
+          const unitStep = document.getElementsByName('unitStep')[0].value;
               let isValid = true
               if (name.trim() === "") {
       displayErrorMessage('productName-error', 'Please enter a product name.');
@@ -469,7 +480,16 @@ addedImagesContainer.appendChild(thumbnail);
       isValid = false;
    }
   
-  
+
+
+if (unit.trim() === "") {
+    displayErrorMessage('unit-error', 'Please enter a unit (e.g. kg, piece).');
+    isValid = false;
+}
+if (unitStep.trim() === "" || isNaN(unitStep) || parseFloat(unitStep) <= 0) {
+    displayErrorMessage('unitStep-error', 'Please enter a valid unit step (e.g. 0.5, 1).');
+    isValid = false;
+}
            
   
   

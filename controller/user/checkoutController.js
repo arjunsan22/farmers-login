@@ -23,7 +23,7 @@ const loadCheckoutPage = async (req, res) => {
   .populate({
       path: 'items.productId',
       model: 'Product',
-      select: 'productname salePrice'
+      select: 'productname salePrice unit unitStep '
   });
 
 if (!cart || !cart.items.length) {
@@ -34,7 +34,9 @@ const products = cart.items.map(item => ({
   productname: item.productId.productname,
   salePrice: item.productId.salePrice,
   quantity: item.quantity,
-  totalPrice: item.productId.salePrice * item.quantity
+  totalPrice: item.productId.salePrice * item.quantity,
+  unit: item.productId.unit,         
+  unitStep: item.productId.unitStep,
 }))
 
  // Calculate cart total

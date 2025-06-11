@@ -26,27 +26,28 @@ const addToCart = async (req, res) => {
             const existingItem = cart.items.find(item => item.productId.toString() === productId);
 
             if (existingItem) {
-                const newQuantity = existingItem.quantity + parseInt(quantity, 10);
+                const newQuantity = existingItem.quantity + parseFloat(quantity);
                 if (newQuantity > product.quantity) {
                     return res.status(400).json({ success: false, message: 'Exceeds available stock' });
                 }
                 existingItem.quantity = newQuantity; // update quantity//
                 existingItem.totalPrice = existingItem.quantity * product.salePrice;
             } else {
-                if (parseInt(quantity, 10) > product.quantity) {
+                if (parseFloat(quantity) > product.quantity) {
                     return res.status(400).json({ success: false, message: 'Exceeds available stock' });
                 }
                 cart.items.push({
                     productId,
-                    quantity: parseInt(quantity, 10), // convert to number//
+                    quantity: parseFloat(quantity), 
                     price: product.salePrice,
-                    totalPrice: parseInt(quantity, 10) * product.salePrice
-                });
+                    unit: product.unit,
+                    unitStep: product.unitStep,
+                    totalPrice: parseFloat(quantity) * product.salePrice                });
             }
 
             await cart.save();
         } else {
-            if (parseInt(quantity, 10) > product.quantity) {
+    if (parseFloat(quantity) > product.quantity) {
                 return res.status(400).json({ success: false, message: 'Exceeds available stock' });
             }
             // Create a new cart
@@ -54,9 +55,11 @@ const addToCart = async (req, res) => {
                 userId,
                 items: [{
                      productId,
-                    quantity: parseInt(quantity, 10), 
+            quantity: parseFloat(quantity),
                       price: product.salePrice,
-                totalPrice: parseInt(quantity, 10) * product.salePrice
+                    unit: product.unit,
+                    unitStep: product.unitStep,
+            totalPrice: parseFloat(quantity) * product.salePrice
                 }]
             });
             await newCart.save();
@@ -97,6 +100,8 @@ const getCart = async (req, res) => {
             productImage: item.productId.productImage,
             product: item.productId, // Ensure this is populated correctly
             quantity: item.quantity,
+            unit: item.productId.unit,
+            unitStep: item.productId.unitStep,
             totalPrice: item.totalPrice
         }))
 
@@ -129,15 +134,17 @@ const updateQuantity = async (req, res) => {
         const product = await Product.findById(productId);
         if (!product) return res.status(404).json({ message: 'Product not found' });
 
-        if (action === 'increase') {
-            if (cartItem.quantity >= product.quantity) {
-                return res.status(400).json({ message: 'Out of Stock' });
-            }
-            cartItem.quantity += 1;
-        } else if (action === 'decrease' && cartItem.quantity > 1) {
-            cartItem.quantity -= 1;
-        }
-
+      const step = cartItem.unitStep || 0.5;
+if (action === 'increase') {
+    if (cartItem.quantity + step > product.quantity) {
+        return res.status(400).json({ message: 'Out of Stock' });
+    }
+    cartItem.quantity = parseFloat((cartItem.quantity + step).toFixed(2));
+} else if (action === 'decrease') {
+    if (cartItem.quantity - step >= step) {
+        cartItem.quantity = parseFloat((cartItem.quantity - step).toFixed(2));
+    }
+}
         cartItem.totalPrice = cartItem.quantity * cartItem.price;
         await cart.save();
         const cartTotal = cart.items.reduce((acc, item) => acc + item.totalPrice, 0);

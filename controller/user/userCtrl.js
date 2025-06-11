@@ -460,6 +460,7 @@ const loadProductDetails = async (req, res) => {
     const relatedProducts = await Product.find({
       productname: { $regex: product.productname.split(' ')[0], $options: 'i' },
       _id: { $ne: productId },
+      isblocked: false,
     }).populate('category','categoryOffer name').populate('reviews');
    
 const categoryOffer=product?.category?.categoryOffer || 0;

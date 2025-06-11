@@ -268,7 +268,7 @@
                   <th>Image</th>
                   <th>Product Name</th>
                   <th>Quantity</th>
-                  <th>Price</th>
+                  <th>Price </th>
                 </tr>
               </thead>
               <tbody>
@@ -285,8 +285,8 @@
                       </a>
                     </td>
                     <td><%= item.product.productname %></td>
-                    <td><%= item.quantity %></td>
-                    <td>₹<%= item.price %></td>
+                    <td><%= item.quantity %> <%=item.product.unit%></td>
+                    <td>₹<%= item.price %>  per <%= item.product.unit %></td>
                   </tr>
                 <% }) %>
               </tbody>
