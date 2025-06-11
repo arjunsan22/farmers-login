@@ -251,8 +251,12 @@
   <% if (locals.user) { %>
     <div class="dropdown" onmouseover="openDropdown()" onmouseout="closeDropdown()">
       <button class="btn dropdown-toggle" style=" color: #ffffff;">
-        <span class="material-symbols-outlined">person</span>
-      </button>
+<img 
+  src="<%= user.userImage || '/images/default-profile.png' %>" 
+  alt="Profile" 
+  class="rounded-circle" 
+  style="width: 32px; height: 32px; object-fit: cover; border: 2px solid #fff;"
+>      </button>
       <ul class="dropdown-menu" id="userDropdownMenu">
         <a style="background-color: #e7e0e0;" class="nav-link" href="/userProfile" id="userDropdown">
           <h6 style="text-transform: uppercase;"> WELCOME <%= user.firstname %> <%= user.lastname %></h6>

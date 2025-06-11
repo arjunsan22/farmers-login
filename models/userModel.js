@@ -30,9 +30,11 @@ var userSchema = new mongoose.Schema({
         type:String,
         required:false,
     },
-    userImage:{
-        type:String,
-    },
+    // userModel.js
+    userImage: { 
+        type: String,
+        default: "" },
+
     googleId:{
         type:String,
         unique:false,

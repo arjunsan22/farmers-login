@@ -43,31 +43,61 @@ const editProfile=async (req,res) => {
 
 }
 
+// const updateProfile = async (req, res) => {
+//     try {
+//         const { firstname, lastname, phone } = req.body;
+//         const userId = req.session.user;
+//         const userData=await User.findById(userId);
+  
+
+//         const updatedUser = await User.findByIdAndUpdate(
+//           userData ,
+//             { firstname, lastname, phone },
+//             { new: true } // This option returns the updated document
+//         );
+
+//         if (!updatedUser) {
+//             return res.status(404).send('User not found.');
+//         }
+
+//         // Redirect to the user profile page after updating
+//         res.redirect('/userProfile');
+//     } catch (error) {
+//         console.error('Error updating profile:', error);
+//         res.render('pagenotfound')
+//     }
+// };
+
+
 const updateProfile = async (req, res) => {
     try {
         const { firstname, lastname, phone } = req.body;
         const userId = req.session.user;
-        const userData=await User.findById(userId);
-  
+
+        // Prepare update data
+        let updateData = { firstname, lastname, phone };
+
+        // If a new profile image is uploaded, add its path
+        if (req.file) {
+            updateData.userImage = '/uploads/profile-images/' + req.file.filename;
+        }
 
         const updatedUser = await User.findByIdAndUpdate(
-          userData ,
-            { firstname, lastname, phone },
-            { new: true } // This option returns the updated document
+            userId,
+            updateData,
+            { new: true }
         );
 
         if (!updatedUser) {
             return res.status(404).send('User not found.');
         }
 
-        // Redirect to the user profile page after updating
         res.redirect('/userProfile');
     } catch (error) {
         console.error('Error updating profile:', error);
-        res.render('pagenotfound')
+        res.render('pagenotfound');
     }
 };
-
 
 //address management//
 

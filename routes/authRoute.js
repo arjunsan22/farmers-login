@@ -13,6 +13,7 @@ const orderController=require('../controller/user/orderController')
 const wishlistController=require('../controller/user/wishlistController')
 const walletController = require('../controller/user/walletController');
 const reviewController = require('../controller/user/reviewController');
+const upload = require('../middlewares/uploadProfile');
 
 router.get('/pagenotfound',userController.pagenotfound)
 
@@ -76,7 +77,7 @@ router.get('/userProfile',usermiddle.isLogout,profileController.loadProfilePage)
 
 router.get('/profile/edit',usermiddle.isLogout,profileController.editProfile);
 
-router.post('/profile/update',profileController.updateProfile);
+router.post('/profile/update', upload.single('userImage'),profileController.updateProfile);
 
 // router.post('/profile/uploadPicture',upload.single('profilePicture'),profileController.uploadProfilePicture)
 
