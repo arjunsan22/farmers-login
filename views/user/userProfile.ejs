@@ -368,12 +368,12 @@
     </style>
     <style>
         @keyframes colorChange {
-          0% { color: red; }
-          20% { color: orange; }
-          40% { color: yellow; }
+          0% { color: rgb(59, 4, 4); }
+          20% { color: rgb(4, 86, 64); }
+          40% { color: rgb(0, 0, 0); }
           60% { color: green; }
-          80% { color: blue; }
-          100% { color: red; }
+          80% { color: rgb(74, 15, 29); }
+          100% { color: rgb(72, 88, 1); }
         }
         
         h1 {
@@ -395,6 +395,7 @@
 <div class="col-md-3 col-12 mb-3">
     <div class="card shadow-lg p-4">
         <h4 class="text-center mb-4 title">ƒαямєяѕ тσσℓѕ</h4>
+        
         <div class="d-grid gap-3">
             <a href="/userProfile" class="btn btn-success text-white text-decoration-none btn-animate">Dashboard</a>
             <a href="/order-history" class="btn btn-success text-white text-decoration-none btn-animate">Order History</a>
@@ -413,9 +414,67 @@
           <br>
             <div class="container text-center">
                 <!-- <img src="<%= user.userImage || '/images/default-profile.png' %>" alt="Profile Picture" class="img-fluid rounded-circle mb-4" style="width: 150px; height: 150px; object-fit: cover;"> -->
-                <h1 class="mb-4 " style="animation: colorChange 5s infinite;">
-                   Hai <%=user.firstname %>  <%=user.lastname %>  ιт'ѕ тнє яιgнт тιмє тσ ѕнσρ
-                  </h1>                  
+                <h1 id="dynamicHeadline" class="mb-4" style="animation: colorChange 5s infinite;">
+  Shop it. Love it. Live it — only for you, <%= user.firstname %> <%= user.lastname %>
+</h1>
+     
+                    
+    <!-- Farmer Registration Modal -->
+    <div class="modal fade" id="farmerModal" tabindex="-1" aria-labelledby="farmerModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="farmerModalLabel">Farmer Registration</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="farmerRegistrationForm"  action="/register-farmer" method="POST" enctype="multipart/form-data">
+                        <!-- Farm Name -->
+                        <div class="mb-3">
+                            <label for="farmName" class="form-label">Farm Name</label>
+                            <input type="text" class="form-control" id="farmName" name="farmName" required>
+                        </div>
+
+                        <!-- District -->
+                        <div class="mb-3">
+                            <label for="district" class="form-label">District</label>
+                            <input type="text" class="form-control" id="district" name="district" required>
+                        </div>
+
+                        <!-- Years of Experience -->
+                        <div class="mb-3">
+                            <label for="yearsOfExperience" class="form-label">Years of Experience</label>
+                            <input type="number" class="form-control" id="yearsOfExperience" name="yearsOfExperience" required>
+                        </div>
+
+                        <!-- GPS Location -->
+                        <div class="mb-3">
+                            <label for="location" class="form-label">Location</label>
+                            <input type="text" step="any" class="form-control" id="location" name="location" required>
+                        </div>
+                       
+
+                        <!-- Certificate Upload -->
+                        <div class="mb-3">
+                            <label for="certificate" class="form-label">Certification Upload</label>
+                            <input type="file" class="form-control" id="certificate" name="certificate" accept="application/pdf,image/*" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" form="farmerRegistrationForm" class="btn btn-primary">Register as Farmer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Are you a farmer? link above the submit button -->
+    <div class="text-center mb-3">
+        <a href="#" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#farmerModal">Are you a farmer?</a>
+    </div>
+    <!-- end of farmer select -->
+              
                 <div class="text-start profile-info">
                     <img src="<%= user.userImage || '/images/default-profile.png' %>" alt="Profile Picture" class="img-fluid rounded-circle mb-4" style="width: 150px; height: 150px; object-fit: cover;">
                     <p><strong>First Name:</strong> <%= user.firstname %></p>
@@ -425,7 +484,52 @@
                     <p><strong>Referral Code:</strong><span style="color: #ffc93f;font-weight: bold;font-size: larger;"> <%= user.referralCode || 'N/A' %> </span> <span class="text-success">Hey share with your friends! Get 200₹ to your wallet 🥳.</span> </p>
                 </div>
                 <br>
+                <br>
+                 <!-- User Details showing Modal -->
                 <div class="d-grid gap-2 d-md-block">
+                    
+<button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#userDetailsModal">
+                        View Your Farm Details
+                    </button>
+                </div>
+               
+                <div class="modal fade" id="userDetailsModal" tabindex="-1" aria-labelledby="userDetailsModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="userDetailsModalLabel">User Details</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="text-center mb-4">
+                                    <img src="<%= user.certificate || '/images/default-avatar.png' %>" alt="Profile Picture" class="rounded-circle" style="width: 150px; height: 150px; object-fit: cover;">
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <strong>Farm Name:</strong> <%= user.farmName %>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <strong>District:</strong> <%= user.district %>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <strong>Experence:</strong> <%= user.yearsOfExperience %>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <strong>Admin verified:</strong> <%= user.isVerified || 'Waiting for admin approval' %>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <strong>Location:</strong> <%= user.location || 'Not specified' %>
+                                    </div>                 
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- end of farm details  showing  -->
+                 <br>
                     <a href="/profile/edit" class="btn btn-warning">Edit Profile</a>
                     <a href="/useraddress" class="btn btn-warning">Address</a>
                     <a href="/changeEmail" class="btn btn-warning">Change Email</a>
@@ -441,5 +545,27 @@
 
 </body>
 </html>
+<script>
+  const userName = "<%= user.firstname %> <%= user.lastname %>";
+  const messages = [
+    `Shop it. Love it. Live it — only for you, ${userName}`,
+    `Hi ${userName}, it's the right time to shop!`,
+    `Hello ${userName}, your perfect product is waiting!`,
+    `${userName}, today is the day to find something special.`,
+    `Enjoy great deals today, ${userName}!`
+  ];
+
+  let index = 0;
+
+  function changeHeadline() {
+    const headline = document.getElementById("dynamicHeadline");
+    headline.textContent = messages[index];
+    index = (index + 1) % messages.length;
+  }
+
+  changeHeadline(); // Initial
+  setInterval(changeHeadline, 60000); // Change every 1 minute
+</script>
+
 
 <%- include("../../views/partials/user/footer") %>

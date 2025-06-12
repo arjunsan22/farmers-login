@@ -48,6 +48,29 @@ var userSchema = new mongoose.Schema({
         type:Boolean,
         default:false
     },
+    farmName: { 
+        type: String 
+    },
+        location: {
+             type: String
+   },
+    district: {
+        type: String 
+    },
+
+    yearsOfExperience: { 
+        type: Number
+    },
+    certificate: { 
+        type: String 
+    }, // file path for uploaded certificate
+isFarmer: { type: Boolean, default: false },
+
+    isVerified: { 
+        type: Boolean, 
+        default: false
+    },
+
     cart:[{
         type:Schema.Types.ObjectId,
         ref:"Cart",

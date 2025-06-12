@@ -78,9 +78,9 @@ const updateProfile = async (req, res) => {
         let updateData = { firstname, lastname, phone };
 
         // If a new profile image is uploaded, add its path
-        if (req.file) {
-            updateData.userImage = '/uploads/profile-images/' + req.file.filename;
-        }
+       if (req.files && req.files['userImage'] && req.files['userImage'][0]) {
+    updateData.userImage = '/uploads/profile-images/' + req.files['userImage'][0].filename;
+}
 
         const updatedUser = await User.findByIdAndUpdate(
             userId,
@@ -97,6 +97,40 @@ const updateProfile = async (req, res) => {
         console.error('Error updating profile:', error);
         res.render('pagenotfound');
     }
+};
+
+//farmers creating //
+
+const registerFarmer = async (req, res) => {
+    try {
+        const userId = req.session.user;
+        const { farmName, district, yearsOfExperience, location } = req.body;
+
+        let updateData = {
+            farmName,
+            district,
+            yearsOfExperience,
+            location,
+            isFarmer: true, // optional: add a flag
+            isVerified: false // admin will verify later
+        };
+
+        // Handle certificate upload
+        if (req.files && req.files['certificate'] && req.files['certificate'][0]) {
+            updateData.certificate = '/uploads/certificates/' + req.files['certificate'][0].filename;
+        }
+
+        await User.findByIdAndUpdate(userId, updateData, { new: true });
+        res.redirect('/userProfile');
+    } catch (error) {
+        console.error('Error registering farmer:', error);
+        res.render('pagenotfound');
+    }
+};
+
+module.exports = {
+    // ...other exports,
+    registerFarmer
 };
 
 //address management//
@@ -744,6 +778,7 @@ module.exports = {
     loadUserAddressPage,
     loadaddUserAddressPage,
     addUserAddress,
+        registerFarmer,
     loadEditAddress,
     updateAddress,
     deleteAddress,

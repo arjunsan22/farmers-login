@@ -456,12 +456,12 @@ const loadProductDetails = async (req, res) => {
      hasPurchased = userOrders.length > 0;
    }
   
-    const product = await Product.findById(productId).populate('category','categoryOffer name').populate('reviews.userId', 'firstname lastname');
+    const product = await Product.findById(productId).populate('category','categoryOffer name').populate('reviews.userId', 'firstname lastname userImage');
     const relatedProducts = await Product.find({
       productname: { $regex: product.productname.split(' ')[0], $options: 'i' },
       _id: { $ne: productId },
       isblocked: false,
-    }).populate('category','categoryOffer name').populate('reviews');
+    }).populate('category','categoryOffer name').populate('reviews.userId', 'firstname lastname userImage');
    
 const categoryOffer=product?.category?.categoryOffer || 0;
     if (product && !product.isblocked) {

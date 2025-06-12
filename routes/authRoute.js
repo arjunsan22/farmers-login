@@ -77,10 +77,25 @@ router.get('/userProfile',usermiddle.isLogout,profileController.loadProfilePage)
 
 router.get('/profile/edit',usermiddle.isLogout,profileController.editProfile);
 
-router.post('/profile/update', upload.single('userImage'),profileController.updateProfile);
+// router.post('/profile/update', upload.single('userImage'),profileController.updateProfile);
+//user profile edit update route//
+router.post(
+  '/profile/update',
+  upload.fields([
+    { name: 'userImage', maxCount: 1 },
+  ]),
+  profileController.updateProfile
+);
+//farmers profile route//
 
-// router.post('/profile/uploadPicture',upload.single('profilePicture'),profileController.uploadProfilePicture)
 
+router.post(
+  '/register-farmer',
+  upload.fields([
+    { name: 'certificate', maxCount: 1 }
+  ]),
+  profileController.registerFarmer
+);
 
 router.get('/useraddress',usermiddle.isLogout,profileController.loadUserAddressPage)
 router.get('/addUserAddress',usermiddle.isLogout,profileController.loadaddUserAddressPage)
