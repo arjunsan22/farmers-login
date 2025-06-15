@@ -64,7 +64,7 @@ var userSchema = new mongoose.Schema({
     certificate: { 
         type: String 
     }, // file path for uploaded certificate
-isFarmer: { type: Boolean, default: false },
+isFarmerApplyed: { type: Boolean, default: false },
 
     isVerified: { 
         type: Boolean, 

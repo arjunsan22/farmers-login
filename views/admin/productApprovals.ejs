@@ -1,0 +1,317 @@
+
+<%- include("../../views/admin/adminpartials/sidebar") %>
+<head><!-- Add this in the <head> section -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script></head>
+<div class="main-content">
+    <div class="container-fluid mt-4">
+        <h2 class="mb-4">Product Approval Management</h2>
+
+        <!-- Tabs -->
+        <ul class="nav nav-tabs mb-4" id="productTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending" type="button" role="tab" aria-controls="pending" aria-selected="true">Pending Approvals</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="approved-tab" data-bs-toggle="tab" data-bs-target="#approved" type="button" role="tab" aria-controls="approved" aria-selected="false">Approved Products</button>
+            </li>
+        </ul>
+
+        <!-- Tab Content -->
+        <div class="tab-content">
+            <!-- Pending Approvals Tab -->
+            <div class="tab-pane fade show active" id="pending" role="tabpanel" aria-labelledby="pending-tab">
+                <% if (pendingProducts.length === 0) { %>
+                    <div class="alert alert-info text-center">
+                        No pending products to approve.
+                    </div>
+                <% } else { %>
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Product Name</th>
+                                            <th>Category</th>
+                                            <th>Farmer's Price</th>
+                                            <th>Admin Price</th>
+                                            <th>Quantity</th>
+                                            <th>Farmer</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% pendingProducts.forEach(function(product) { %>
+                                            <tr>
+                                                <td><%= product.productname %></td>
+                                                <td><%= product.category.name %></td>
+                                                <td>₹<%= product.usersPrice %></td>
+                                                <td>
+                                                    <form onsubmit="event.preventDefault(); updateProductPrice('<%= product._id %>', <%= product.adminPrice || product.salePrice %>);" class="d-inline">
+                                                        <div class="input-group">
+                                                            <input type="number" 
+                                                                   class="form-control form-control-sm" 
+                                                                   value="<%= product.adminPrice || product.salePrice %>" 
+                                                                >
+                                                            <button class="btn btn-sm btn-outline-primary" type="submit">Update</button>
+                                                        </div>
+                                                    </form>
+                                                </td>
+                                                <td><%= product.quantity %> <%= product.unit %></td>
+                                                <td><%= product.userId.firstname %></td>
+                                                <td>
+                                                    <div class="btn-group">
+                                                        <button class="btn btn-success btn-sm" onclick="approveProduct('<%= product._id %>')" title="Approve">
+                                                            <i class="fas fa-check"></i>
+                                                        </button>
+                                                        <button class="btn btn-danger btn-sm" onclick="rejectProduct('<%= product._id %>')" title="Reject">
+                                                            <i class="fas fa-times"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        <% }); %>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                <% } %>
+            </div>
+
+            <!-- Approved Products Tab -->
+            <div class="tab-pane fade" id="approved" role="tabpanel" aria-labelledby="approved-tab">
+                <% if (approvedProducts.length === 0) { %>
+                    <div class="alert alert-info text-center">
+                        No approved products yet.
+                    </div>
+                <% } else { %>
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Product Name</th>
+                                            <th>Category</th>
+                                            <th>Farmer's Price</th>
+                                            <th>Admin Price</th>
+                                            <th>Quantity</th>
+                                            <th>Farmer</th>
+                                            <th>Farm Name</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% approvedProducts.forEach(function(product) { %>
+                                            <tr>
+                                                <td><%= product.productname %></td>
+                                                <td><%= product.category.name %></td>
+                                                <td>₹<%= product.usersPrice %></td>
+                                                <td>₹<%= product.adminPrice %></td>
+                                                <td><%= product.quantity %> <%= product.unit %></td>
+                                                <td><%= product.userId.firstname %></td>
+                                                <td><%= product.userId.farmName %></td>
+                                                <td>
+                                                    <span class="badge bg-success">
+                                                        Approved
+                                                    </span>
+                                                    <span class="badge bg-danger">
+                                                        can you reject <button class="btn btn-danger btn-sm" onclick="rejectProduct('<%= product._id %>')" title="Reject">
+                                                            <i class="fas fa-times"></i>
+                                                        </button> 
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        <% }); %>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reject Modal -->
+    <div class="modal fade" id="rejectModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Reject Product</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="rejectForm" action="" method="POST">
+                    <div class="modal-body">
+                        <input type="hidden" name="action" value="reject">
+                        <div class="mb-3">
+                            <label class="form-label">Rejection Reason:</label>
+                            <textarea name="message" class="form-control" rows="3" required></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-danger">Reject</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+        }
+        .table {
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        .table th {
+            background-color: #f8f9fa;
+            border-top: 2px solid #dee2e6;
+        }
+        .table td, .table th {
+            border: 1px solid #dee2e6;
+        }
+        .table-hover tbody tr:hover {
+            background-color: rgba(0, 0, 0, 0.075);
+        }
+        .btn-group .btn {
+            padding: 0.25rem 0.5rem;
+        }
+    </style>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- Add this script at the bottom of the file, just before the closing body tag -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    // Handle product approval
+    function approveProduct(productId) {
+        Swal.fire({
+            title: 'Approve Product',
+            text: 'Are you sure you want to approve this product?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, approve it!',
+            cancelButtonText: 'No, cancel',
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch(`/admin/product/approve/${productId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire('Approved!', 'The product has been approved.', 'success').then(() => {
+                            window.location.reload();
+                        });
+                    } else {
+                        throw new Error(data.error || 'Failed to approve product');
+                    }
+                })
+                .catch(error => {
+                    Swal.fire('Error!', error.message, 'error');
+                });
+            }
+        });
+    }
+    // Handle product rejection
+    function rejectProduct(productId) {
+        Swal.fire({
+            title: 'Reject Product',
+            input: 'textarea',
+            inputLabel: 'Reason for rejection',
+            inputPlaceholder: 'Enter the reason for rejection...',
+            inputAttributes: {
+                'aria-label': 'Type your message here'
+            },
+            showCancelButton: true,
+            confirmButtonText: 'Reject',
+            cancelButtonText: 'Cancel',
+            inputValidator: (value) => {
+                if (!value) {
+                    return 'Please provide a reason for rejection';
+                }
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch(`/admin/product/reject/${productId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ message: result.value })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire('Rejected!', data.message, 'success').then(() => {
+                            window.location.reload();
+                        });
+                    } else {
+                        throw new Error(data.error || 'Failed to reject product');
+                    }
+                })
+                .catch(error => {
+                    Swal.fire('Error!', error.message, 'error');
+                });
+            }
+        });
+    }
+
+    // Handle price update
+    function updateProductPrice(productId, currentPrice) {
+        Swal.fire({
+            title: 'Update Product Price',
+            input: 'number',
+            inputLabel: 'New Price',
+            inputValue: currentPrice,
+            inputAttributes: {
+                step: '0.01',
+                min: '0'
+            },
+            showCancelButton: true,
+            confirmButtonText: 'Update',
+            cancelButtonText: 'Cancel',
+            inputValidator: (value) => {
+                if (!value) {
+                    return 'Please enter a price';
+                }
+                if (isNaN(value) || value <= 0) {
+                    return 'Please enter a valid price';
+                }
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const newPrice = parseFloat(result.value);
+                fetch(`/admin/product/update-price/${productId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ adminPrice: newPrice })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire('Success!', data.message, 'success').then(() => {
+                            window.location.reload();
+                        });
+                    } else {
+                        throw new Error(data.error || 'Failed to update price');
+                    }
+                })
+                .catch(error => {
+                    Swal.fire('Error!', error.message, 'error');
+                });
+            }
+        });
+    }
+</script>

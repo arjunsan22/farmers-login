@@ -659,7 +659,7 @@ a{
                 <div class="card-body text-start">
                     <h5 class="card-title fw-bold"><%=products[i].productname%></h5>
                     <!-- prise -->
-                    <p class="card-text text-muted">₹ <%=products[i].mainPrice%></p>
+                    <p class="card-text text-muted">₹ <%=products[i].salePrice%></p>
                   <% if (products[i].quantity >= 5) { %>
   <p class="card-text text-success fw-bold">
     <%= products[i].quantity %> 
@@ -836,7 +836,7 @@ a{
                 <div class="card-body text-start">
                     <h5 class="card-title fw-bold"><%=products[i].productname%></h5>
                     <!-- prise -->
-                    <p class="card-text text-muted">₹ <%=products[i].mainPrice%></p>
+                    <p class="card-text text-muted">₹ <%=products[i].salePrice%></p>
                     
                         <% if (products[i].quantity >= 5) { %>
   <p class="card-text text-success fw-bold">

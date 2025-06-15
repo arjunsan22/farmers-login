@@ -111,7 +111,7 @@ const registerFarmer = async (req, res) => {
             district,
             yearsOfExperience,
             location,
-            isFarmer: true, // optional: add a flag
+            isFarmerApplyed: true, // optional: add a flag
             isVerified: false // admin will verify later
         };
 

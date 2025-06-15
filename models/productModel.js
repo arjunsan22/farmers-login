@@ -61,6 +61,10 @@ var productSchema = new mongoose.Schema({
         type:Boolean,
         default:false
     },
+    userId: { 
+        type: mongoose.Schema.Types.ObjectId,
+         ref: 'User' 
+        },
     status:{
         type:String,
         enum:["available","out of stock","discountinue"],
@@ -74,6 +78,30 @@ var productSchema = new mongoose.Schema({
         createdOn: { type: Date, default: Date.now }
     }],
     
+      adminApproval: {
+        status: {
+            type: String,
+            enum: ['pending', 'approved', 'rejected'],
+            default: 'pending'
+        },
+        message: {
+            type: String,
+            default: null
+        },
+        reviewedAt: {
+            type: Date,
+            default: null
+        }
+    },
+     adminPrice: {
+        type: Number,
+        default: null
+    },
+    usersPrice:{
+        type: Number,
+        default: null
+    },
+   
     createdOn: {
         type: Date,
         default: Date.now,

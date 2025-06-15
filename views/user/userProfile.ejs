@@ -468,11 +468,25 @@
             </div>
         </div>
     </div>
-
-    <!-- Add Are you a farmer? link above the submit button -->
+<!-- checking farmer verified or not to show button add or create a new  -->
+<% if (user.isVerified) { %>
     <div class="text-center mb-3">
-        <a href="#" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#farmerModal">Are you a farmer?</a>
+                <p class="mb-2">✅ Hey, you’ve been approved by the admin! You can now sell your products.</p>
+        <a href="/my-products" class="btn btn-success">Add New Product</a>
     </div>
+<% } else if (user.isFarmerApplyed) { %>
+    <div class="text-center mb-3">
+        <p class="mb-2">⏳ Your request is under review by the admin.</p>
+        <button class="btn btn-secondary" disabled>Pending Approval</button>
+    </div>
+<% } else { %>
+    <!-- Friendly message and button for unverified users -->
+    <div class="text-center mb-3">
+        <p class="mb-2">👋 Hey! New feature: You can now sell your own products on our platform.</p>
+        <a href="#" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#farmerModal">Become a Seller</a>
+    </div>
+<% } %>
+
     <!-- end of farmer select -->
               
                 <div class="text-start profile-info">

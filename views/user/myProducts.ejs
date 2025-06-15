@@ -1,0 +1,303 @@
+<%- include("../../views/partials/user/header") %>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<style>
+    .body,th,td,h2,h3,a {
+        font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    }
+    h3 {
+        color: #444;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #eee;
+    }
+    .badge {
+        margin-right: 5px;
+    }
+    .table > :not(caption) > * > * {
+        padding: 0.75rem;
+    }
+    .alert {
+        margin-bottom: 2rem;
+    }
+</style>
+<div class="container mt-4">
+    <h2>My Products</h2>
+    <a href="/my-products-addPage" class="btn btn-success mb-3">Add Product</a>
+    
+    <% if (products.length === 0) { %>
+        <div style="height: 600px;font-size:40px;" class="alert alert-info text-center">
+            😕 You haven't uploaded any products yet.
+        </div>
+    <% } else { %>
+        <!-- Pending Products -->
+        <h3 class="mt-4">Pending Approval</h3>
+        <% if (pendingProducts.length === 0) { %>
+            <div class="alert alert-info">No pending products</div>
+        <% } else { %>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Category</th>
+                        <th>Price(You Added)</th>
+                        <th>Quantity</th>
+                        <th>Edit</th>
+                        <th>Actions</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% pendingProducts.forEach(function(product) { %>
+                        <tr>
+                            <td><%= product.productname %></td>
+                            <td><%= product.category ? product.category.name : '' %></td>
+                            <td>₹<%= product.usersPrice %></td>
+                            <td><%= product.quantity %> <%= product.unit %></td>
+                            <td>
+                                <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editProductModal-<%= product._id %>">Edit</button>
+                            </td>
+                            <td>
+                                <form action="/my-products/toggle-block/<%= product._id %>" method="POST" style="display:inline;">
+                                    <% if (product.isblocked) { %>
+                                        <button class="btn btn-secondary btn-sm" type="submit">Unblock</button>
+                                    <% } else { %>
+                                        <button class="btn btn-danger btn-sm" type="submit">Block</button>
+                                    <% } %>
+                                </form>
+                            </td>
+                            <td>
+                                <span class="badge bg-warning">Pending</span>
+                            </td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        <% } %>
+
+        <!-- Approved Products -->
+        <h3 class="mt-4">Approved Products</h3>
+        <% if (approvedProducts.length === 0) { %>
+            <div class="alert alert-info">No approved products</div>
+        <% } else { %>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Category</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Edit</th>
+                        <th>Actions</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% approvedProducts.forEach(function(product) { %>
+                        <tr>
+                            <td><%= product.productname %></td>
+                            <td><%= product.category ? product.category.name : '' %></td>
+                            <td>₹<%= product.salePrice %></td>
+                            <td><%= product.quantity %> <%= product.unit %></td>
+                            <td>
+                                <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editProductModal-<%= product._id %>">Edit</button>
+                            </td>
+                            <td>
+                                <form action="/my-products/toggle-block/<%= product._id %>" method="POST" style="display:inline;">
+                                    <% if (product.isblocked) { %>
+                                        <button class="btn btn-secondary btn-sm" type="submit">Unblock</button>
+                                    <% } else { %>
+                                        <button class="btn btn-danger btn-sm" type="submit">Block</button>
+                                    <% } %>
+                                </form>
+                            </td>
+                            <td>
+                                <span class="badge bg-success">Approved</span>
+                                <% if (product.isblocked) { %>
+                                    <span class="badge bg-danger">Blocked</span>
+                                <% } %>
+                            </td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        <% } %>
+
+        <!-- Rejected Products -->
+        <h3 class="mt-4">Rejected Products</h3>
+        <% if (rejectedProducts.length === 0) { %>
+            <div class="alert alert-info">No rejected products</div>
+        <% } else { %>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Category</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Edit</th>
+                        <th>Actions</th>
+                        <th>Status</th>
+                        <th>Rejection Reason</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% rejectedProducts.forEach(function(product) { %>
+                        <tr>
+                            <td><%= product.productname %></td>
+                            <td><%= product.category ? product.category.name : '' %></td>
+                            <td>₹<%= product.salePrice %></td>
+                            <td><%= product.quantity %> <%= product.unit %></td>
+                            <td>
+                                <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editProductModal-<%= product._id %>">Edit</button>
+                            </td>
+                            <td>
+                                <form action="/my-products/toggle-block/<%= product._id %>" method="POST" style="display:inline;">
+                                    <% if (product.isblocked) { %>
+                                        <button class="btn btn-secondary btn-sm" type="submit">Unblock</button>
+                                    <% } else { %>
+                                        <button class="btn btn-danger btn-sm" type="submit">Block</button>
+                                    <% } %>
+                                </form>
+                            </td>
+                            <td>
+                                <span class="badge bg-danger">Rejected</span>
+                            </td>
+                            <td>
+                                <%= product.adminApproval.message || 'No reason provided' %>
+                            </td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        <% } %>
+    <% } %>
+</div>
+<!-- Edit Product Modal for each product -->
+<% products.forEach(function(product) { %>
+<div class="modal fade" id="editProductModal-<%= product._id %>" tabindex="-1">
+  <div class="modal-dialog">
+    <form   action="/my-products-edit/<%= product._id %>" 
+  method="POST" 
+  class="modal-content edit-product-form"
+  enctype="application/x-www-form-urlencoded"> 
+      <div class="modal-header">
+        <h5 class="modal-title">Edit Product</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label>Name</label>
+          <input type="text" id="productName-<%= product._id %>" name="productName" class="form-control" value="<%= product.productname %>" required>
+          <div id="productName-error-<%= product._id %>" class="error-message text-danger"></div>
+        </div>
+        <div class="mb-3">
+          <label>Description</label>
+          <textarea id="description-<%= product._id %>" name="description" class="form-control"><%= product.description %></textarea>
+          <div id="description-error-<%= product._id %>" class="error-message text-danger"></div>
+        </div>
+        <div class="mb-3">
+          <label>Tag</label>
+          <input type="text" id="tag-<%= product._id %>" name="tag" class="form-control" value="<%= product.tag %>">
+        </div>
+        <div class="mb-3">
+          <label>Category</label>
+<select class="form-select" id="category-<%= product._id %>" name="category" required>                            <option value="">Select Category</option>
+<% categories.forEach(category => { %>
+  <option value="<%= category._id %>" <%= product.category && product.category._id && product.category._id.toString() === category._id.toString() ? 'selected' : '' %>><%= category.name %></option>
+<% }); %>
+                        </select>
+          <div id="category-error-<%= product._id %>" class="error-message text-danger"></div>
+        </div>
+        <div class="mb-3">
+          <label>Price</label>
+          <input type="number" id="mainPrice-<%= product._id %>" name="regularPrice" class="form-control" value="<%= product.mainPrice %>" required>
+          <div id="mainPrice-error-<%= product._id %>" class="error-message text-danger"></div>
+        </div>
+        <div class="mb-3">
+          <label>Sale Price</label>
+          <input type="number" id="salePrice-<%= product._id %>" name="salePrice" class="form-control" value="<%= product.salePrice %>">
+          <div id="salePrice-error-<%= product._id %>" class="error-message text-danger"></div>
+        </div>
+        <div class="mb-3">
+          <label>Quantity</label>
+          <input type="number" id="quantity-<%= product._id %>" name="quantity" class="form-control" value="<%= product.quantity %>">
+          <div id="quantity-error-<%= product._id %>" class="error-message text-danger"></div>
+        </div>
+        <div class="mb-3">
+          <label>Unit</label>
+          <select id="unit-<%= product._id %>" name="unit" class="form-control" required>
+            <option value="kg" <%= product.unit === 'kg' ? 'selected' : '' %>>kg</option>
+            <option value="g" <%= product.unit === 'g' ? 'selected' : '' %>>g</option>
+            <option value="litre" <%= product.unit === 'litre' ? 'selected' : '' %>>litre</option>
+            <option value="ml" <%= product.unit === 'ml' ? 'selected' : '' %>>ml</option>
+            <option value="piece" <%= product.unit === 'piece' ? 'selected' : '' %>>piece</option>
+          </select>
+          <div id="unit-error-<%= product._id %>" class="error-message text-danger"></div>
+        </div>
+        <div class="mb-3">
+          <label>Step Size</label>
+          <select id="unitStep-<%= product._id %>" name="unitStep" class="form-control" required>
+            <option value="0.2" <%= product.unitStep == 0.2 ? 'selected' : '' %>>0.2</option>
+            <option value="0.5" <%= product.unitStep == 0.5 ? 'selected' : '' %>>0.5</option>
+            <option value="1" <%= product.unitStep == 1 ? 'selected' : '' %>>1</option>
+            <option value="2" <%= product.unitStep == 2 ? 'selected' : '' %>>2</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-primary">Update</button>
+      </div>
+    </form>
+  </div>
+</div>
+<% }) %>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('form.edit-product-form').forEach(function(form) {
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      // Create FormData and convert to URL-encoded string
+      const formData = new FormData(form);
+      const data = {};
+      formData.forEach((value, key) => data[key] = value);
+
+      try {
+        const response = await fetch(form.action, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: new URLSearchParams(data)
+        });
+
+        const responseData = await response.json();
+        if (!response.ok) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: responseData.error || 'Something went wrong!'
+          });
+        } else {
+          Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: 'Product updated successfully!',
+            showConfirmButton: false,
+            timer: 1200
+          }).then(() => {
+            window.location.reload();
+          });
+        }
+      } catch (err) {
+        console.error('Error:', err);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Network error or server not responding.'
+        });
+      }
+    });
+  });
+});
+</script>

@@ -14,6 +14,20 @@ const wishlistController=require('../controller/user/wishlistController')
 const walletController = require('../controller/user/walletController');
 const reviewController = require('../controller/user/reviewController');
 const upload = require('../middlewares/uploadProfile');
+const userProductController = require('../controller/user/userProductController');
+const multer=require('multer')
+const path = require('path');
+//multer setupp//for easy i store admin//
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'public/uploads/product-images');
+    },
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + path.extname(file.originalname));
+    }
+});
+const uploads = multer({ storage: storage });
+
 
 router.get('/pagenotfound',userController.pagenotfound)
 
@@ -96,6 +110,12 @@ router.post(
   ]),
   profileController.registerFarmer
 );
+// Show all products for this user
+router.get('/my-products', userProductController.listProducts);
+router.get('/my-products-addPage', userProductController.loadAddProductPage);
+router.post('/user-add-product', uploads.array("productImage", 4), userProductController.addProduct)
+router.post('/my-products-edit/:id', userProductController.editProduct);
+router.post('/my-products/toggle-block/:id', userProductController.toggleBlockProduct);
 
 router.get('/useraddress',usermiddle.isLogout,profileController.loadUserAddressPage)
 router.get('/addUserAddress',usermiddle.isLogout,profileController.loadaddUserAddressPage)
