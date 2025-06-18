@@ -23,21 +23,35 @@ const loadCheckoutPage = async (req, res) => {
   .populate({
       path: 'items.productId',
       model: 'Product',
-      select: 'productname salePrice unit unitStep '
+      select: 'productname salePrice'
   });
 
 if (!cart || !cart.items.length) {
   return res.redirect('/cart');
 }
-const products = cart.items.map(item => ({
-  _id: item.productId._id,
-  productname: item.productId.productname,
-  salePrice: item.productId.salePrice,
-  quantity: item.quantity,
-  totalPrice: item.productId.salePrice * item.quantity,
-  unit: item.productId.unit,         
-  unitStep: item.productId.unitStep,
-}))
+ // Check if cart has any user/farmer products
+        const cartItems = await Cart.findOne({ userId })
+            .populate({
+                path: 'items.productId',
+                populate: {
+                    path: 'userId',
+                    select: 'firstname lastname'
+                }
+            });
+ // Map products and check if they are user products
+        const products = cartItems.items.map(item => ({
+            _id: item.productId._id,
+            productname: item.productId.productname,
+            salePrice: item.productId.salePrice,
+            quantity: item.quantity,
+            unit: item.productId.unit,
+            totalPrice: item.productId.salePrice * item.quantity,
+            isUserProduct: item.productId.userId ? true : false,  // Check if it's a user product
+            farmerName: item.productId.userId ? 
+                `${item.productId.userId.firstname} ${item.productId.userId.lastname}` : 'Admin'
+        }));
+
+        const hasUserProducts = products.some(product => product.isUserProduct);
 
  // Calculate cart total
  const cartTotal = products.reduce((sum, item) => sum + item.totalPrice, 0);
@@ -61,7 +75,13 @@ const wallet=await Wallet.findOne({userId})
         availableCoupons,
         razorpayKeyId: process.env.RAZORPAY_KEY_ID,
         finalTotal,
-        session: req.session
+        session: req.session,
+        hasUserProducts,
+           paymentMethods: {
+                cod: !hasUserProducts, // Only allow COD if no user products
+                wallet: wallet && wallet.balance >= finalTotal,
+                razorpay: true
+            }
       });
     } catch (error) {
       console.error(error);
@@ -230,6 +250,65 @@ const checkStock = async (req, res) => {
   }
 };
 
+
+const distributePaymentToOwners = async (order) => {
+  try {
+    for (const item of order.orderedItems) {
+      const product = await Product.findById(item.product).populate('userId');
+      
+      // Skip if product not found
+      if (!product) continue;
+
+      // Only process if it's a user's product
+      if (product.userId) {
+        const totalAmount = product.salePrice * item.quantity;
+        const adminCommission = (product.adminPrice - product.usersPrice) * item.quantity;
+        const userAmount = product.usersPrice * item.quantity;
+
+        // Update product owner's wallet
+        await Wallet.findOneAndUpdate(
+          { userId: product.userId._id },
+          {
+            $inc: { balance: userAmount },
+            $push: {
+              transactions: {
+                amount: userAmount,
+                type: 'credit',
+                description: `Sale of ${product.productname} (${item.quantity} ${product.unit}) `,
+                date: new Date()
+              }
+            }
+          },
+          { upsert: true }
+        );
+
+        // Update admin's wallet with commission
+        if (adminCommission > 0) {
+          await Wallet.findOneAndUpdate(
+            { userId: process.env.ADMIN_USER_ID },
+            {
+              $inc: { balance: adminCommission },
+              $push: {
+                transactions: {
+                  amount: adminCommission,
+                  type: 'credit',
+                  description: `Commission from ${product.productname} sale`,
+                  date: new Date()
+                }
+              }
+            },
+            { upsert: true }
+          );
+        }
+      }
+    } 
+  } catch (error) {
+    console.error('Error distributing payments:', error);
+    throw error;
+  }
+};
+
+
 const Orderplacement = async (req, res) => {
   try {
     const userId = req.session.user;
@@ -246,6 +325,22 @@ console.log("order placement req body  : ",req.body)
         status: 'address_missing'
       });
     }   
+    
+ // Check if any product is from a user/farmer
+        const cartProducts = await Product.find({
+            _id: { $in: products }
+        });
+
+        const hasUserProducts = cartProducts.some(product => product.userId);
+
+        // Prevent COD for user products
+        if (hasUserProducts && paymentMethod === 'cod') {
+            return res.status(400).json({
+                success: false,
+                message: 'Cash on Delivery is not available for farmer products. Please use online payment.',
+                status: 'cod_not_allowed'
+            });
+        }
 
     if (!Array.isArray(products) || !Array.isArray(quantities) || products.length !== quantities.length) {
       return res.status(400).json({ 
@@ -340,6 +435,7 @@ console.log("order placement req body  : ",req.body)
           status: 'insufficient_balance'
         });
       }
+     
 
       await Wallet.updateOne(
         { userId },
@@ -432,6 +528,8 @@ console.log("order placement req body  : ",req.body)
 
     // Save order and update product quantities
     await order.save();
+          await distributePaymentToOwners(order);
+
     await Product.bulkWrite(productUpdates);
     await Cart.updateOne({ userId }, { $set: { items: [] } });
 

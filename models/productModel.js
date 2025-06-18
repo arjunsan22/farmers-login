@@ -101,7 +101,10 @@ var productSchema = new mongoose.Schema({
         type: Number,
         default: null
     },
-   
+    adminCommission: {
+        type: Number,
+        default: 0       
+    },
     createdOn: {
         type: Date,
         default: Date.now,

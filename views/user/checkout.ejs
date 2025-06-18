@@ -461,22 +461,44 @@
         <a href="/loadCheckoutUserAddressPage" class="btn btn-primary">Add Another Address</a>
       </div>
       <hr>
-      <div class="mb-3">
-        <label for="paymentMethod" class="form-label">Payment Method</label>
-        <select class="form-select" id="paymentMethod" name="paymentMethod" required>
-            <option value="">Select Payment Method</option>
-            <option value="cod" id="codOption">Cash on Delivery</option>
-            <%if(wallet && wallet.balance>=finalTotal){%>
-                <option value="wallet">Wallet</option>
-            <%}else{%>
-                <strong><option class="text-danger" disabled>Wallet payment not available. Your Wallet Balance is ₹<%= wallet?.balance %> You need to pay ₹<%= finalTotal %> for this order</option></strong>
-            <%}%>
-            <option value="razorpay">Razorpay</option>
-        </select>
-        <small id="codWarning" class="text-danger d-none">
-            Cash on Delivery is not available for orders above ₹1,000. Please choose a different payment method.
-        </small>
-    </div>
+      <!-- Replace your existing payment method section -->
+<div class="mb-3">
+    <label for="paymentMethod" class="form-label">Payment Method</label>
+    <select class="form-select" id="paymentMethod" name="paymentMethod" required>
+        <option value="">Select Payment Method</option>
+        
+        <% if (!hasUserProducts && finalTotal < 1000) { %>
+            <option value="cod">💵 Cash on Delivery</option>
+        <% } else { %>
+            <option value="cod" disabled title="Not available for farmer products">
+                💵 Cash on Delivery (Not Available)
+            </option>
+        <% } %>
+
+        <% if(wallet && wallet.balance >= finalTotal) { %>
+            <option value="wallet">👛 Wallet (Balance: ₹<%= wallet.balance %>)</option>
+        <% } else { %>
+            <option value="wallet" disabled>
+                👛 Wallet (Insufficient Balance: ₹<%= wallet?.balance || 0 %>)
+            </option>
+        <% } %>
+        
+        <option value="razorpay">💳 Online Payment (Razorpay)</option>
+    </select>
+
+    <% if (hasUserProducts) { %>
+        <div class="alert alert-info mt-2">
+            <i class="fas fa-info-circle"></i>
+            Cash on Delivery is not available for farmer products. Please use online payment methods.
+        </div>
+    <% } else if (finalTotal > 1000) { %>
+
+      <div class="alert alert-info mt-2">
+            <i class="fas fa-info-circle"></i>
+            Cash on Delivery is not available for orders above ₹1000. Please use online payment methods.
+          </div>
+    <% } %>
+</div>
     
       <div class="text-center">
         <button type="submit" class="btn btn-success btn-lg">Place Order</button>

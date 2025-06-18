@@ -58,8 +58,10 @@
                                                     </form>
                                                 </td>
                                                 <td><%= product.quantity %> <%= product.unit %></td>
-                                                <td><%= product.userId.firstname %></td>
-                                                <td>
+                                                    <td>
+    <%= product.userId ? product.userId.firstname : 'N/A' %>
+                                                    </td>                                               
+                                                     <td>
                                                     <div class="btn-group">
                                                         <button class="btn btn-success btn-sm" onclick="approveProduct('<%= product._id %>')" title="Approve">
                                                             <i class="fas fa-check"></i>

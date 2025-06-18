@@ -112,6 +112,9 @@ router.get('/product-approvals', farmerController.loadProductApprovals);
 router.post('/product/approve/:id', farmerController.approveProduct);
 router.post('/product/reject/:id', farmerController.rejectProduct);
 router.post('/product/update-price/:id', farmerController.updateProductPrice);
+//wallet
+// Add this route
+router.get('/wallet', adminController.getAdminWallet);
 
 // Blog routes
 router.get('/add-blog',middle.isLogin, blogController.loadAddBlogPage);

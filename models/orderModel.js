@@ -30,7 +30,12 @@ const orderSchema= new mongoose.Schema({
 
     returnReason:{
         type:String
-    }
+    },
+    unit:{
+        type:String,
+        enum:["kg","g","litre","ml","piece"],
+      
+    },
 
    }],
    totalPrice:{

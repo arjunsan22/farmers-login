@@ -21,7 +21,8 @@
         <form action="/profile/update" id="updateProfileForm" method="POST" enctype="multipart/form-data">
            <div class="mb-3 text-center">
         <img id="profilePreview" src="<%= user.userImage || '/images/default-profile.png' %>" alt="Profile Picture" class="rounded-circle mb-3" style="width: 120px; height: 120px; object-fit: cover;">
-        <input type="file" name="userImage" accept="image/*" class="form-control" onchange="previewProfileImage(event)">
+        <br><label for="image">Add Profile Image</label>
+        <input type="file" name="userImage" accept="image/*" class="form-control" onchange="previewProfileImage(event)" >
     </div>
             <!-- First Name -->
             <div class="mb-3">

@@ -95,7 +95,7 @@
                         <tr>
                             <td><%= product.productname %></td>
                             <td><%= product.category ? product.category.name : '' %></td>
-                            <td>₹<%= product.salePrice %></td>
+                            <td>₹<%= product.usersPrice %></td>
                             <td><%= product.quantity %> <%= product.unit %></td>
                             <td>
                                 <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editProductModal-<%= product._id %>">Edit</button>
@@ -207,16 +207,7 @@
                         </select>
           <div id="category-error-<%= product._id %>" class="error-message text-danger"></div>
         </div>
-        <div class="mb-3">
-          <label>Price</label>
-          <input type="number" id="mainPrice-<%= product._id %>" name="regularPrice" class="form-control" value="<%= product.mainPrice %>" required>
-          <div id="mainPrice-error-<%= product._id %>" class="error-message text-danger"></div>
-        </div>
-        <div class="mb-3">
-          <label>Sale Price</label>
-          <input type="number" id="salePrice-<%= product._id %>" name="salePrice" class="form-control" value="<%= product.salePrice %>">
-          <div id="salePrice-error-<%= product._id %>" class="error-message text-danger"></div>
-        </div>
+       
         <div class="mb-3">
           <label>Quantity</label>
           <input type="number" id="quantity-<%= product._id %>" name="quantity" class="form-control" value="<%= product.quantity %>">

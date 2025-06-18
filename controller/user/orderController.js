@@ -22,14 +22,18 @@ const getOrderHistory = async (req, res) => {
    const totalPages  = Math.ceil(totalOrders / limit); 
 
      
-      const orders = await Order.find({ userId }).populate('orderedItems.product')
-      .populate('address')
-      .sort({ createdOn: -1 })
-      .skip(skip)
-      .limit(limit)
-      console.log("Image paths:", orders.map(order => 
-        order.orderedItems.map(item => item.product.productImage)
-      ));
+      const orders = await Order.find({ userId })
+            .populate({
+                path: 'orderedItems.product',
+                populate: {
+                    path: 'userId',
+                    select: 'farmName location district'
+                }
+            })
+            .populate('address')
+            .sort({ createdOn: -1 })
+            .skip(skip)
+            .limit(limit);
       // console.log("orders details :",orders)
   
       res.render('order-history', { orders ,user:userData,currentPage: page, totalPages ,razorpayKeyId:process.env.RAZORPAY_KEY_ID  });

@@ -53,16 +53,19 @@ const editPrice = async (req, res) => {
 
 const loadProductApprovals = async (req, res) => {
     try {
+        // Only get products that have a userId (farmer products) and pending status
         const pendingProducts = await Product.find({
-            'adminApproval.status': 'pending'
+            'adminApproval.status': 'pending',
+            'userId': { $exists: true, $ne: null } // Add this line
         }).populate('category').populate('userId', 'firstname lastname farmName');
 
         const approvedProducts = await Product.find({
-            'adminApproval.status': 'approved'
+            'adminApproval.status': 'approved',
+            'userId': { $exists: true, $ne: null } // Add this line
         }).populate('category').populate('userId', 'firstname lastname farmName');
 
 
-        res.render('productApprovals', { pendingProducts,approvedProducts });
+        res.render('productApprovals', { pendingProducts, approvedProducts });
     } catch (error) {
         console.error(error);
         res.redirect('/admin/error');
@@ -154,9 +157,12 @@ const updateProductPrice = async (req, res) => {
             });
         }
 
-
+        product.adminCommission = (adminPrice - product.salePrice)
         product.adminPrice = adminPrice;
+        console.log('adminprice :',adminPrice)
+        console.log('old saleprice :',product.salePrice)
         product.salePrice = adminPrice; // Update sale price to admin price
+        console.log('saleprice uppdated :',product.salePrice)
         await product.save();
 
         res.status(200).json({

@@ -53,11 +53,47 @@
             font-size: 0.875rem;
             margin-top: 0.25rem;
         }
+        /* CSS */
+.price-note {
+  display: inline-block;
+  margin-left: 10px;
+  font-size: 0.95rem;
+  color: #6c757d;
+  font-style: italic;
+  transition: all 0.3s ease-in-out;
+  padding-left: 8px;
+  border-left: 3px solid #17a2b8;
+  animation: fadeIn 0.6s ease forwards;
+}
+
+.price-note:hover {
+  color: #17a2b8;
+  background-color: #f8f9fa;
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+
+/* Subtle Fade-in animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
     </style>
 </head>
 <body>
     <div class="container mt-5">
-        <h2 class="mb-4">Add New Product</h2>
+        <h2 class="mb-4">Add New Product</h2> <button class="btn btn-info ms-2" onclick="loadPriceChart()">
+            <i class="fas fa-chart-line"></i> View Price Chart
+        </button><span class="price-note ms-2 text-muted">
+Check the price chart before adding a product — make sure your price doesn't exceed the allowed maximum
+</span><br><br>
         <form action="/user-add-product" method="POST" enctype="multipart/form-data" id="productForm">
             <div class="row mb-4">
                 <div class="col-md-6">
@@ -158,6 +194,49 @@
             <button class="btn btn-danger" id="cropCancel">Cancel</button>
         </div>
     </div>
+    <!-- Price Chart Modal -->
+<div class="modal fade" id="priceChartModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Market Price Chart</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                   <!-- Add Search Bar -->
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="input-group">
+                            <input type="text" 
+                                   id="chartSearch" 
+                                   class="form-control" 
+                                   placeholder="Search by product or category..."
+                                   onkeyup="filterPriceChart()">
+                            <button class="btn btn-outline-secondary" type="button">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Product</th>
+                                <th>Maximum Market Price (kg/litre/pieces)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="priceChartBody">
+                            <!-- Data will be loaded dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <%- include("../../views/partials/user/footer") %>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -416,6 +495,72 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+</script>
+<!-- filepath: f:\FIRST_PROJECT\views\user\myProducts.ejs -->
+<script>
+// Add these variables at the top of your script
+let priceChartData = []; // Store the original data
+
+async function loadPriceChart() {
+    try {
+        const response = await fetch('/price-chart');
+        const data = await response.json();
+        
+        if (data.success) {
+            priceChartData = data.priceChart; // Store the data
+            renderPriceChart(priceChartData); // Initial render
+            new bootstrap.Modal(document.getElementById('priceChartModal')).show();
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Failed to load price chart'
+            });
+        }
+    } catch (error) {
+        console.error('Error loading price chart:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to load price chart'
+        });
+    }
+}
+
+function renderPriceChart(data) {
+    const tbody = document.getElementById('priceChartBody');
+    tbody.innerHTML = '';
+    
+    if (data.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="3" class="text-center">No matching results found</td>
+            </tr>
+        `;
+        return;
+    }
+
+    data.forEach(item => {
+        tbody.innerHTML += `
+            <tr>
+                <td>${item.category}</td>
+                <td>${item.product}</td>
+                <td>₹${item.minPrice.toFixed(2)}</td>
+            </tr>
+        `;
+    });
+}
+
+function filterPriceChart() {
+    const searchTerm = document.getElementById('chartSearch').value.toLowerCase();
+    
+    const filteredData = priceChartData.filter(item => 
+        item.product.toLowerCase().includes(searchTerm) || 
+        item.category.toLowerCase().includes(searchTerm)
+    );
+    
+    renderPriceChart(filteredData);
+}
 </script>
 </body>
 </html>

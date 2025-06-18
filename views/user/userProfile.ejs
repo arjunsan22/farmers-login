@@ -402,7 +402,23 @@
             <a href="/wishlist" class="btn btn-success text-white text-decoration-none btn-animate">Wishlist</a>
             <a href="/cart" class="btn btn-success text-white text-decoration-none btn-animate">Shopping Cart</a>
             <a href="/wallet" class="btn btn-success text-white text-decoration-none btn-animate">Wallet</a>
+            <% if (user.isVerified) { %>                 
+            <a href="/my-products" class="btn btn-secondary text-white text-decoration-none btn-animate">My Products</a>
+<a href="/farmerorders" 
+   class="btn text-white text-decoration-none btn-animate" 
+   style="background-color: #005d65; border-radius: 8px; padding: 8px 16px; transition: background-color 0.3s;"
+   onmouseover="this.style.backgroundColor='#218838'" 
+   onmouseout="this.style.backgroundColor='#28a745'">
+   Orders
+</a>
+<button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#userDetailsModal">
+                        View Farm Details
+                    </button> 
+<% } %>
+
+                   
             <a href="/logout" class="btn btn-danger text-white text-decoration-none btn-animate">Log-out</a>
+               
         </div>
     </div>
 </div>
@@ -498,14 +514,7 @@
                     <p><strong>Referral Code:</strong><span style="color: #ffc93f;font-weight: bold;font-size: larger;"> <%= user.referralCode || 'N/A' %> </span> <span class="text-success">Hey share with your friends! Get 200₹ to your wallet 🥳.</span> </p>
                 </div>
                 <br>
-                <br>
-                 <!-- User Details showing Modal -->
-                <div class="d-grid gap-2 d-md-block">
-                    
-<button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#userDetailsModal">
-                        View Your Farm Details
-                    </button>
-                </div>
+                
                
                 <div class="modal fade" id="userDetailsModal" tabindex="-1" aria-labelledby="userDetailsModalLabel" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered">

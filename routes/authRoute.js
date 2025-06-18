@@ -111,11 +111,15 @@ router.post(
   profileController.registerFarmer
 );
 // Show all products for this user
-router.get('/my-products', userProductController.listProducts);
-router.get('/my-products-addPage', userProductController.loadAddProductPage);
+router.get('/my-products',usermiddle.isLogout, userProductController.listProducts);
+router.get('/my-products-addPage',usermiddle.isLogout, userProductController.loadAddProductPage);
 router.post('/user-add-product', uploads.array("productImage", 4), userProductController.addProduct)
 router.post('/my-products-edit/:id', userProductController.editProduct);
 router.post('/my-products/toggle-block/:id', userProductController.toggleBlockProduct);
+router.get('/farmerorders',usermiddle.isLogout, userProductController.getFarmerOrders);
+router.post('/farmer/orders/:orderId/status',  userProductController.updateOrderStatus);
+
+router.get('/price-chart', userProductController.getPriceChart);
 
 router.get('/useraddress',usermiddle.isLogout,profileController.loadUserAddressPage)
 router.get('/addUserAddress',usermiddle.isLogout,profileController.loadaddUserAddressPage)
@@ -170,7 +174,7 @@ router.post('/verify-razorpay-payment', checkoutController.verifyRazorpayPayment
 
 
 //order-management://
-router.get('/order-history',orderController.getOrderHistory);
+router.get('/order-history',usermiddle.isLogout,orderController.getOrderHistory);
 router.get('/orders/download-invoice/:orderId', orderController.downloadInvoice);
 
 

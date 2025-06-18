@@ -470,7 +470,9 @@ const loadProductDetails = async (req, res) => {
             ]
         })
         .populate('category', 'categoryOffer name')
-        .populate('reviews.userId', 'firstname lastname userImage');
+        .populate('reviews.userId', 'firstname lastname userImage')
+        .populate('userId', 'farmName location district yearsOfExperience isVerified'); 
+
 
         if (!product) {
             return res.status(404).render('error', { 
