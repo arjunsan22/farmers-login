@@ -33,7 +33,7 @@ const getOrderHistory = async (req, res) => {
       // console.log("orders details :",orders)
   
       
-      res.render('order-history', { orders : user:userData,currentPage: page, totalPages ,razorpayKeyId:process.env.RAZORPAY_KEY_ID  });
+      res.render('order-history', { orders , user:userData,currentPage: page, totalPages ,razorpayKeyId:process.env.RAZORPAY_KEY_ID  });
 
     } catch (error) {
       console.error('Error fetching order history:', error);
