@@ -634,15 +634,24 @@
                                          
                                         </div>
                                         <p class="product-price">₹<%=products[i].salePrice%></p>
-                                        <p>
-                                            <% if (products[i].quantity > 5) { %>
-                                              <p class="text-success"><strong><%= products[i].quantity %> kg available</strong></p>  
-                                            <% } else if (products[i].quantity <= 5 && products[i].quantity != 0) { %>
-                                                <span class="text-danger"><strong> Buy now only <%= products[i].quantity %> kg left</strong></span>
-                                            <% } else if(products[i].quantity == 0 || products[i].quantity <0) { %>
-                                                <span class="text-danger"><strong>Out of Stock</strong></span>
-                                            <% } %>
-                                        </p>
+                                       <p>
+  <% if (products[i].quantity > 5) { %>
+    <span class="text-success">
+      <strong><%= products[i].quantity %>
+        <% if (products[i].unit) { %><%= ' ' + products[i].unit %><% } %> available
+      </strong>
+    </span>  
+  <% } else if (products[i].quantity <= 5 && products[i].quantity != 0) { %>
+    <span class="text-danger">
+      <strong>Buy now, only <%= products[i].quantity %>
+        <% if (products[i].unit) { %><%= ' ' + products[i].unit %><% } %> left
+      </strong>
+    </span>
+  <% } else if (products[i].quantity == 0 || products[i].quantity < 0) { %>
+    <span class="text-danger"><strong>Out of Stock</strong></span>
+  <% } %>
+</p>
+
                                    
                                         <div id="wishlistButton" class="position-absolute top-0 end-0 p-2">
                                             <button class="btn btn-outline-danger btn-sm add-to-wishlist" data-product-id="<%= products[i]._id%>">

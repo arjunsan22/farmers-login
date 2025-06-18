@@ -24,13 +24,17 @@ const loadhomepage = async (req, res) => {
     
  const categories=await Category.find({isListed:true})
 
-let productData=await Product.find(
-  {isblocked:false,
-    
-    category:{$in:categories.map(category=>category._id)}
-   
-  
-  }).populate('category')
+let productData = await Product.find({
+    isblocked: false,
+    $or: [
+        { 'adminApproval.status': 'approved' },  // User products that are approved
+        { 'adminApproval': null }     ,           // Admin products
+     { userId: null }    
+      ],
+    category: {
+        $in: categories.map(category => category._id)
+    }
+}).populate('category');
   //console.log(productData);
 
 productData.sort((a,b)=>new Date(b.createdOn)-new Date(a.createdOn));
@@ -462,12 +466,39 @@ const loadProductDetails = async (req, res) => {
      hasPurchased = userOrders.length > 0;
    }
   
-    const product = await Product.findById(productId).populate('category','categoryOffer name').populate('reviews.userId', 'firstname lastname');
-    const relatedProducts = await Product.find({
-      productname: { $regex: product.productname.split(' ')[0], $options: 'i' },
-      _id: { $ne: productId },
-    }).populate('category','categoryOffer name').populate('reviews');
-   
+     const product = await Product.findOne({
+            _id: productId,
+            isblocked: false,
+            $or: [
+                { 'adminApproval.status': 'approved' },  // User products that are approved
+                { 'adminApproval': null },               // Admin products
+                { userId: null }                         // Admin products (if they don't have userId)
+            ]
+        })
+        .populate('category', 'categoryOffer name')
+        .populate('reviews.userId', 'firstname lastname userImage')
+        .populate('userId', 'farmName location district yearsOfExperience isVerified'); 
+
+
+        if (!product) {
+            return res.status(404).render('error', { 
+                message: 'Product not found or not approved' 
+            });
+        }
+
+   const relatedProducts = await Product.find({
+            productname: { $regex: product.productname.split(' ')[0], $options: 'i' },
+            _id: { $ne: productId },
+            isblocked: false,
+            $or: [
+                { 'adminApproval.status': 'approved' },
+                { 'adminApproval': null },
+                { userId: null }
+            ]
+        })
+        .populate('category', 'categoryOffer name')
+        .populate('reviews.userId', 'firstname lastname userImage');
+
 const categoryOffer=product?.category?.categoryOffer || 0;
     if (product && !product.isblocked) {
       res.render('productDetails', { product, relatedProducts, user: userData,categoryOffer,hasPurchased });
@@ -493,9 +524,13 @@ const categoryOffer=product?.category?.categoryOffer || 0;
       const searchTerm = req.query.search || ''; 
      
       let filter = {
-        isblocked: false,
-        
-      };
+            isblocked: false,
+            $or: [
+                { 'adminApproval.status': 'approved' },  // For user products
+                { 'adminApproval': null },               // For admin products
+                { userId: null }                         // For admin products (if they don't have userId)
+            ]
+        };
   
       // Apply category filter if selected
     if (category) {
@@ -635,6 +670,7 @@ const mainSearch = async (req, res) => {
 
     let filter = {
       isblocked: false,
+      'adminApproval.status': 'approved',
       quantity: { $gt: 0 }
     };
 

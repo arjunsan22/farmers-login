@@ -9,6 +9,7 @@ const Chart = require('chart.js');
 const ExcelJS = require('exceljs');
 const PDFDocument = require('pdfkit');
 
+const Wallet= require('../../models/walletModel')
 
 const loadLogin=async (req,res) => {
     try {
@@ -27,6 +28,7 @@ const verifyadmin=async(req,res)=>{
     try {
         const{email,password}=req.body;
         const admin=await User.findOne({email,isAdmin:true});
+        console.log('admin id :', admin._id);
         console.log('Session ID of admin:', req.sessionID); 
         if(admin){
             const passwordMatch=await bcrypt.compare(password,admin.password)
@@ -973,7 +975,48 @@ const generateSalesReport = async (req, res) => {
         });
     }
 };
+  
+
+const getAdminWallet = async (req, res) => {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = 10;
+        const skip = (page - 1) * limit;
+
+        // Find or create admin wallet
+        let adminWallet = await Wallet.findOne({ userId: process.env.ADMIN_USER_ID });
         
+        if (!adminWallet) {
+            adminWallet = new Wallet({
+                userId: process.env.ADMIN_USER_ID,
+                balance: 0,
+                transactions: []
+            });
+            await adminWallet.save();
+        }
+
+        // Get total transactions count for pagination
+        const totalTransactions = adminWallet.transactions.length;
+        const totalPages = Math.ceil(totalTransactions / limit);
+
+        // Get paginated transactions
+        adminWallet.transactions = adminWallet.transactions
+            .sort((a, b) => b.date - a.date)
+            .slice(skip, skip + limit);
+
+        res.render('adminWallet', {
+            adminWallet,
+            currentPage: page,
+            totalPages,
+            totalTransactions
+        });
+
+    } catch (error) {
+        console.error('Error fetching admin wallet:', error);
+        res.status(500).redirect('/admin/error');
+    }
+};
+
 module.exports={
     loadLogin,
     verifyadmin,
@@ -987,6 +1030,6 @@ module.exports={
     addCoupon,
     couponStatus,
     generateSalesReport,
-    
+    getAdminWallet
     
 }   

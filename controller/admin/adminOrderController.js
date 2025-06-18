@@ -1,6 +1,6 @@
 const User = require("../../models/userModel");
 const Order=require('../../models/orderModel')
-
+const Product = require('../../models/productModel');
 
 
 const getAllOrders = async (req, res) => {
@@ -9,7 +9,11 @@ const getAllOrders = async (req, res) => {
 
         let query = {search, dateRange, sort};
         let sortOption = { createdOn: -1 }; // Default sort: Newest First
-    
+     // Only get orders with admin products
+        query['orderedItems.product'] = {
+            $in: await Product.find({ userId: null }).distinct('_id')
+        };
+
         if (search) {
             const searchRegex = new RegExp(search, 'i');
             query = {

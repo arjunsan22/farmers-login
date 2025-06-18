@@ -11,7 +11,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/elevatezoom/3.0.8/jquery.elevatezoom.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/zooming/2.1.1/zooming.min.js"></script>
-  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <style>
     /* Base Styles */
     body {
@@ -331,7 +331,8 @@
           </div>
         <% } %>
         <div class="d-flex justify-content-between align-items-start mb-3">
-          <h2 class="product-title fw-bold mb-0"><%= product.productname %></h2>
+          <h2 class="product-title fw-bold mb-0"><%= product.productname %>
+          </h2>
           <div id="wishlistButton">
             <button class="btn btn-outline-danger rounded-circle add-to-wishlist" data-product-id="<%= product._id%>">
               <i class="fas fa-heart"></i>
@@ -343,7 +344,7 @@
         <div class="pricing-section mb-4">
           <div class="price-display">
             <span class="original-price text-decoration-line-through text-muted">₹<%= product.mainPrice %></span>
-            <span class="current-price fs-2 fw-bold text-success">₹<%= product.salePrice %></span>
+            <span class="current-price fs-2 fw-bold text-success">₹<%= product.salePrice %> <span class="fs-4  text-warning">/ <%=product.unit %> </span></span>
           </div>
         </div>
         <div class="product-info mb-4">
@@ -363,25 +364,76 @@
             <div class="spec-item d-flex border-bottom py-2">
               <span class="spec-label fw-bold w-25">Stock:</span>
               <%if(product.quantity >= 5){%>
-              <span class="spec-value text-success"><%= product.quantity %> kg</span>
+              <span class="spec-value text-success"><%= product.quantity %> <%= product.unit %></span>
               <%}else if(product.quantity<5 && product.quantity >0){%>
-              <span class="spec-value text-warning">few only! <%=product.quantity %> kg left , buy now!</span>
+              <span class="spec-value text-warning">few only! <%=product.quantity %> <%= product.unit %> left , buy now!</span>
               <%}else if(product.quantity==0){%>
                 <span class="spec-value text-danger">Out of stock</span>   
               <%}%>             
             </div>
           </div>
         </div>
-
-        <!-- Quantity Selector -->
-        <div class="quantity-selector mb-4">
-          <label class="form-label fw-bold">Quantity (KG)</label>
-          <div class="input-group quantity-input">
-            <button class="btn btn-outline-primary" type="button" id="decreaseQuantity">-</button>
-            <input type="text" class="form-control text-center" id="quantity" value="1" readonly>
-            <button class="btn btn-outline-primary" type="button" id="increaseQuantity">+</button>
+<!-- for users products -->
+        <% if (product.userId) { %>
+  <div class="farmer-info mb-4">
+    <h4 class="border-bottom pb-2 mb-3"> 🌾 Farm Product & Farmer Details</h4>
+    <div class="card bg-light">
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="mb-2">
+              <i class="fas fa-user-alt me-2 text-primary"></i>
+              <strong>Farm Name:</strong>
+              <span><%= product.userId.farmName || 'Not specified' %></span>
+            </div>
+            <div class="mb-2">
+              <i class="fas fa-map-marker-alt me-2 text-danger"></i>
+              <strong>Location:</strong>
+              <span><%= product.userId.location || 'Not specified' %></span>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-2">
+              <i class="fas fa-map me-2 text-success"></i>
+              <strong>District:</strong>
+              <span><%= product.userId.district || 'Not specified' %></span>
+            </div>
+            <div class="mb-2">
+              <i class="fas fa-star me-2 text-warning"></i>
+              <strong>Experience:</strong>
+              <span><%= product.userId.yearsOfExperience ? `${product.userId.yearsOfExperience} years` : 'Not specified' %></span>
+            </div>
           </div>
         </div>
+        <% if (product.userId.isVerified) { %>
+          <div class="mt-2 text-success">
+            <i class="fas fa-check-circle"></i>
+            <small>Verified Farmer</small>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+<% } %>
+
+        <!-- Quantity Selector -->
+<div class="quantity-selector mb-4">
+  <label class="form-label fw-bold">Quantity (<%= product.unit %>) </label> <!-- Dynamically show unit -->
+  <div class="input-group quantity-input">
+    <button class="btn btn-outline-primary" type="button" id="decreaseQuantity">-</button>
+    
+    <!-- Set value and step from backend -->
+    <input 
+      type="text" 
+      class="form-control text-center" 
+      id="quantity" 
+      value="<%= product.unitStep || 1 %> " 
+      readonly
+    >
+  <span class="input-group-text"><%= product.unit %></span>
+    <button class="btn btn-outline-primary" type="button" id="increaseQuantity">+</button>
+  </div>
+</div>
 
         <!-- Action Buttons -->
         <div class="action-buttons">
@@ -447,7 +499,15 @@
               <div class="review-card bg-light p-3 rounded-3">
                 <div class="d-flex justify-content-between align-items-start mb-2">
                   <div>
-                    <h6 class="mb-1"><%= review.userId.firstname %> <%= review.userId.lastname %></h6>
+                  <div style="display: flex; align-items: center; gap: 8px;">
+  <img 
+    src="<%= review.userId.userImage || '/images/backhome.jpg' %>" 
+    alt="Profile" 
+    class="rounded-circle" 
+    style="width: 32px; height: 32px; object-fit: cover; border: 2px solid #fff;"
+  >
+  <h6 class="mb-0"><%= review.userId.firstname %> <%= review.userId.lastname %></h6>
+</div>
                     <div class="stars">
                       <% for (let i = 1; i <= 5; i++) { %>
                         <span class="star <%= i <= review.rating ? 'filled' : '' %>">★</span>
@@ -551,17 +611,18 @@
                   <!-- prise -->
                   <p class="card-text text-muted">₹ <%= relatedProduct.mainPrice %></p>
                   <%if(relatedProduct.quantity >= 5){%>
-                      <p class="card-text text-success   fw-bold"> <%=relatedProduct.quantity%>kg left</p>
+                      <p class="card-text text-success   fw-bold"> <%=relatedProduct.quantity%> <%=relatedProduct.unit%> left</p>
                       <%}else{%>
-                      <p class="card-text text-danger fw-bold"> <%=relatedProduct.quantity%>kg left</p>
+                      <p class="card-text text-danger fw-bold"> <%=relatedProduct.quantity%><%if(relatedProduct.unit){%> <%=relatedProduct.unit%> <%}%>
+                      </p>
                       <%}%>
                   <div class="star-rating">
                     <% for (let j = 1; j <= 5; j++) { %>
                         <span class="<%= j <= relatedProduct.averageRating? 'fas fa-star' : 'far fa-star'   %>"></span>
                     <% } %>
-                </div>
+                </div> 
                   <div class="d-flex justify-content-between mt-3">
-                    <button class="btn btn-cart" onclick="addToCart('<%=relatedProduct._id%>')">
+                    <button class="btn btn-cart btn-primary" onclick="addToCart('<%=relatedProduct._id%>')">
                       <i class="fas fa-shopping-cart"></i> Add to Cart
                     </button>
                   </div>
@@ -574,6 +635,15 @@
     </a>
     </section>
   <% } %> 
+  <!-- notification -->
+   <% if (categoryOffer > 0) { %>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      showOfferToast('🔥 <%= categoryOffer %>% OFF on this category!');
+    });
+  </script>
+<% } %>
+   <!-- end -->
   <script>
     function showToast(message, isSuccess) {
       const toastElement = document.getElementById('toast-message');
@@ -604,21 +674,13 @@
       const toast = new bootstrap.Toast(toastElement);
       toast.show();
     }
-    
-    function addToCart(productId) {
-        const userId = "<%= user ? user._id : '' %>"; 
-        const quantity = parseInt(document.getElementById('quantity').value);
-        
-        // Check if quantity exceeds the limit//
-        if (quantity > 5) {
-            showToast('You can only add up to 5 quantities of this product to your cart.', false);
-            return;
-        }
-        if (quantity == 0) {
-            showOutOfStockToast();
-            return;
-        }
 
+    function addToCart(productId) {
+    const userId = "<%= user ? user._id : '' %>"; 
+    const unitStep = <%= product.unitStep %> || 1;
+    const quantity = parseFloat(document.getElementById('quantity').value);
+
+<<<<<<< HEAD
         if (!userId) {
             showusernotloginToast();
             return;
@@ -635,6 +697,105 @@
                     showToast(`You already have ${existingQuantity}kg of this product in cart. Cannot exceed 5 kg total.`, false);
                     return;
                 }
+=======
+    // Check if quantity exceeds the limit (max 5 or available stock)
+    if (quantity > 5) {
+        showToast('You can only add up to 5 quantities of this product to your cart.', false);
+        return;
+    }
+    if (quantity < unitStep) {
+        showOutOfStockToast();
+        return;
+    }
+
+    if (!userId) {
+        showusernotloginToast();
+        return;
+    }
+
+    fetch('/add-to-cart', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            userId: userId,
+            productId: productId,
+            quantity: quantity
+        })
+    })
+    .then(response => {
+        return response.json().then(data => {
+            if (!response.ok) {
+                throw new Error(data.message || 'Network response was not ok');
+            }
+            return data;
+        });
+    })
+    .then(data => {
+        if (data.success) {
+            showToast('Product added to cart successfully!', true);
+        } else {
+            showToast('Failed to add product to cart: ' + data.message, false);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Problem: ' + error.message, false);
+    });
+}
+
+    // function addToCart(productId) {
+    //     const userId = "<%= user ? user._id : '' %>"; 
+    //     const quantity = parseInt(document.getElementById('quantity').value);
+        
+    //     // Check if quantity exceeds the limit//
+    //     if (quantity > 5) {
+    //         showToast('You can only add up to 5 quantities of this product to your cart.', false);
+    //         return;
+    //     }
+    //     if (quantity == 0) {
+    //         showOutOfStockToast();
+    //         return;
+    //     }
+
+    //     if (!userId) {
+    //         showusernotloginToast();
+    //         return;
+    //     }
+
+    //     fetch('/add-to-cart', {
+    //         method: 'POST',
+    //         headers: {
+    //             'Content-Type': 'application/json',
+    //         },
+    //         body: JSON.stringify({
+    //             userId: userId,
+    //             productId: productId,
+    //             quantity: quantity
+    //         })
+    //     })
+    //     .then(response => {
+    //         return response.json().then(data => {
+    //             if (!response.ok) {
+    //                 throw new Error(data.message || 'Network response was not ok');
+    //             }
+    //             return data;
+    //         });
+    //     })
+    //     .then(data => {
+    //         if (data.success) {
+    //             showToast('Product added to cart successfully!', true);
+    //         } else {
+    //             showToast('Failed to add product to cart: ' + data.message, false);
+    //         }
+    //     })
+    //     .catch(error => {
+    //         console.error('Error:', error);
+    //         showToast('Problem: ' + error.message, false);
+    //     });
+    // }
+>>>>>>> subFarm
 
                 // Proceed with adding to cart if quantity check passes
                 return fetch('/add-to-cart', {
@@ -686,6 +847,71 @@
     });
 </script>
 <script>
+    // Get unit and step from backend
+    const productUnit = "<%= product.unit %>"; // e.g. 'kg', 'litre', 'ml', 'piece'
+    const unitStep = <%= product.unitStep %> || 1; // e.g. 0.5 for kg, 1 for piece
+    const quantityInput = document.getElementById('quantity');
+    const salePriceElement = document.getElementById('salePrice');
+    const availableQuantityElement = document.getElementById('availableQuantity');
+    const outOfStockMessage = document.getElementById('outOfStockMessage');
+    const addToCartButton = document.getElementById('addToCartButton');
+    const buyNowButton = document.getElementById('buyNowButton');
+    const increaseQuantityButton = document.getElementById('increaseQuantity');
+    const decreaseQuantityButton = document.getElementById('decreaseQuantity');
+    const initialSalePrice = parseFloat("<%= product.salePrice %>");
+    let availableQuantity = parseFloat("<%= product.quantity %>");
+    const maxQuantity = Math.min(5, availableQuantity); // User can buy up to 5 units or available stock
+
+    function updateUI() {
+        let quantity = parseFloat(quantityInput.value);
+        salePriceElement.textContent = (initialSalePrice * quantity).toFixed(2);
+        availableQuantityElement.textContent = (availableQuantity - quantity).toFixed(2);
+
+        if (availableQuantity - quantity < unitStep) {
+            outOfStockMessage && (outOfStockMessage.style.display = 'block');
+            addToCartButton && (addToCartButton.disabled = true);
+            buyNowButton && (buyNowButton.disabled = true);
+            increaseQuantityButton && (increaseQuantityButton.disabled = true);
+            showOutOfStockToast && showOutOfStockToast();
+        } else {
+            outOfStockMessage && (outOfStockMessage.style.display = 'none');
+            addToCartButton && (addToCartButton.disabled = false);
+            buyNowButton && (buyNowButton.disabled = false);
+            increaseQuantityButton && (increaseQuantityButton.disabled = quantity + unitStep > maxQuantity || quantity + unitStep > availableQuantity);
+        }
+
+        decreaseQuantityButton && (decreaseQuantityButton.disabled = quantity <= unitStep);
+    }
+
+    increaseQuantityButton.addEventListener('click', () => {
+        let quantity = parseFloat(quantityInput.value);
+        if (quantity + unitStep <= maxQuantity && quantity + unitStep <= availableQuantity) {
+            quantity += unitStep;
+            quantityInput.value = (unitStep === 1 ? quantity : quantity.toFixed(2).replace(/\.00$/, ''));
+            updateUI();
+        } else if (quantity >= maxQuantity) {
+            showToast && showToast('You can only add up to 5 quantities of this product to your cart.', false);
+        } else if (quantity >= availableQuantity) {
+            showOutOfStockToast && showOutOfStockToast();
+        }
+    });
+
+    decreaseQuantityButton.addEventListener('click', () => {
+        let quantity = parseFloat(quantityInput.value);
+        if (quantity - unitStep >= unitStep) {
+            quantity -= unitStep;
+            quantityInput.value = (unitStep === 1 ? quantity : quantity.toFixed(2).replace(/\.00$/, ''));
+            updateUI();
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        quantityInput.value = unitStep;
+        updateUI();
+    });
+</script>
+<!-- 
+ <script>
     const quantityInput = document.getElementById('quantity');
     const salePriceElement = document.getElementById('salePrice');
     const availableQuantityElement = document.getElementById('availableQuantity');
@@ -741,7 +967,7 @@
     });
 
     document.addEventListener('DOMContentLoaded', updateUI);
-</script>
+</script>  -->
  <!-- Toast Notification -->
  <div class="toast-container position-fixed top-0 end-0 p-3">
   <div id="wishlistToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">

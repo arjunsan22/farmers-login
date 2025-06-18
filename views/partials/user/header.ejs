@@ -140,6 +140,49 @@
 
            </style>
            
+<style>
+  /* Glassmorphism style toast */
+  #offerToast.toast {
+    background: rgba(30, 30, 30, 0.8); /* dark transparent */
+    backdrop-filter: blur(10px); /* glass effect */
+    color: #f1f1f1;
+    border-radius: 1rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    padding: 1rem;
+    font-family: 'Poppins', sans-serif;
+    animation: toastSlideIn 0.5s ease-out;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  #offerToast .toast-header {
+    background: transparent;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 1rem;
+  }
+
+  #offerToast .toast-body {
+    font-size: 0.95rem;
+    color: #f8f8f8;
+  }
+
+  #offerToast .btn-close {
+    filter: invert(1);
+    opacity: 0.7;
+  }
+
+  @keyframes toastSlideIn {
+    0% {
+      opacity: 0;
+      transform: translateX(100%) translateY(-20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateX(0) translateY(0);
+    }
+  }
+</style>
 
 </head>
 <body>
@@ -209,8 +252,12 @@
   <% if (locals.user) { %>
     <div class="dropdown" onmouseover="openDropdown()" onmouseout="closeDropdown()">
       <button class="btn dropdown-toggle" style=" color: #ffffff;">
-        <span class="material-symbols-outlined">person</span>
-      </button>
+<img 
+  src="<%= user.userImage || '/images/default-profile.png' %>" 
+  alt="Profile" 
+  class="rounded-circle" 
+  style="width: 32px; height: 32px; object-fit: cover; border: 2px solid #fff;"
+>      </button>
       <ul class="dropdown-menu" id="userDropdownMenu">
         <a style="background-color: #e7e0e0;" class="nav-link" href="/userProfile" id="userDropdown">
           <h6 style="text-transform: uppercase;"> WELCOME <%= user.firstname %> <%= user.lastname %></h6>
@@ -242,8 +289,41 @@
     </div>
   </nav>
   
-    
-    <!-- Bootstrap JS Bundle -->
+    <!-- Add this near the end of your <body> -->
+<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1055;">
+  <div id="offerToast" 
+       class="toast" 
+       role="alert" 
+       aria-live="assertive" 
+       aria-atomic="true" 
+       data-bs-autohide="true" 
+       data-bs-delay="5000">
+    <div class="toast-header">
+      <strong class="me-auto">Offer</strong>
+      <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+    <div class="toast-body">
+      <!-- Message will be set by JS -->
+    </div>
+  </div>
+</div>
+<script>
+  function showOfferToast(message) {
+    const toastElement = document.getElementById('offerToast');
+    const toastBody = toastElement.querySelector('.toast-body');
+    toastBody.textContent = message;
+
+    // Initialize with auto-hide and delay
+    const toast = new bootstrap.Toast(toastElement, {
+      autohide: true,
+      delay: 5000 // 5000 milliseconds = 5 seconds
+    });
+
+    toast.show();
+  }
+</script>
+
+<!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-MrcW6ZMFz17fudF5iEqbeKfkSmVFYBgxkbu6iD9tYp6Q2Koz/26pJ30n0ofmAn3y" crossorigin="anonymous"></script>
     <script>function openDropdown() {

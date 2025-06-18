@@ -9,6 +9,7 @@ const multer=require('multer')
 const path = require('path');
 const orderController=require('../controller/admin/adminOrderController')
 const blogController = require('../controller/admin/blogController');
+const farmerController = require('../controller/admin/farmerController');
 //multer setupp//for easy i store admin//
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -56,15 +57,16 @@ router.get('/unlistCategory',categoryContoller.unlistedCategory)
 router.get('/editCategory',middle.isLogin,categoryContoller.editCategory)// to get category page//
 router.post('/modifyCategory/:id',categoryContoller.updateCategory) //edit category//
 
+
 router.post('/addCategoryOffer',categoryContoller.addOffer)
 router.post('/removeCategoryOffer',categoryContoller.removeOffer)
-
 
 
 //product management//
 router.get('/products',middle.isLogin,productContoller.loadProductPage)
 router.get('/addproducts',middle.isLogin,productContoller.loadproductaddPage)
 router.post('/addProducts',uploads.array("images",4),productContoller.addProducts);
+
 router.get('/productBlock',productContoller.BlockProduct)
 router.get('/productUnblock',productContoller.UnblockProduct)
 router.get('/productEdits',middle.isLogin,productContoller.EditProducts)
@@ -97,7 +99,22 @@ router.post('/couponStatus/:couponId', adminController.couponStatus);
 router.post('/generate-report', adminController.generateSalesReport);
 
 
+//farmers list route
 
+router.get('/farmerList',farmerController.farmerList)
+router.post('/farmer/:id/approve', farmerController.approveFarmer);
+router.post('/farmer/:id/reject', farmerController.rejectFarmer);
+//price chart
+router.post('/price-chart/add', farmerController.addOrUpdatePrice);
+router.post('/price-chart/:id/edit', farmerController.editPrice);
+//users product approve
+router.get('/product-approvals', farmerController.loadProductApprovals);
+router.post('/product/approve/:id', farmerController.approveProduct);
+router.post('/product/reject/:id', farmerController.rejectProduct);
+router.post('/product/update-price/:id', farmerController.updateProductPrice);
+//wallet
+// Add this route
+router.get('/wallet', adminController.getAdminWallet);
 
 // Blog routes
 router.get('/add-blog',middle.isLogin, blogController.loadAddBlogPage);

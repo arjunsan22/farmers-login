@@ -45,11 +45,26 @@ var productSchema = new mongoose.Schema({
         type:[String],
         // required:true
     },
-    
+      unit: {
+        type: String,
+        enum: ["kg", "g", "litre", "ml", "piece"],
+        
+    },
+
+     // ✅ New field: quantity step size
+    unitStep: {
+        type: Number,
+        default: 1
+    },
+
     isblocked:{
         type:Boolean,
         default:false
     },
+    userId: { 
+        type: mongoose.Schema.Types.ObjectId,
+         ref: 'User' 
+        },
     status:{
         type:String,
         enum:["available","out of stock","discountinue"],
@@ -63,6 +78,33 @@ var productSchema = new mongoose.Schema({
         createdOn: { type: Date, default: Date.now }
     }],
     
+      adminApproval: {
+        status: {
+            type: String,
+            enum: ['pending', 'approved', 'rejected'],
+            default: 'pending'
+        },
+        message: {
+            type: String,
+            default: null
+        },
+        reviewedAt: {
+            type: Date,
+            default: null
+        }
+    },
+     adminPrice: {
+        type: Number,
+        default: null
+    },
+    usersPrice:{
+        type: Number,
+        default: null
+    },
+    adminCommission: {
+        type: Number,
+        default: 0       
+    },
     createdOn: {
         type: Date,
         default: Date.now,

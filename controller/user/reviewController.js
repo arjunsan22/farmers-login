@@ -5,7 +5,7 @@ const  addReview = async (req, res) => {
     const { rating, comment } = req.body;
     const productId = req.params.id;
     const userId = req.session.user;
-
+console.log(rating, comment, productId, userId);
     try {
 
 if(!userId){
@@ -17,13 +17,12 @@ if(!userId){
          if (existingReview) {
           return   res.status(400).json({ message: 'You can only post one review per product.' });
          }
- 
         product.reviews.push({
             userId: userId,
             rating,
             comment
         });
-        await product.save();
+        let result=await product.save();
         res.status(201).json({ message: 'Review added successfully' });
     } catch (error) {
         res.status(500).json({ message: 'Error adding review', error });

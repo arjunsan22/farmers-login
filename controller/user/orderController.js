@@ -18,24 +18,18 @@ const getOrderHistory = async (req, res) => {
    const page = parseInt(req.query.page) || 1; 
    const limit = 4; 
    const skip = (page - 1) * limit; 
+   const totalOrders = await Order.countDocuments({ userId }); 
+   const totalPages  = Math.ceil(totalOrders / limit); 
 
-      const orders = await Order.find({ userId }).populate({
-        path: 'orderedItems.product',
-        match: { isblocked: false } 
-      })
+     
+      const orders = await Order.find({ userId }).populate('orderedItems.product')
       .populate('address')
       .sort({ createdOn: -1 })
       .skip(skip)
       .limit(limit)
-      // Filter out any null products (blocked ones) from orderedItems
-      const filteredOrders = orders.map(order => ({
-        ...order.toObject(),
-        orderedItems: order.orderedItems.filter(item => item.product !== null)
-    }));
-        // Recalculate total orders count excluding orders with only blocked products
-        const totalOrders = filteredOrders.filter(order => order.orderedItems.length > 0).length;
-        const totalPages = Math.ceil(totalOrders / limit);
-
+      console.log("Image paths:", orders.map(order => 
+        order.orderedItems.map(item => item.product.productImage)
+      ));
       // console.log("orders details :",orders)
   
       

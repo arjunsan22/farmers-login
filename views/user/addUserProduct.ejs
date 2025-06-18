@@ -1,0 +1,566 @@
+<%- include("../../views/partials/user/header") %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Product</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.5/croppie.min.css">
+    <style>
+        .image-upload {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            margin: 10px;
+            cursor: pointer;
+        }
+        .image-upload:hover {
+            border-color: #007bff;
+        }
+        .image-preview {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+        .upload-btn {
+            display: none;
+        }
+        .crop-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+        }
+        .crop-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .error-message {
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+        /* CSS */
+.price-note {
+  display: inline-block;
+  margin-left: 10px;
+  font-size: 0.95rem;
+  color: #6c757d;
+  font-style: italic;
+  transition: all 0.3s ease-in-out;
+  padding-left: 8px;
+  border-left: 3px solid #17a2b8;
+  animation: fadeIn 0.6s ease forwards;
+}
+
+.price-note:hover {
+  color: #17a2b8;
+  background-color: #f8f9fa;
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+
+/* Subtle Fade-in animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h2 class="mb-4">Add New Product</h2> <button class="btn btn-info ms-2" onclick="loadPriceChart()">
+            <i class="fas fa-chart-line"></i> View Price Chart
+        </button><span class="price-note ms-2 text-muted">
+Check the price chart before adding a product — make sure your price doesn't exceed the allowed maximum
+</span><br><br>
+        <form action="/user-add-product" method="POST" enctype="multipart/form-data" id="productForm">
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="productName" class="form-label">Product Name</label>
+                        <input type="text" class="form-control" id="productName" name="productName" required>
+                        <div id="productName-error" class="error-message"></div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                        <div id="description-error" class="error-message"></div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="tag" class="form-label">Tag</label>
+                        <input type="text" class="form-control" id="tag" name="tag">
+                        <div id="tag-error" class="error-message"></div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="category" class="form-label">Category</label>
+                        <select class="form-select" id="category" name="category" required>
+                            <option value="">Select Category</option>
+                            <% categories.forEach(category => { %>
+                                <option value="<%= category._id %>"><%= category.name %></option>
+                            <% }); %>
+                        </select>
+                        <div id="category-error" class="error-message"></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="mainPrice" class="form-label">Main Price</label>
+                            <input type="number" class="form-control" id="mainPrice" name="regularPrice" required>
+                            <div id="mainPrice-error" class="error-message"></div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="salePrice" class="form-label">Sale Price</label>
+                            <input type="number" class="form-control" id="salePrice" name="salePrice">
+                            <div id="salePrice-error" class="error-message"></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="quantity" class="form-label">Quantity</label>
+                            <input type="number" class="form-control" id="quantity" name="quantity" required>
+                            <div id="quantity-error" class="error-message"></div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="unit" class="form-label">Unit</label>
+                        <select class="form-select" id="unit" name="unit" required>
+                            <option value="">Select Unit</option>
+                            <option value="kg">Kg</option>
+                            <option value="g">G</option>
+                            <option value="litre">Litre</option>
+                            <option value="ml">ML</option>
+                            <option value="piece">Piece</option>
+                        </select>
+                        <div id="unit-error" class="error-message"></div>
+                    </div>
+                 </div>
+                    <div class="col-lg-4 mb-4">
+                        <label class="form-label">Quantity Step Size</label>
+<select name="unitStep" class="form-control" required>
+  <option value="0.2">0.2</option>
+  <option value="0.5" >0.5</option>
+  <option value="1" >1</option>
+  <option value="2">2</option>
+</select>        <div id="unitStep-error" class="error-message"></div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <h4>Product Images</h4>
+                    <div class="row">
+                        <% for(let i = 1; i <= 4; i++) { %>
+                            <div class="col-md-6 mb-4 position-relative">
+                                <div class="image-upload" data-index="<%= i %>">
+                                    <input type="file" class="upload-btn" id="image<%= i %>" name="productImage" accept="image/*">
+                                    <div class="image-preview" id="preview<%= i %>"></div>
+                                    <button type="button" class="btn btn-danger btn-sm delete-image" style="position: absolute; top: 5px; right: 5px; display: none;" data-index="<%= i %>">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+            <button  type="submit" class="btn btn-primary">Add Product</button>
+        </form>
+        <br><br>
+        <a href="/my-products" class="btn btn-success">Back To My Products</a>
+    </div>
+
+    <div class="crop-modal" id="cropModal">
+        <div class="crop-container">
+            <div id="cropper"></div>
+            <button class="btn btn-success" id="cropConfirm">Crop</button>
+            <button class="btn btn-danger" id="cropCancel">Cancel</button>
+        </div>
+    </div>
+    <!-- Price Chart Modal -->
+<div class="modal fade" id="priceChartModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Market Price Chart</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                   <!-- Add Search Bar -->
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="input-group">
+                            <input type="text" 
+                                   id="chartSearch" 
+                                   class="form-control" 
+                                   placeholder="Search by product or category..."
+                                   onkeyup="filterPriceChart()">
+                            <button class="btn btn-outline-secondary" type="button">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Product</th>
+                                <th>Maximum Market Price (kg/litre/pieces)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="priceChartBody">
+                            <!-- Data will be loaded dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include("../../views/partials/user/footer") %>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.5/croppie.min.js"></script>
+    <script>
+        
+        function displayErrorMessage(elementId, message) {
+            const errorDiv = document.getElementById(elementId);
+            errorDiv.textContent = message;
+        }
+
+        function clearErrorMessage(elementId) {
+            const errorDiv = document.getElementById(elementId);
+            errorDiv.textContent = '';
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('productForm');
+            let isValid = true;
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                isValid = true;
+
+                // Reset all error messages
+                document.querySelectorAll('.error-message').forEach(div => div.textContent = '');
+
+                // Get form values
+                const productName = document.getElementById('productName').value.trim();
+                const description = document.getElementById('description').value.trim();
+                const category = document.getElementById('category').value;
+                const unit = document.getElementById('unit').value;
+                const quantity = document.getElementById('quantity').value;
+                const mainPrice = document.getElementById('mainPrice').value;
+                const salePrice = document.getElementById('salePrice').value;
+
+                // Validate product name
+                if (!productName) {
+                    displayErrorMessage('productName-error', 'Please enter a product name.');
+                    isValid = false;
+                } else if (!/^[a-zA-Z\s]+$/.test(productName)) {
+                    displayErrorMessage('productName-error', 'Product name should contain only alphabetic characters.');
+                    isValid = false;
+                }
+
+                // Validate description
+                if (!description) {
+                    displayErrorMessage('description-error', 'Please enter a product description.');
+                    isValid = false;
+                } else if (!/^[a-zA-Z\s]+$/.test(description)) {
+                    displayErrorMessage('description-error', 'Product description should contain only alphabetic characters.');
+                    isValid = false;
+                }
+
+                // Validate category
+                if (!category) {
+                    displayErrorMessage('category-error', 'Please select a category.');
+                    isValid = false;
+                }
+
+                // Validate unit
+                if (!unit) {
+                    displayErrorMessage('unit-error', 'Please select a unit.');
+                    isValid = false;
+                }
+
+                // Validate quantity
+                if (!quantity) {
+                    displayErrorMessage('quantity-error', 'Please enter a quantity.');
+                    isValid = false;
+                } else if (parseInt(quantity) < 0) {
+                    displayErrorMessage('quantity-error', 'Please enter a valid non-negative quantity.');
+                    isValid = false;
+                }
+
+                // Validate main price
+                if (!mainPrice) {
+                    displayErrorMessage('mainPrice-error', 'Please enter a main price.');
+                    isValid = false;
+                } else if (!/^[\d]+(\.\d{1,2})?$/.test(mainPrice) || parseFloat(mainPrice) < 0) {
+                    displayErrorMessage('mainPrice-error', 'Please enter a valid non-negative price.');
+                    isValid = false;
+                }
+
+                // Validate sale price
+                if (salePrice && (!/^[\d]+(\.\d{1,2})?$/.test(salePrice) || parseFloat(salePrice) < 0)) {
+                    displayErrorMessage('salePrice-error', 'Please enter a valid non-negative sale price.');
+                    isValid = false;
+                }
+
+                // If all validations pass, submit the form
+                // if (isValid) {
+                //     form.submit();
+                // }
+            });
+
+            // Add real-time validation for inputs
+            document.getElementById('productName').addEventListener('input', function() {
+                clearErrorMessage('productName-error');
+            });
+
+            document.getElementById('description').addEventListener('input', function() {
+                clearErrorMessage('description-error');
+            });
+
+            document.getElementById('category').addEventListener('change', function() {
+                clearErrorMessage('category-error');
+            });
+
+            document.getElementById('unit').addEventListener('change', function() {
+                clearErrorMessage('unit-error');
+            });
+
+            document.getElementById('quantity').addEventListener('input', function() {
+                clearErrorMessage('quantity-error');
+            });
+
+            document.getElementById('mainPrice').addEventListener('input', function() {
+                clearErrorMessage('mainPrice-error');
+            });
+
+            document.getElementById('salePrice').addEventListener('input', function() {
+                clearErrorMessage('salePrice-error');
+            });
+        });
+        document.addEventListener('DOMContentLoaded', function() {
+            const imageUploads = document.querySelectorAll('.image-upload');
+            const cropModal = document.getElementById('cropModal');
+            let cropper = null;
+            let currentImageIndex = null;
+
+            // Initialize delete buttons
+            const deleteButtons = document.querySelectorAll('.delete-image');
+            deleteButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const index = this.dataset.index;
+                    const preview = document.getElementById(`preview${index}`);
+                    const input = document.getElementById(`image${index}`);
+                    
+                    // Reset preview and input
+                    preview.style.backgroundImage = '';
+                    preview.style.backgroundSize = '';
+                    preview.style.backgroundPosition = '';
+                    input.value = '';
+                    
+                    // Hide delete button
+                    this.style.display = 'none';
+                });
+            });
+
+            imageUploads.forEach(upload => {
+                const index = upload.dataset.index;
+                const input = upload.querySelector('.upload-btn');
+                const preview = upload.querySelector('.image-preview');
+                const deleteButton = upload.querySelector('.delete-image');
+
+                upload.addEventListener('click', function() {
+                    input.click();
+                });
+
+                input.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const imageUrl = e.target.result;
+                            preview.style.backgroundImage = `url(${imageUrl})`;
+                            preview.style.backgroundSize = 'cover';
+                            preview.style.backgroundPosition = 'center';
+                            
+                            // Show delete button
+                            deleteButton.style.display = 'block';
+                            
+                            // Show crop modal
+                            currentImageIndex = index;
+                            cropModal.style.display = 'block';
+                            
+                            // Destroy existing cropper if it exists
+                            if (cropper) {
+                                cropper.destroy();
+                            }
+                            
+                            // Initialize new cropper
+                            cropper = new Croppie(document.getElementById('cropper'), {
+                                viewport: { width: 200, height: 200 },
+                                boundary: { width: 300, height: 300 },
+                                showZoomer: true,
+                                enableOrientation: true
+                            });
+                            
+                            cropper.bind({
+                                url: imageUrl
+                            });
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            });
+
+            document.getElementById('cropConfirm').addEventListener('click', function() {
+                if (cropper) {
+                    cropper.result('base64').then(function(base64) {
+                        const preview = document.getElementById(`preview${currentImageIndex}`);
+                        preview.style.backgroundImage = `url(${base64})`;
+                        cropModal.style.display = 'none';
+                    });
+                }
+            });
+
+            document.getElementById('cropCancel').addEventListener('click', function() {
+                cropModal.style.display = 'none';
+                if (cropper) {
+                    cropper.destroy();
+                }
+            });
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('productForm');
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const formData = new FormData(form);
+
+        try {
+            const response = await fetch(form.action, {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) {
+                const data = await response.json();
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: data.error || 'Something went wrong!'
+                });
+            } else {
+                // Success: reload or redirect
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Product Added!',
+                    showConfirmButton: false,
+                    timer: 1200
+                }).then(() => {
+                    window.location.href = '/my-products';
+                });
+            }
+        } catch (err) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Network error or server not responding.'
+            });
+        }
+    });
+});
+</script>
+<!-- filepath: f:\FIRST_PROJECT\views\user\myProducts.ejs -->
+<script>
+// Add these variables at the top of your script
+let priceChartData = []; // Store the original data
+
+async function loadPriceChart() {
+    try {
+        const response = await fetch('/price-chart');
+        const data = await response.json();
+        
+        if (data.success) {
+            priceChartData = data.priceChart; // Store the data
+            renderPriceChart(priceChartData); // Initial render
+            new bootstrap.Modal(document.getElementById('priceChartModal')).show();
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Failed to load price chart'
+            });
+        }
+    } catch (error) {
+        console.error('Error loading price chart:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to load price chart'
+        });
+    }
+}
+
+function renderPriceChart(data) {
+    const tbody = document.getElementById('priceChartBody');
+    tbody.innerHTML = '';
+    
+    if (data.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="3" class="text-center">No matching results found</td>
+            </tr>
+        `;
+        return;
+    }
+
+    data.forEach(item => {
+        tbody.innerHTML += `
+            <tr>
+                <td>${item.category}</td>
+                <td>${item.product}</td>
+                <td>₹${item.minPrice.toFixed(2)}</td>
+            </tr>
+        `;
+    });
+}
+
+function filterPriceChart() {
+    const searchTerm = document.getElementById('chartSearch').value.toLowerCase();
+    
+    const filteredData = priceChartData.filter(item => 
+        item.product.toLowerCase().includes(searchTerm) || 
+        item.category.toLowerCase().includes(searchTerm)
+    );
+    
+    renderPriceChart(filteredData);
+}
+</script>
+</body>
+</html>

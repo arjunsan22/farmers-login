@@ -98,7 +98,7 @@
                                             <tr>
                                                 <th>Product Name</th>
                                                 <th>Quantity</th>
-                                                <th class="text-end">Price</th>
+                                                <th class="text-end">Price </th>
                                                
                                             </tr>
                                         </thead>
@@ -106,7 +106,7 @@
                                             <% order.orderedItems.forEach(item => { %>
                                                 <tr>
                                                     <td><%= item.product.productname %></td>
-                                                    <td><%= item.quantity %> kg</td>
+                                                    <td><%= item.quantity %> <%=item.product.unit %></td>
                                                     <td class="text-end">₹<%= item.price %></td>
                                                
                                                 </tr>

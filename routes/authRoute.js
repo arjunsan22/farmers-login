@@ -13,6 +13,21 @@ const orderController=require('../controller/user/orderController')
 const wishlistController=require('../controller/user/wishlistController')
 const walletController = require('../controller/user/walletController');
 const reviewController = require('../controller/user/reviewController');
+const upload = require('../middlewares/uploadProfile');
+const userProductController = require('../controller/user/userProductController');
+const multer=require('multer')
+const path = require('path');
+//multer setupp//for easy i store admin//
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'public/uploads/product-images');
+    },
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + path.extname(file.originalname));
+    }
+});
+const uploads = multer({ storage: storage });
+
 
 router.get('/pagenotfound',userController.pagenotfound)
 
@@ -77,10 +92,35 @@ router.get('/userProfile',usermiddle.isLogout,profileController.loadProfilePage)
 
 router.get('/profile/edit',usermiddle.isLogout,profileController.editProfile);
 
-router.post('/profile/update',profileController.updateProfile);
+// router.post('/profile/update', upload.single('userImage'),profileController.updateProfile);
+//user profile edit update route//
+router.post(
+  '/profile/update',
+  upload.fields([
+    { name: 'userImage', maxCount: 1 },
+  ]),
+  profileController.updateProfile
+);
+//farmers profile route//
 
-// router.post('/profile/uploadPicture',upload.single('profilePicture'),profileController.uploadProfilePicture)
 
+router.post(
+  '/register-farmer',
+  upload.fields([
+    { name: 'certificate', maxCount: 1 }
+  ]),
+  profileController.registerFarmer
+);
+// Show all products for this user
+router.get('/my-products',usermiddle.isLogout, userProductController.listProducts);
+router.get('/my-products-addPage',usermiddle.isLogout, userProductController.loadAddProductPage);
+router.post('/user-add-product', uploads.array("productImage", 4), userProductController.addProduct)
+router.post('/my-products-edit/:id', userProductController.editProduct);
+router.post('/my-products/toggle-block/:id', userProductController.toggleBlockProduct);
+router.get('/farmerorders',usermiddle.isLogout, userProductController.getFarmerOrders);
+router.post('/farmer/orders/:orderId/status',  userProductController.updateOrderStatus);
+
+router.get('/price-chart', userProductController.getPriceChart);
 
 router.get('/useraddress',usermiddle.isLogout,profileController.loadUserAddressPage)
 router.get('/addUserAddress',usermiddle.isLogout,profileController.loadaddUserAddressPage)
@@ -135,7 +175,7 @@ router.post('/verify-razorpay-payment', checkoutController.verifyRazorpayPayment
 
 
 //order-management://
-router.get('/order-history',orderController.getOrderHistory);
+router.get('/order-history',usermiddle.isLogout,orderController.getOrderHistory);
 router.get('/orders/download-invoice/:orderId', orderController.downloadInvoice);
 
 

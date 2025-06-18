@@ -10,6 +10,25 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 </head>
 <style>
+    /* ... existing styles ... */
+    
+    .seller-info {
+        padding: 8px;
+        border-radius: 4px;
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+    }
+    
+    .seller-info p {
+        font-size: 0.85rem;
+        color: #666;
+        margin-bottom: 2px;
+    }
+    
+    .seller-info .badge {
+        font-size: 0.75rem;
+    }
+
     .status-badge {
       padding: 8px 16px;
       border-radius: 7px;
@@ -268,7 +287,8 @@
                   <th>Product</th>
                   <th>Product Name</th>
                   <th>Quantity</th>
-                  <th>Price</th>
+                  <th>Price </th>
+                        <th>Seller Info</th>
                 </tr>
               </thead>
               <tbody>
@@ -285,8 +305,20 @@
                       </a>
                     </td>
                     <td><%= item.product.productname %></td>
-                    <td><%= item.quantity %></td>
-                    <td>₹<%= item.price %></td>
+                    <td><%= item.quantity %> <%=item.product.unit%></td>
+                    <td>₹<%= item.price %>  per <%= item.product.unit %></td>
+                     <td>
+          <% if (item.product.userId) { %>
+            <div class="seller-info">
+              <span class="badge bg-primary mb-1">Farmer Product</span>
+              <p class="mb-1"><small><strong>Farm:</strong> <%= item.product.userId.farmName || 'Not specified' %></small></p>
+              <p class="mb-1"><small><strong>Location:</strong> <%= item.product.userId.location || 'Not specified' %></small></p>
+              <p class="mb-0"><small><strong>District:</strong> <%= item.product.userId.district || 'Not specified' %></small></p>
+            </div>
+          <% } else { %>
+            <span class="badge bg-secondary">Admin Product</span>
+          <% } %>
+        </td>
                   </tr>
                 <% }) %>
               </tbody>
@@ -527,4 +559,3 @@
       </script>
 </body>
 </html>
-<%- include("../../views/partials/user/footer") %>
