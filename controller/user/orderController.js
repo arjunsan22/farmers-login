@@ -22,7 +22,13 @@ const getOrderHistory = async (req, res) => {
    const totalPages  = Math.ceil(totalOrders / limit); 
 
      
-      const orders = await Order.find({ userId }).populate('orderedItems.product')
+      const orders = await Order.find({ userId }).populate({
+                path: 'orderedItems.product',
+                populate: {
+                    path: 'userId',
+                    select: 'firstname lastname farmName location district'
+                }
+            })
       .populate('address')
       .sort({ createdOn: -1 })
       .skip(skip)
