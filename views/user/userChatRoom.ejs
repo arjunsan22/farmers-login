@@ -1,0 +1,274 @@
+<%- include("../../views/partials/user/header") %>
+
+<style>
+    :root {
+        --primary-color: #25D366;
+        --primary-light: #dcf8c6;
+        --bg-color: #e5ddd5;
+        --header-bg: #075e54;
+        --header-text: #ffffff;
+        --message-bg: #ffffff;
+        --message-text: #262626;
+        --time-color: #9e9e9e;
+        --input-bg: #f0f0f0;
+    }
+
+    body {
+        background-color: var(--bg-color);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .chat-container {
+        max-width: 800px;
+        margin: 2rem auto;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+
+    .chat-header {
+        background-color: var(--header-bg);
+        color: white;
+        padding: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .user-info h4 {
+        margin: 0;
+        font-weight: 600;
+    }
+
+    .user-info p {
+        margin: 2px 0 0;
+        font-size: 0.85rem;
+        opacity: 0.9;
+    }
+
+    #chat-box {
+        height: 500px;
+        overflow-y: auto;
+        padding: 1rem;
+        background-color: #e5ddd5;
+        background-image: url('data:image/svg+xml;base64,PHURELDA/4kR+vr6+P///yH5BAAAAAAALAAAAAABAAEAAAIBRAA7');
+        background-attachment: fixed;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .message {
+        margin-bottom: 1rem;
+        max-width: 80%;
+        animation: fadeIn 0.3s ease-out;
+        display: flex;
+        flex-direction: column;
+        clear: both;
+    }
+
+    .message.sent {
+        align-self: flex-end;
+    }
+
+    .message.received {
+        align-self: flex-start;
+    }
+
+    .message-content {
+        padding: 0.6rem 1rem;
+        border-radius: 1rem;
+        display: inline-block;
+        max-width: 100%;
+        word-wrap: break-word;
+        position: relative;
+    }
+
+    .message.sent .message-content {
+        background-color: var(--primary-light);
+        color: var(--message-text);
+        border-top-right-radius: 0.2rem;
+    }
+
+    .message.received .message-content {
+        background-color: white;
+        color: var(--message-text);
+        border-top-left-radius: 0.2rem;
+        box-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.1);
+    }
+
+    .message-sender {
+        font-weight: 600;
+        font-size: 0.85rem;
+        margin-bottom: 0.2rem;
+        display: block;
+        color: #075e54;
+    }
+
+    .message-time {
+        font-size: 0.7rem;
+        color: var(--time-color);
+        margin-top: 0.3rem;
+        text-align: right;
+    }
+
+    .chat-input-container {
+        padding: 1rem;
+        background-color: var(--input-bg);
+        display: flex;
+        gap: 0.5rem;
+        border-top: 1px solid #ddd;
+    }
+
+    #chat-input {
+        flex: 1;
+        border: none;
+        border-radius: 20px;
+        padding: 0.6rem 1.2rem;
+        font-size: 0.95rem;
+        background-color: white;
+    }
+
+    #chat-input:focus {
+        outline: none;
+        box-shadow: 0 0 0 2px var(--primary-color);
+    }
+
+    .send-button {
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .send-button:hover {
+        background-color: #128C7E;
+        transform: scale(1.05);
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+<br><br><br>
+<div class="chat-container">
+    <div class="chat-header">
+        <img src="<%= chat.buyer._id.toString() === userId.toString() ? chat.seller.userImage : chat.buyer.userImage %>" 
+             alt="Profile" 
+             class="user-avatar"
+             onerror="this.src='https://ui-avatars.com/api/?name=<%= chat.buyer._id.toString() === userId.toString() ? chat.seller.firstname + '+' + chat.seller.lastname : chat.buyer.firstname + '+' + chat.buyer.lastname %>&background=random'"
+        >
+        <div class="user-info">
+            <h4>
+                <% if (chat.buyer._id.toString() === userId.toString()) { %>
+                    <%= chat.seller.firstname %> <%= chat.seller.lastname %>
+                <% } else { %>
+                    <%= chat.buyer.firstname %> <%= chat.buyer.lastname %>
+                <% } %>
+            </h4>
+            <p>Order #<%= chat.orderId.orderId.slice(-5) %></p>
+        </div>
+    </div>
+
+    <div id="chat-box">
+        <% chat.messages.forEach(msg => { 
+            const isSent = msg.sender._id.toString() === userId.toString();
+        %>
+            <div class="message <%= isSent ? 'sent' : 'received' %>">
+                <% if (!isSent) { %>
+                    <span class="message-sender"><%= msg.sender.firstname %></span>
+                <% } %>
+                <div class="message-content">
+                    <%= msg.text %>
+                    <div class="message-time">
+                        <%= new Date(msg.sentAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) %>
+                        <% if (isSent) { %>
+                            <i class="fas fa-check-double" style="margin-left: 4px;"></i>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        <% }) %>
+    </div>
+
+    <form id="chat-form" class="chat-input-container">
+        <input type="text" 
+               id="chat-input" 
+               class="form-control" 
+               placeholder="Type your message..." 
+               autocomplete="off">
+        <button type="submit" class="send-button">
+            <i class="fas fa-paper-plane"></i>
+        </button>
+    </form>
+</div>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    const socket = io();
+    const chatId = "<%= chat._id %>";
+    const userId = "<%= userId %>";
+    const chatBox = document.getElementById('chat-box');
+    const chatForm = document.getElementById('chat-form');
+    const chatInput = document.getElementById('chat-input');
+
+    // Join the chat room
+    socket.emit('joinChat', chatId);
+
+    // Helper to format time
+    const formatTime = date =>
+        new Date(date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    // Render a new message WhatsApp style
+    function renderMessage({ sender, senderName, text, sentAt }) {
+        const isSent = sender && (sender._id === userId || sender._id.toString() === userId.toString());
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${isSent ? 'sent' : 'received'}`;
+        messageDiv.innerHTML = `
+            ${!isSent ? `<span class="message-sender">${senderName || ''}</span>` : ''}
+            <div class="message-content">
+                ${text}
+                <div class="message-time">
+                    ${formatTime(sentAt)}
+                    ${isSent ? '<i class="fas fa-check-double" style="margin-left: 4px;"></i>' : ''}
+                </div>
+            </div>
+        `;
+        chatBox.appendChild(messageDiv);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    // Listen for new messages
+    socket.on('newMessage', renderMessage);
+
+    // Send message
+    chatForm.addEventListener('submit', e => {
+        e.preventDefault();
+        const text = chatInput.value.trim();
+        if (text) {
+            socket.emit('sendMessage', { chatId, userId, text });
+            chatInput.value = '';
+        }
+    });
+
+    // Optional: Scroll to bottom on load
+    window.onload = () => {
+        chatBox.scrollTop = chatBox.scrollHeight;
+    };
+</script>
+<%- include("../../views/partials/user/footer") %>

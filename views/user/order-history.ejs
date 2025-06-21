@@ -81,6 +81,7 @@
       </ol>
   </nav>
     <h2 class="text-center text-danger mb-4"><strong> 𝙾𝚁𝙳𝙴𝚁𝚂 𝙷𝙸𝚂𝚃𝙾𝚁𝚈 </strong></h2>
+    
 <!-- Navigation Tabs -->
 <ul class="nav nav-tabs" id="orderTabs">
   <li class="nav-item">
@@ -104,10 +105,6 @@
                       <p>Order Date: <%= order.createdOn.toDateString() %></p>
                       <p>Status: <span class="status-badge status-delivered"><%= order.Status %></span></p>
                   </div>
-
-
-
-
                   
                   <div class="card-body">
                       <h6>Ordered Items</h6>
@@ -289,6 +286,7 @@
                   <th>Quantity</th>
                   <th>Price </th>
                         <th>Seller Info</th>
+                        <th>Chat</th>
                 </tr>
               </thead>
               <tbody>
@@ -318,8 +316,15 @@
           <% } else { %>
             <span class="badge bg-secondary">Admin Product</span>
           <% } %>
-        </td>
-                  </tr>
+        </td>     <td>
+               <% if (item.product.userId) { %>
+       <a href="/chat/order/<%= order._id %>" class="btn btn-outline-primary btn-sm">Chat with Seller</a>
+                  <% } else { %>
+                
+                    <span class="badge bg-danger">No chat available for Admin Product</span>
+                  <% } %>
+                </td>
+                </tr>
                 <% }) %>
               </tbody>
             </table>

@@ -402,16 +402,19 @@
             <a href="/wishlist" class="btn btn-success text-white text-decoration-none btn-animate">Wishlist</a>
             <a href="/cart" class="btn btn-success text-white text-decoration-none btn-animate">Shopping Cart</a>
             <a href="/wallet" class="btn btn-success text-white text-decoration-none btn-animate">Wallet</a>
+            <a href="/chats" class="btn btn-outline-success">
+                <i class="fab fa-whatsapp"></i> My Chats
+            </a>            
             <% if (user.isVerified) { %>                 
             <a href="/my-products" class="btn btn-secondary text-white text-decoration-none btn-animate">My Products</a>
 <a href="/farmerorders" 
    class="btn text-white text-decoration-none btn-animate" 
-   style="background-color: #005d65; border-radius: 8px; padding: 8px 16px; transition: background-color 0.3s;"
+   style="background-color: #5d7072; border-radius: 8px; padding: 8px 16px; transition: background-color 0.3s;"
    onmouseover="this.style.backgroundColor='#218838'" 
    onmouseout="this.style.backgroundColor='#28a745'">
    Orders
 </a>
-<button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#userDetailsModal">
+<button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#userDetailsModal">
                         View Farm Details
                     </button> 
 <% } %>

@@ -7,10 +7,11 @@ const env=require('dotenv').config()
 const authRouter=require('./routes/authRoute');
 const adminRouter=require('./routes/adminRoute')
 const passport=require('./config/passport')
+const http =require('http').createServer(app);
+const io=require('socket.io')(http)
+const Chat = require('./models/chatModel');
+const User = require('./models/userModel');
 
-// const bodyParser = require('body-parser');//express.json add
-// app.use(bodyParser.urlencoded({ extended: true }));  // For form data
-// app.use(bodyParser.json());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));  // For form data//
 
@@ -90,10 +91,49 @@ app.use((err, req, res, next) => {
       message: 'Something went wrong! Please try again later.'
     });
   }
+
 });
 
 
+//socket io setup
+// ...existing code..
+io.on('connection', (socket) => {
+    console.log('user connected');
 
-app.listen(PORT ,()=>{
+    // Join a chat room
+    socket.on('joinChat', (chatId) => {
+        socket.join(chatId);
+    });
+
+    // Handle sending messages
+    socket.on('sendMessage', async ({ chatId, userId, text }) => {
+        try {
+            const chat = await Chat.findById(chatId);
+            if (!chat) return;
+            chat.messages.push({ sender: userId, text });
+            await chat.save();
+
+            // Get sender's name
+            const user = await User.findById(userId);
+            const senderName = user ? user.firstname : 'User';
+
+            // Emit to all in the room
+            io.to(chatId).emit('newMessage', {
+                senderName,
+                text,
+                sentAt: new Date()
+            });
+        } catch (err) {
+            console.error('Chat error:', err);
+        }
+    });
+
+    socket.on('disconnect', () => {
+        console.log('user disconnected');
+    });
+});
+
+
+http.listen(PORT ,()=>{
     console.log(`server is running at ${PORT} http://localhost:4000/`)
 })

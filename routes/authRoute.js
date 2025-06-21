@@ -17,6 +17,20 @@ const upload = require('../middlewares/uploadProfile');
 const userProductController = require('../controller/user/userProductController');
 const multer=require('multer')
 const path = require('path');
+const chatController = require('../controller/user/chatControllers');
+
+// List all chats for user
+router.get('/chats', chatController.getChatPage);
+
+// Start or get chat for an order
+router.get('/chat/order/:orderId', chatController.getOrCreateChat);
+
+// View a specific chat room
+router.get('/chat/:chatId', chatController.getChatById);
+
+// Post a message (AJAX)
+router.post('/chat/:chatId/message', chatController.postMessage);
+
 //multer setupp//for easy i store admin//
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -236,6 +250,20 @@ router.get('/userblogDetails/:id',userController.loadBlogDetailsPage)
 
 //contacts//
 router.get('/contacts',userController.contacts)
+
+
+//chat management//
+router.get('/chats',usermiddle.isLogout,chatController.getChatPage);
+router.get('/chat/order/:orderId', chatController.getOrCreateChat);
+router.get('/chat/:chatId',usermiddle.isLogout, chatController.getChatById);
+
+// Post a message (AJAX)
+router.post('/chat/:chatId/message', chatController.postMessage);
+
+
+
+
+
 //logout
 router.get('/logout',userController.LoGout)
 
