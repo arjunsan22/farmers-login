@@ -397,26 +397,47 @@
         <h4 class="text-center mb-4 title">ƒαямєяѕ тσσℓѕ</h4>
         
         <div class="d-grid gap-3">
-            <a href="/userProfile" class="btn btn-success text-white text-decoration-none btn-animate">Dashboard</a>
-            <a href="/order-history" class="btn btn-success text-white text-decoration-none btn-animate">Order History</a>
-            <a href="/wishlist" class="btn btn-success text-white text-decoration-none btn-animate">Wishlist</a>
-            <a href="/cart" class="btn btn-success text-white text-decoration-none btn-animate">Shopping Cart</a>
-            <a href="/wallet" class="btn btn-success text-white text-decoration-none btn-animate">Wallet</a>
-            <a href="/chats" class="btn btn-outline-success">
+           <a href="/userProfile" class="btn btn-success text-white text-decoration-none btn-animate">
+    <i class="fas fa-user-circle me-1"></i> Dashboard
+</a>
+
+<a href="/order-history" class="btn btn-success text-white text-decoration-none btn-animate">
+    <i class="fas fa-box-open me-1"></i> Order History
+</a>
+
+<a href="/wishlist" class="btn btn-success text-white text-decoration-none btn-animate">
+    <i class="fas fa-heart me-1"></i> Wishlist
+</a>
+
+<a href="/cart" class="btn btn-success text-white text-decoration-none btn-animate">
+    <i class="fas fa-shopping-cart me-1"></i> Shopping Cart
+</a>
+
+<a href="/wallet" class="btn btn-success text-white text-decoration-none btn-animate">
+    <i class="fas fa-wallet me-1"></i> Wallet
+</a>
+ <a href="/chats" class="btn btn-outline-success">
                 <i class="fab fa-whatsapp"></i> My Chats
             </a>            
             <% if (user.isVerified) { %>                 
-            <a href="/my-products" class="btn btn-secondary text-white text-decoration-none btn-animate">My Products</a>
+           <!-- My Products -->
+<a href="/my-products" class="btn btn-secondary text-white text-decoration-none btn-animate">
+    <i class="fas fa-seedling me-1"></i> My Products
+</a>
+
+<!-- Orders -->
 <a href="/farmerorders" 
    class="btn text-white text-decoration-none btn-animate" 
    style="background-color: #5d7072; border-radius: 8px; padding: 8px 16px; transition: background-color 0.3s;"
-   onmouseover="this.style.backgroundColor='#218838'" 
-   onmouseout="this.style.backgroundColor='#28a745'">
-   Orders
+   >
+   <i class="fas fa-shopping-bag me-1"></i> Orders
 </a>
+
+<!-- View Farm Details Modal Button -->
 <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#userDetailsModal">
-                        View Farm Details
-                    </button> 
+    <i class="fas fa-tractor me-1"></i> View Farm Details
+</button>
+
 <% } %>
 
                    
