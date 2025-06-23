@@ -78,8 +78,8 @@ const updateProfile = async (req, res) => {
         let updateData = { firstname, lastname, phone };
 
         // If a new profile image is uploaded, add its path
-       if (req.files && req.files['userImage'] && req.files['userImage'][0]) {
-    updateData.userImage = '/uploads/profile-images/' + req.files['userImage'][0].filename;
+if (req.files && req.files['userImage'] && req.files['userImage'][0]) {
+    updateData.userImage = req.files['userImage'][0].path; // Cloudinary URL
 }
 
         const updatedUser = await User.findByIdAndUpdate(
@@ -116,9 +116,9 @@ const registerFarmer = async (req, res) => {
         };
 
         // Handle certificate upload
-        if (req.files && req.files['certificate'] && req.files['certificate'][0]) {
-            updateData.certificate = '/uploads/certificates/' + req.files['certificate'][0].filename;
-        }
+       if (req.files && req.files['certificate'] && req.files['certificate'][0]) {
+    updateData.certificate = req.files['certificate'][0].path; // Cloudinary URL
+}
 
         await User.findByIdAndUpdate(userId, updateData, { new: true });
         res.redirect('/userProfile');
@@ -126,11 +126,6 @@ const registerFarmer = async (req, res) => {
         console.error('Error registering farmer:', error);
         res.render('pagenotfound');
     }
-};
-
-module.exports = {
-    // ...other exports,
-    registerFarmer
 };
 
 //address management//

@@ -648,8 +648,13 @@ a{
 
 <% } %>
 
-                <img src="/uploads/product-images/<%=products[i].productImage[0]%>" class="card-img-top product-img" alt="<%=products[i].productname%>">
-                <div class="position-absolute top-0 end-0 p-2">
+<img 
+  src="<%= products[i].productImage[0] && products[i].productImage[0].startsWith('http') 
+        ? products[i].productImage[0] 
+        : '/uploads/product-images/' + products[i].productImage[0] %>" 
+  class="card-img-top product-img" 
+  alt="<%= products[i].productname %>">
+                  <div class="position-absolute top-0 end-0 p-2">
                     <button class="btn btn-outline-danger btn-sm add-to-wishlist" data-product-id="<%= products[i]._id %>">
                         <i class="fas fa-heart"></i>
                     </button>
@@ -735,8 +740,12 @@ a{
                         <span><%= products[i].categoryOffer %>% OFF</span>
                     </div>
                 <% } %>
-                <img src="/uploads/product-images/<%=products[i].productImage[0]%>" class="card-img-top product-img" alt="<%=products[i].productname%>">
-               
+<img 
+  src="<%= products[i].productImage[0] && products[i].productImage[0].startsWith('http') 
+        ? products[i].productImage[0] 
+        : '/uploads/product-images/' + products[i].productImage[0] %>" 
+  class="card-img-top product-img" 
+  alt="<%= products[i].productname %>">               
                 <div class="position-absolute top-0 end-0 p-2">
                     <button class="btn btn-outline-danger btn-sm add-to-wishlist" data-product-id="<%= products[i]._id %>">
                         <i class="fas fa-heart"></i>
@@ -824,8 +833,12 @@ a{
                         <span><%= products[i].categoryOffer %>% OFF</span>
                     </div>
                 <% } %>
-                <img src="/uploads/product-images/<%=products[i].productImage[0]%>" class="card-img-top product-img" alt="<%=products[i].productname%>">
-               
+<img 
+  src="<%= products[i].productImage[0] && products[i].productImage[0].startsWith('http') 
+        ? products[i].productImage[0] 
+        : '/uploads/product-images/' + products[i].productImage[0] %>" 
+  class="card-img-top product-img" 
+  alt="<%= products[i].productname %>">               
                 <div class="position-absolute top-0 end-0 p-2">
                     <button class="btn btn-outline-danger btn-sm add-to-wishlist" data-product-id="<%= products[i]._id %>">
                         <i class="fas fa-heart"></i>

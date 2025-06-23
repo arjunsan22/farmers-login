@@ -1,63 +1,36 @@
-
-// const multer = require('multer');
-// const path = require('path');
-// const fs = require('fs');
-
-// // Profile image storage
-// const profileImagePath = 'public/uploads/profile-images/';
-// if (!fs.existsSync(profileImagePath)){
-//     fs.mkdirSync(profileImagePath, { recursive: true });
-// }
-// const profileStorage = multer.diskStorage({
-//     destination: function(req, file, cb) {
-//         cb(null, profileImagePath);
-//     },
-//     filename: function(req, file, cb) {
-//         cb(null, Date.now() + path.extname(file.originalname));
-//     }
-// });
-// const upload = multer({ storage: profileStorage });
-
-// // Certificate storage
-// const certificatePath = 'public/uploads/certificates/';
-// if (!fs.existsSync(certificatePath)){
-//     fs.mkdirSync(certificatePath, { recursive: true });
-// }
-// const certificateStorage = multer.diskStorage({
-//     destination: function(req, file, cb) {
-//         cb(null, certificatePath);
-//     },
-//     filename: function(req, file, cb) {
-//         cb(null, Date.now() + path.extname(file.originalname));
-//     }
-// });
-// const uploadCertificate = multer({ storage: certificateStorage });
-
-// module.exports = {
-//     upload,
-//     uploadCertificate,
-// };
 const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const cloudinary = require('../config/cloudinary');
 
-const storage = multer.diskStorage({
-    destination: function(req, file, cb) {
-        let uploadPath;
-        if (file.fieldname === 'userImage') {
-            uploadPath = 'public/uploads/profile-images/';
-        } else if (file.fieldname === 'certificate') {
-            uploadPath = 'public/uploads/certificates/';
+// Storage for profile images and certificates
+const profileStorage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: async (req, file) => {
+        let folder = 'profile-images';
+        if (file.fieldname === 'certificate') {
+            folder = 'certificates';
         }
-        if (!fs.existsSync(uploadPath)){
-            fs.mkdirSync(uploadPath, { recursive: true });
-        }
-        cb(null, uploadPath);
-    },
-    filename: function(req, file, cb) {
-        cb(null, Date.now() + path.extname(file.originalname));
+        return {
+            folder: folder,
+            allowed_formats: ['jpg', 'jpeg', 'png', 'pdf'],
+            public_id: Date.now() + '-' + file.originalname.split('.')[0]
+        };
     }
 });
-const upload = multer({ storage: storage });
+const upload = multer({ storage: profileStorage });
 
-module.exports = upload;
+// Storage for product images
+const productStorage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: {
+        folder: 'product-images',
+        allowed_formats: ['jpg', 'jpeg', 'png'],
+        transformation: [{ width: 440, height: 400, crop: 'limit' }]
+    }
+});
+const uploadProductImages = multer({ storage: productStorage });
+
+module.exports = {
+    upload,
+    uploadProductImages
+};

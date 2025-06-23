@@ -10,16 +10,8 @@ const path = require('path');
 const orderController=require('../controller/admin/adminOrderController')
 const blogController = require('../controller/admin/blogController');
 const farmerController = require('../controller/admin/farmerController');
-//multer setupp//for easy i store admin//
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, 'public/uploads/product-images');
-    },
-    filename: function (req, file, cb) {
-        cb(null, Date.now() + path.extname(file.originalname));
-    }
-});
-const uploads = multer({ storage: storage });
+const { uploadProductImages } = require('../middlewares/uploadProfile');
+
 // Configure multer for blog images
 const blogStorage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -65,13 +57,13 @@ router.post('/removeCategoryOffer',categoryContoller.removeOffer)
 //product management//
 router.get('/products',middle.isLogin,productContoller.loadProductPage)
 router.get('/addproducts',middle.isLogin,productContoller.loadproductaddPage)
-router.post('/addProducts',uploads.array("images",4),productContoller.addProducts);
+router.post('/addProducts', uploadProductImages.array("images", 4), productContoller.addProducts);
 
 router.get('/productBlock',productContoller.BlockProduct)
 router.get('/productUnblock',productContoller.UnblockProduct)
 router.get('/productEdits',middle.isLogin,productContoller.EditProducts)
 
-router.post('/productEdits/:id',uploads.array("images",4),productContoller.updateProduct)
+router.post('/productEdits/:id', uploadProductImages.array("images", 4), productContoller.updateProduct);
 router.post('/deleteImage',productContoller.deleteSingleImage)
 
 router.post('/addProductOffer',productContoller.addProductOffer)

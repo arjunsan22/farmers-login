@@ -296,27 +296,28 @@
       <div class="product-gallery">
         <div id="productImagesCarousel" class="carousel slide" data-bs-ride="carousel">
           <div class="carousel-inner rounded-4 shadow-sm">
-            <% product.productImage.forEach((image, index) => { %>
-              <div class="carousel-item <%= index === 0 ? 'active' : '' %>">
-                <img id="zoom-image-<%= index %>" 
-                     src="/uploads/product-images/<%= image %>" 
-                     data-zoom-image="/uploads/product-images/<%= image %>" 
-                     class="d-block w-100 zoom-image" 
-                     alt="<%= product.productname %> Image <%= index + 1 %>">
-              </div>
-            <% }) %>
+           <% product.productImage.forEach((image, index) => { %>
+  <div class="carousel-item <%= index === 0 ? 'active' : '' %>">
+    <img id="zoom-image-<%= index %>" 
+         src="<%= image && image.startsWith('http') ? image : '/uploads/product-images/' + image %>" 
+         data-zoom-image="<%= image && image.startsWith('http') ? image : '/uploads/product-images/' + image %>" 
+         class="d-block w-100 zoom-image" 
+         alt="<%= product.productname %> Image <%= index + 1 %>">
+  </div>
+<% }) %>
           </div>
           
-          <!-- Thumbnail Navigation -->
-          <div class="product-thumbnails mt-3 d-flex justify-content-center">
-            <% product.productImage.forEach((image, index) => { %>
-              <div class="thumbnail-item mx-2" onclick="$('#productImagesCarousel').carousel(<%= index %>)">
-                <img src="/uploads/product-images/<%= image %>" 
-                     class="img-thumbnail" 
-                     alt="Thumbnail <%= index + 1 %>">
-              </div>
-            <% }) %>
-          </div>
+         <!-- Thumbnail Navigation -->
+<div class="product-thumbnails mt-3 d-flex justify-content-center">
+  <% product.productImage.forEach((image, index) => { %>
+    <div class="thumbnail-item mx-2" onclick="$('#productImagesCarousel').carousel(<%= index %>)">
+      <img 
+        src="<%= image && image.startsWith('http') ? image : '/uploads/product-images/' + image %>" 
+        class="img-thumbnail" 
+        alt="Thumbnail <%= index + 1 %>">
+    </div>
+  <% }) %>
+</div>
         </div>
       </div>
     </div>
@@ -645,206 +646,101 @@
 <% } %>
    <!-- end -->
   <script>
-    function showToast(message, isSuccess) {
-      const toastElement = document.getElementById('toast-message');
-      const toastBody = toastElement.querySelector('.toast-body');
+function showToast(message, isSuccess) {
+  const toastElement = document.getElementById('toast-message');
+  const toastBody = toastElement.querySelector('.toast-body');
+  toastBody.textContent = message;
+  if (isSuccess) {
+      toastElement.classList.remove('text-bg-danger');
+      toastElement.classList.add('text-bg-success');
+  } else {
+      toastElement.classList.remove('text-bg-success');
+      toastElement.classList.add('text-bg-danger');
+  }
+  const toast = new bootstrap.Toast(toastElement);
+  toast.show();
+}
 
-      
-      toastBody.textContent = message;
-      if (isSuccess) {
-          toastElement.classList.remove('text-bg-danger');
-          toastElement.classList.add('text-bg-success');
-      } else {
-          toastElement.classList.remove('text-bg-success');
-          toastElement.classList.add('text-bg-danger');
+function showOutOfStockToast() {
+  const toastElement = document.getElementById('toast-out-of-stock');
+  const toast = new bootstrap.Toast(toastElement);
+  toast.show();
+}
+
+function showusernotloginToast() {
+  const toastElement = document.getElementById('toast-not-login');
+  const toast = new bootstrap.Toast(toastElement);
+  toast.show();
+}
+
+function addToCart(productId) {
+  const userId = "<%= user ? user._id : '' %>"; 
+  const unitStep = <%= product.unitStep %> || 1;
+  const quantity = parseFloat(document.getElementById('quantity').value);
+
+  if (!userId) {
+      showusernotloginToast();
+      return;
+  }
+
+  // Check existing cart quantity
+  fetch(`/check-cart-quantity/${productId}`)
+    .then(response => response.json())
+    .then(data => {
+      const existingQuantity = data.quantity || 0;
+      const totalQuantity = existingQuantity + quantity;
+
+      if (totalQuantity > 5) {
+        showToast(`You already have ${existingQuantity}${product.unit || ''} of this product in cart. Cannot exceed 5 ${product.unit || ''} total.`, false);
+        return;
       }
 
-      const toast = new bootstrap.Toast(toastElement);
-      toast.show();
-    }
-
-    function showOutOfStockToast() {
-      const toastElement = document.getElementById('toast-out-of-stock');
-      const toast = new bootstrap.Toast(toastElement);
-      toast.show();
-    }
-
-    function showusernotloginToast() {
-      const toastElement = document.getElementById('toast-not-login');
-      const toast = new bootstrap.Toast(toastElement);
-      toast.show();
-    }
-
-    function addToCart(productId) {
-    const userId = "<%= user ? user._id : '' %>"; 
-    const unitStep = <%= product.unitStep %> || 1;
-    const quantity = parseFloat(document.getElementById('quantity').value);
-
-<<<<<<< HEAD
-        if (!userId) {
-            showusernotloginToast();
-            return;
-        }
-        
-        // First check existing cart quantity
-        fetch(`/check-cart-quantity/${productId}`)
-            .then(response => response.json())
-            .then(data => {
-                const existingQuantity = data.quantity || 0;
-                const totalQuantity = existingQuantity + quantity;
-
-                if (totalQuantity > 5) {
-                    showToast(`You already have ${existingQuantity}kg of this product in cart. Cannot exceed 5 kg total.`, false);
-                    return;
-                }
-=======
-    // Check if quantity exceeds the limit (max 5 or available stock)
-    if (quantity > 5) {
+      if (quantity > 5) {
         showToast('You can only add up to 5 quantities of this product to your cart.', false);
         return;
-    }
-    if (quantity < unitStep) {
+      }
+      if (quantity < unitStep) {
         showOutOfStockToast();
         return;
-    }
+      }
 
-    if (!userId) {
-        showusernotloginToast();
-        return;
-    }
-
-    fetch('/add-to-cart', {
+      // Proceed with adding to cart
+      fetch('/add-to-cart', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-            userId: userId,
-            productId: productId,
-            quantity: quantity
+          userId: userId,
+          productId: productId,
+          quantity: quantity
         })
-    })
-    .then(response => {
-        return response.json().then(data => {
-            if (!response.ok) {
-                throw new Error(data.message || 'Network response was not ok');
-            }
-            return data;
-        });
-    })
-    .then(data => {
+      })
+      .then(response => response.json())
+      .then(data => {
         if (data.success) {
-            showToast('Product added to cart successfully!', true);
+          showToast('Product added to cart successfully!', true);
         } else {
-            showToast('Failed to add product to cart: ' + data.message, false);
+          showToast('Failed to add product to cart: ' + data.message, false);
         }
-    })
-    .catch(error => {
+      })
+      .catch(error => {
         console.error('Error:', error);
         showToast('Problem: ' + error.message, false);
+      });
     });
 }
 
-    // function addToCart(productId) {
-    //     const userId = "<%= user ? user._id : '' %>"; 
-    //     const quantity = parseInt(document.getElementById('quantity').value);
-        
-    //     // Check if quantity exceeds the limit//
-    //     if (quantity > 5) {
-    //         showToast('You can only add up to 5 quantities of this product to your cart.', false);
-    //         return;
-    //     }
-    //     if (quantity == 0) {
-    //         showOutOfStockToast();
-    //         return;
-    //     }
-
-    //     if (!userId) {
-    //         showusernotloginToast();
-    //         return;
-    //     }
-
-    //     fetch('/add-to-cart', {
-    //         method: 'POST',
-    //         headers: {
-    //             'Content-Type': 'application/json',
-    //         },
-    //         body: JSON.stringify({
-    //             userId: userId,
-    //             productId: productId,
-    //             quantity: quantity
-    //         })
-    //     })
-    //     .then(response => {
-    //         return response.json().then(data => {
-    //             if (!response.ok) {
-    //                 throw new Error(data.message || 'Network response was not ok');
-    //             }
-    //             return data;
-    //         });
-    //     })
-    //     .then(data => {
-    //         if (data.success) {
-    //             showToast('Product added to cart successfully!', true);
-    //         } else {
-    //             showToast('Failed to add product to cart: ' + data.message, false);
-    //         }
-    //     })
-    //     .catch(error => {
-    //         console.error('Error:', error);
-    //         showToast('Problem: ' + error.message, false);
-    //     });
-    // }
->>>>>>> subFarm
-
-                // Proceed with adding to cart if quantity check passes
-                return fetch('/add-to-cart', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        userId: userId,
-                        productId: productId,
-                        quantity: quantity
-                    })
-                });
-            })
-            .then(response => {
-                if (!response) return; // If we returned early due to quantity check
-                return response.json().then(data => {
-                    if (!response.ok) {
-                        throw new Error(data.message || 'Network response was not ok');
-                    }
-                    return data;
-                });
-            })
-            .then(data => {
-                if (!data) return; // If we returned early due to quantity check
-                if (data.success) {
-                    showToast('Product added to cart successfully!', true);
-                } else {
-                    showToast('Failed to add product to cart: ' + data.message, false);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showToast('Problem: ' + error.message, false);
-            });
-    }
-    //zoom  ./////functionality../////
-    document.addEventListener('DOMContentLoaded', function() {
-      const zooming = new Zooming({
-        bgColor: 'white',
-        bgOpacity: 0.8,
-        scaleBase: 0.8,
-        scaleExtra: 1.2,
-        scrollThreshold: 50,
-        transitionDuration: 0.4
-      });
-
-      zooming.listen('.zoom-image');
-    });
+// Zoom functionality
+document.addEventListener('DOMContentLoaded', function() {
+  const zooming = new Zooming({
+    bgColor: 'white',
+    bgOpacity: 0.8,
+    scaleBase: 0.8,
+    scaleExtra: 1.2,
+    scrollThreshold: 50,
+    transitionDuration: 0.4
+  });
+  zooming.listen('.zoom-image');
+});
 </script>
 <script>
     // Get unit and step from backend

@@ -3,7 +3,7 @@ const dbConnect = require('./config/dbConnect');
 const app=express()
 const path=require('path')
 const session=require('express-session')
-const env=require('dotenv').config()
+// const env=require('dotenv').config()
 const authRouter=require('./routes/authRoute');
 const adminRouter=require('./routes/adminRoute')
 const passport=require('./config/passport')
@@ -15,7 +15,7 @@ const User = require('./models/userModel');
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));  // For form data//
 
-const PORT=process.env.PORT || 2000;
+const PORT = process.env.PORT || 8080;
 
 
 app.use(express.static('public'));
@@ -135,5 +135,5 @@ io.on('connection', (socket) => {
 
 
 http.listen(PORT ,()=>{
-    console.log(`server is running at ${PORT} http://localhost:4000/`)
+console.log(`Server is running at port ${PORT}`)
 })

@@ -606,9 +606,12 @@
                                 <a href="/productDetails/<%= products[i]._id %>" class="text-decoration-none">
                                     <div class="product-img-wrapper">
                                        
-                                        <img src="/uploads/product-images/<%=products[i].productImage[0]%>" 
-                                             class="product-img" 
-                                             alt="<%=products[i].productname%>">
+                            <img 
+                                src="<%= products[i].productImage[0] && products[i].productImage[0].startsWith('http') 
+                                        ? products[i].productImage[0] 
+                                        : '/uploads/product-images/' + products[i].productImage[0] %>" 
+                                class="product-img" 
+                                alt="<%= products[i].productname %>">
                                              <% if (products[i].categoryOffer > 0) { %>
                                                 <div class="offer-badge animate-offer">
                                                     <span><%= products[i].categoryOffer %>% OFF</span>

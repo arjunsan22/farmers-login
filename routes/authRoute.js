@@ -13,34 +13,22 @@ const orderController=require('../controller/user/orderController')
 const wishlistController=require('../controller/user/wishlistController')
 const walletController = require('../controller/user/walletController');
 const reviewController = require('../controller/user/reviewController');
-const upload = require('../middlewares/uploadProfile');
 const userProductController = require('../controller/user/userProductController');
 const multer=require('multer')
 const path = require('path');
 const chatController = require('../controller/user/chatControllers');
+const { upload, uploadProductImages } = require('../middlewares/uploadProfile');
 
-// List all chats for user
-router.get('/chats', chatController.getChatPage);
-
-// Start or get chat for an order
-router.get('/chat/order/:orderId', chatController.getOrCreateChat);
-
-// View a specific chat room
-router.get('/chat/:chatId', chatController.getChatById);
-
-// Post a message (AJAX)
-router.post('/chat/:chatId/message', chatController.postMessage);
-
-//multer setupp//for easy i store admin//
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, 'public/uploads/product-images');
-    },
-    filename: function (req, file, cb) {
-        cb(null, Date.now() + path.extname(file.originalname));
-    }
-});
-const uploads = multer({ storage: storage });
+// //multer setupp//for easy i store admin//
+// const storage = multer.diskStorage({
+//     destination: function (req, file, cb) {
+//         cb(null, 'public/uploads/product-images');
+//     },
+//     filename: function (req, file, cb) {
+//         cb(null, Date.now() + path.extname(file.originalname));
+//     }
+// });
+// const uploads = multer({ storage: storage });
 
 
 router.get('/pagenotfound',userController.pagenotfound)
@@ -128,7 +116,7 @@ router.post(
 // Show all products for this user
 router.get('/my-products',usermiddle.isLogout, userProductController.listProducts);
 router.get('/my-products-addPage',usermiddle.isLogout, userProductController.loadAddProductPage);
-router.post('/user-add-product', uploads.array("productImage", 4), userProductController.addProduct)
+router.post('/user-add-product', uploadProductImages.array("productImage", 4), userProductController.addProduct);
 router.post('/my-products-edit/:id', userProductController.editProduct);
 router.post('/my-products/toggle-block/:id', userProductController.toggleBlockProduct);
 router.get('/farmerorders',usermiddle.isLogout, userProductController.getFarmerOrders);

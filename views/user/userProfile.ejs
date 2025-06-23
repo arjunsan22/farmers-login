@@ -529,8 +529,13 @@
 
     <!-- end of farmer select -->
               
-                <div class="text-start profile-info">
-                    <img src="<%= user.userImage || '/images/default-profile.png' %>" alt="Profile Picture" class="img-fluid rounded-circle mb-4" style="width: 150px; height: 150px; object-fit: cover;">
+              <div class="text-start profile-info">
+    <img src="<%= user.userImage && user.userImage.startsWith('http') 
+                ? user.userImage 
+                : (user.userImage ? '/uploads/profile-images/' + user.userImage : '/images/default-profile.png') %>" 
+         alt="Profile Picture" 
+         class="img-fluid rounded-circle mb-4" 
+         style="width: 150px; height: 150px; object-fit: cover;">
                     <p><strong>First Name:</strong> <%= user.firstname %></p>
                     <p><strong>Last Name:</strong> <%= user.lastname %></p>
                     <p><strong>Email:</strong> <%= user.email %></p>

@@ -54,22 +54,12 @@ const addProduct=async (req,res) => {
         const products=req.body;
        
 
-    const images=[];
-   
-    
-    if (req.files && req.files.length > 0) {
-        for (let i = 0; i < req.files.length; i++) {
-            const originalImagePath = req.files[i].path; // input path//
-            const resizedImagePath = path.join('public/uploads/product-images', `resized-${req.files[i].filename}`); // output path//
-    
-            // resize the image and save itin a different file//
-            await sharp(originalImagePath)
-                .resize({ width: 440, height: 400 })
-                .toFile(resizedImagePath);
-    
-            images.push(`resized-${req.files[i].filename}`); // Save resized filename
-        }
+   const images = [];
+if (req.files && req.files.length > 0) {
+    for (let i = 0; i < req.files.length; i++) {
+        images.push(req.files[i].path); // Cloudinary URL
     }
+}
     
          const categoryId = await Category.findById(products.category);
         if (!categoryId) {
