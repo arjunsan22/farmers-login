@@ -3,6 +3,7 @@ const dbConnect = require('./config/dbConnect');
 const app=express()
 const path=require('path')
 const session=require('express-session')
+const MongoStore = require('connect-mongo');
 // const env=require('dotenv').config()
 const authRouter=require('./routes/authRoute');
 const adminRouter=require('./routes/adminRoute')
@@ -28,11 +29,19 @@ app.use(
     session({
       secret:process.env.SESSION_SECRET,
       resave: false,
-      saveUninitialized: true,
+      saveUninitialized: false,
+      store: MongoStore.create({
+        mongoUrl: process.env.MONGODB_URL,
+        collectionName: 'sessions',
+        ttl: 24 * 60 * 60,           // Session TTL: 24 hours (in seconds)
+        autoRemove: 'native',         // Let MongoDB auto-remove expired sessions
+        touchAfter: 3600,             // Only update session once per hour if unchanged (reduces DB writes)
+      }),
       cookie:{
-        secret:false,
+        secure: process.env.NODE_ENV === 'production',  // Use secure cookies in production (HTTPS)
         httpOnly:true,
-        maxAge:22*60*60*1000
+        maxAge: 24 * 60 * 60 * 1000,  // 24 hours (in milliseconds)
+        sameSite: 'lax',
       }
     })
   );
