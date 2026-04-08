@@ -25,22 +25,34 @@ app.use(express.static('public'));
 dbConnect();
 app.use(express.json())
 app.use(express.urlencoded({extended:false}) )
+
+// Trust Vercel's reverse proxy so secure cookies work behind HTTPS termination
+app.set('trust proxy', 1);
+
+// Create session store - use MongoDB if URL is available, otherwise fallback to memory store
+let sessionStore;
+if (process.env.MONGODB_URL) {
+  sessionStore = MongoStore.create({
+    mongoUrl: process.env.MONGODB_URL,
+    collectionName: 'sessions',
+    ttl: 24 * 60 * 60,
+    autoRemove: 'native',
+    touchAfter: 3600,
+  });
+} else {
+  console.warn('WARNING: MONGODB_URL not set, using in-memory session store');
+}
+
 app.use(
     session({
-      secret:process.env.SESSION_SECRET,
+      secret: process.env.SESSION_SECRET || 'fallback-secret',
       resave: false,
       saveUninitialized: false,
-      store: MongoStore.create({
-        mongoUrl: process.env.MONGODB_URL,
-        collectionName: 'sessions',
-        ttl: 24 * 60 * 60,           // Session TTL: 24 hours (in seconds)
-        autoRemove: 'native',         // Let MongoDB auto-remove expired sessions
-        touchAfter: 3600,             // Only update session once per hour if unchanged (reduces DB writes)
-      }),
+      ...(sessionStore && { store: sessionStore }),
       cookie:{
-        secure: process.env.NODE_ENV === 'production',  // Use secure cookies in production (HTTPS)
-        httpOnly:true,
-        maxAge: 24 * 60 * 60 * 1000,  // 24 hours (in milliseconds)
+        secure: process.env.NODE_ENV === 'production',
+        httpOnly: true,
+        maxAge: 24 * 60 * 60 * 1000,
         sameSite: 'lax',
       }
     })
